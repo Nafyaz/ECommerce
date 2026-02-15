@@ -1,0 +1,1 @@
+-- A vendor can have multiple users with varying roles and permissions
