@@ -4,9 +4,6 @@ CREATE TABLE roles
     name VARCHAR(64) NOT NULL UNIQUE
 );
 
-INSERT INTO roles (id, name)
-VALUES (1, 'Admin');
-
 CREATE TABLE users
 (
     id                       UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
