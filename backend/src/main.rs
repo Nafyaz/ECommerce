@@ -1,4 +1,4 @@
-use crate::config::AppConfig;
+use crate::config::settings::AppConfig;
 use crate::infrastructure::database::connection::create_pool;
 use tracing_subscriber;
 
@@ -10,16 +10,16 @@ mod infrastructure;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let app_config = AppConfig::load()?;
+    tracing::info!("Configuration loaded");
+
     tracing_subscriber::fmt()
         .with_env_filter("multi_vendor_ecommerce=debug,tower_http=debug")
         .init();
 
     tracing::info!("Starting multi-vendor ecommerce backend");
 
-    let config = AppConfig::default();
-    tracing::info!("Configuration loaded");
-
-    let _db_pool = create_pool(&config.database).await?;
+    let _db_pool = create_pool(&app_config.database).await?;
     tracing::info!("Database connection established");
 
     // TODO: Initialize application state
@@ -27,8 +27,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::info!(
         "Server starting on {}:{}",
-        config.server.host,
-        config.server.port
+        app_config.server.host,
+        app_config.server.port
     );
 
     Ok(())

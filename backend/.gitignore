@@ -1,7 +1,10 @@
-.idea
+.idea/
 
 /target/
 Cargo.lock
 
-.env*
+.env
+.env.*
 !.env.example
+
+src/config/local.*

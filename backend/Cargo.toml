@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+config = "0.15.19"
+
 axum = "0.8.8"
 tokio = { version = "1.49.0", features = ["full"] }
 serde = { version = "1.0.228", features = ["derive"] }
@@ -12,3 +14,7 @@ sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "postgres", "chr
 
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+
+secrecy = { version = "0.10.3", features = ["serde"] }
+thiserror = "2.0.18"
+humantime-serde = "1.1.1"
