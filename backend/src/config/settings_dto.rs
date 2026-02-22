@@ -1,19 +1,18 @@
 use crate::config::app_env::AppEnv;
 use crate::config::auth::AuthConfigDto;
 use crate::config::database::DatabaseConfigDto;
+use crate::config::server::ServerConfigDto;
 use config::{Config, ConfigError, Environment};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct SettingsDto {
-    // pub server: ServerConfig,
-    #[serde(rename(deserialize = "database"))]
-    pub database_dto: DatabaseConfigDto,
+    pub server: ServerConfigDto,
+    pub database: DatabaseConfigDto,
 
     // pub cache: CacheConfigDto,
-    #[serde(rename(deserialize = "auth"))]
-    pub auth_dto: AuthConfigDto,
+    pub auth: AuthConfigDto,
     // pub session: SessionConfig,
     // pub payment: PaymentConfig,
     // pub storage: StorageConfig,
@@ -34,10 +33,13 @@ impl SettingsDto {
                     .map_err(|e| ConfigError::Message(format!("Invalid APP_ENV: {e}")))
             })?;
 
+        let config_dir = std::env::var("CONFIG_DIR")
+            .map_err(|e| ConfigError::Message(format!("CONFIG_DIR must be set: {e}")))?;
+
         let config = Config::builder()
-            .add_source(config::File::with_name("config/base").required(true))
-            .add_source(config::File::with_name(&format!("config/{env}")).required(false))
-            .add_source(config::File::with_name("config/local").required(false))
+            .add_source(config::File::with_name(&format!("{config_dir}/base")).required(true))
+            .add_source(config::File::with_name(&format!("{config_dir}/{env}")).required(false))
+            .add_source(config::File::with_name(&format!("{config_dir}/local")).required(false))
             .add_source(
                 Environment::with_prefix("APP")
                     .separator("__")

@@ -1,13 +1,14 @@
 use crate::config::SettingsError;
 use crate::config::auth::AuthConfig;
 use crate::config::database::DatabaseConfig;
+use crate::config::server::ServerConfig;
 use crate::config::settings_dto::SettingsDto;
 
 #[derive(Debug)]
 pub struct Settings {
-    auth: AuthConfig,
+    // auth: AuthConfig,
     database: DatabaseConfig,
-    // server: ServerConfig,
+    server: ServerConfig,
     // redis: RedisConfig,
     // storage: StorageConfig,
     // payment: PaymentConfig,
@@ -28,8 +29,9 @@ impl TryFrom<SettingsDto> for Settings {
         // validate settings_dto
 
         Ok(Self {
-            auth: settings_dto.auth_dto.try_into()?,
+            // auth: settings_dto.auth_dto.try_into()?,
             database: settings_dto.database_dto.try_into()?,
+            server: settings_dto.server.try_into()?,
         })
     }
 }

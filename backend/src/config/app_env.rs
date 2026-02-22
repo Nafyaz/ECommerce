@@ -10,6 +10,7 @@ struct ParseAppEnvError(String);
 pub enum AppEnv {
     Dev,
     Test,
+    UAT,
     Stage,
     Prod,
 }
@@ -29,6 +30,7 @@ impl std::fmt::Display for AppEnv {
         match self {
             Self::Dev => write!(f, "Dev"),
             Self::Test => write!(f, "Test"),
+            Self::UAT => write!(f, "UAT"),
             Self::Stage => write!(f, "Stage"),
             Self::Prod => write!(f, "Prod"),
         }
@@ -42,6 +44,7 @@ impl FromStr for AppEnv {
         match s {
             "dev" => Ok(Self::Dev),
             "test" => Ok(Self::Test),
+            "uat" => Ok(Self::UAT),
             "stage" => Ok(Self::Stage),
             "prod" => Ok(Self::Prod),
             _ => Err(ParseAppEnvError(s.into())),

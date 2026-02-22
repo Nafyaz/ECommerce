@@ -1,5 +1,6 @@
-use crate::config::database::DatabaseConfigError;
-use crate::config::database::DatabaseConfigError::{InvalidConnectionLimits, InvalidTimeout};
+use super::DatabaseConfigError;
+use super::DatabaseConfigError::{InvalidConnectionLimits, InvalidTimeout};
+use super::read_replica_config_dto::ReadReplicaConfigDto;
 use secrecy::SecretString;
 use serde::Deserialize;
 use std::time::Duration;
@@ -30,10 +31,12 @@ pub struct DatabaseConfigDto {
 
     #[serde(with = "humantime_serde")]
     pub log_slow_statements: Duration,
+
+    pub read_replica: ReadReplicaConfigDto,
 }
 
 impl DatabaseConfigDto {
-    fn validate(&self) -> Result<(), DatabaseConfigError> {
+    pub fn validate(&self) -> Result<(), DatabaseConfigError> {
         if self.max_connections < self.min_connections {
             return Err(InvalidConnectionLimits {
                 max_connections: self.max_connections,

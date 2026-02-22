@@ -1,7 +1,5 @@
-use crate::config::auth::auth_config_error::AuthConfigError;
-use crate::config::auth::auth_config_error::AuthConfigError::{
-    InvalidTtlOrder, WeakJwtSecret, ZeroAccessTtl,
-};
+use super::AuthConfigError;
+use super::AuthConfigError::{InvalidTtlOrder, WeakJwtSecret, ZeroAccessTtl};
 use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 use std::time::Duration;
