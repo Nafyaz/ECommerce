@@ -1,7 +1,15 @@
 CREATE TABLE vendor_statuses
 (
-    id   SMALLINT PRIMARY KEY,
-    name VARCHAR(64) NOT NULL UNIQUE
+    id         SMALLINT PRIMARY KEY,
+    code       VARCHAR(16)              NOT NULL UNIQUE,
+    name       VARCHAR(64)              NOT NULL UNIQUE,
+
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    created_by UUID REFERENCES users (id),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_by UUID REFERENCES users (id),
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    deleted_by UUID REFERENCES users (id)
 );
 
 CREATE TABLE vendors
@@ -23,7 +31,8 @@ CREATE TABLE vendors
     created_by               UUID                     NOT NULL REFERENCES users (id),
     updated_at               TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_by               UUID REFERENCES users (id),
-    deleted_at               TIMESTAMP WITH TIME ZONE
+    deleted_at               TIMESTAMP WITH TIME ZONE,
+    deleted_by               UUID REFERENCES users (id)
 );
 
 CREATE INDEX idx_vendor_name ON vendors (name);
@@ -35,3 +44,25 @@ CREATE INDEX idx_vendor_active ON vendors (status_id, deleted_at) WHERE deleted_
 --     BEFORE UPDATE ON vendors
 --     FOR EACH ROW
 --     EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TABLE vendors_users_roles
+(
+    id         SMALLINT PRIMARY KEY,
+    code       VARCHAR(16)              NOT NULL UNIQUE,
+    name       VARCHAR(64)              NOT NULL UNIQUE,
+
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    created_by UUID REFERENCES users (id),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_by UUID REFERENCES users (id),
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    deleted_by UUID REFERENCES users (id)
+);
+
+CREATE TABLE vendors_users
+(
+    vendor_id UUID     NOT NULL REFERENCES vendors (id),
+    user_id   UUID     NOT NULL REFERENCES users (id),
+    role_id   SMALLINT NOT NULL REFERENCES vendors_users_roles (id),
+    PRIMARY KEY (vendor_id, user_id)
+)

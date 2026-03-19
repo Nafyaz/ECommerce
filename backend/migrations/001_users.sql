@@ -1,9 +1,3 @@
-CREATE TABLE roles
-(
-    id   SMALLINT PRIMARY KEY,
-    name VARCHAR(64) NOT NULL UNIQUE
-);
-
 CREATE TABLE users
 (
     id                       UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
@@ -20,12 +14,27 @@ CREATE TABLE users
     created_by               UUID                     NOT NULL REFERENCES users (id),
     updated_at               TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_by               UUID REFERENCES users (id),
-    deleted_at               TIMESTAMP WITH TIME ZONE
+    deleted_at               TIMESTAMP WITH TIME ZONE,
+    deleted_by               UUID REFERENCES users (id)
 );
 
 CREATE INDEX idx_user_name ON users (email);
 CREATE INDEX idx_user_created_at ON users (created_at DESC);
 CREATE INDEX idx_user_active ON users (deleted_at) WHERE deleted_at IS NULL;
+
+CREATE TABLE roles
+(
+    id         SMALLINT PRIMARY KEY,
+    code       VARCHAR(16)              NOT NULL UNIQUE,
+    name       VARCHAR(64)              NOT NULL UNIQUE,
+
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    created_by UUID REFERENCES users (id),
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_by UUID REFERENCES users (id),
+    deleted_at TIMESTAMP WITH TIME ZONE,
+    deleted_by UUID REFERENCES users (id)
+);
 
 CREATE TABLE users_roles
 (
