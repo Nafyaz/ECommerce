@@ -1,9 +1,9 @@
 mod app_env;
 mod auth;
+pub mod config;
+mod config_dto;
+mod config_error;
 mod database;
 mod server;
-pub mod settings;
-mod settings_dto;
-mod settings_error;
 
-pub use settings_error::SettingsError;
+pub use config_error::ConfigError;

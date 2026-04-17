@@ -1,15 +1,15 @@
 CREATE TABLE product_tags
 (
-    id         SMALLINT PRIMARY KEY,
-    code       VARCHAR(16)              NOT NULL UNIQUE,
-    name       VARCHAR(128)             NOT NULL,
+    id          SMALLINT PRIMARY KEY,
+    name        VARCHAR(16)              NOT NULL UNIQUE,
+    description VARCHAR(128)             NOT NULL,
 
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    created_by UUID                     NOT NULL REFERENCES users (id),
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    updated_by UUID                     NOT NULL REFERENCES users (id),
-    deleted_at TIMESTAMP WITH TIME ZONE,
-    deleted_by UUID REFERENCES users (id)
+    created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    created_by  UUID                     NOT NULL REFERENCES users (id),
+    updated_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    updated_by  UUID                     NOT NULL REFERENCES users (id),
+    deleted_at  TIMESTAMP WITH TIME ZONE,
+    deleted_by  UUID REFERENCES users (id)
 );
 
 CREATE TABLE products

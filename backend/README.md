@@ -108,11 +108,6 @@ ecommerce-backend/
 │   │   │   │   │   ├── password.rs
 │   │   │   │   │   └── user_id.rs
 │   │   │   │   │
-│   │   │   │   ├── services/      # Domain services
-│   │   │   │   │   ├── mod.rs
-│   │   │   │   │   ├── auth_service.rs
-│   │   │   │   │   └── user_service.rs
-│   │   │   │   │
 │   │   │   │   ├── events/        # Domain events
 │   │   │   │   │   ├── mod.rs
 │   │   │   │   │   ├── user_created.rs
@@ -143,11 +138,16 @@ ecommerce-backend/
 │   │   │   │   │   ├── delete_user.rs
 │   │   │   │   │   └── change_password.rs
 │   │   │   │   │
-│   │   │   │   └── queries/       # Query handlers (reads)
+│   │   │   │   │── queries/       # Query handlers (reads)
+│   │   │   │   │   ├── mod.rs
+│   │   │   │   │   ├── get_user_by_id.rs
+│   │   │   │   │   ├── get_user_by_email.rs
+│   │   │   │   │   └── list_users.rs
+│   │   │   │   │
+│   │   │   │   └── services/      # Application services
 │   │   │   │       ├── mod.rs
-│   │   │   │       ├── get_user_by_id.rs
-│   │   │   │       ├── get_user_by_email.rs
-│   │   │   │       └── list_users.rs
+│   │   │   │       ├── auth_service.rs
+│   │   │   │       └── user_service.rs
 │   │   │   │
 │   │   │   └── adapters/           # Adapters Layer (Implementations)
 │   │   │       ├── mod.rs
