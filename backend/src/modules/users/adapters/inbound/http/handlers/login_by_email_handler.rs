@@ -12,7 +12,8 @@ pub async fn handle(
     Json(payload): Json<LoginByEmailRequest>,
 ) -> Result<impl IntoResponse, AppError> {
     let command = LoginByEmailCommand::new(payload.email, payload.password)?;
-    let auth = state.command_service.login_user_by_email(command).await?;
+    let result = state.command_service.login_by_email(command).await?;
+    let response = LoginUserResponse { token: result.token };
 
-    Ok(Json(LoginUserResponse { token: auth.token }))
+    Ok((StatusCode::OK, Json(response)))
 }

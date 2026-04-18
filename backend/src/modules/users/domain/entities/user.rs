@@ -2,6 +2,7 @@ use crate::modules::users::domain::value_objects::{Email, PasswordHash, Phone, U
 use chrono::{DateTime, Utc};
 
 //TODO: Manually implement slugs and use them
+// TODO: Use name VO for empty / size validation
 pub struct User {
     id: UserId,
     name: String,

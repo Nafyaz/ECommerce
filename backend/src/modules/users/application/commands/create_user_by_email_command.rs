@@ -1,11 +1,11 @@
 use crate::modules::users::domain::errors::UserDomainError;
-use crate::modules::users::domain::value_objects::{Email, Password, PasswordHash};
+use crate::modules::users::domain::value_objects::{Email, Password};
 use secrecy::SecretString;
 
 pub struct CreateUserByEmailCommand {
-    pub name: String,
-    pub email: Email,
-    pub password: Password,
+    name: String,
+    email: Email,
+    password: Password,
 }
 
 impl CreateUserByEmailCommand {
@@ -18,5 +18,17 @@ impl CreateUserByEmailCommand {
             email,
             password,
         })
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn email(&self) -> &Email {
+        &self.email
+    }
+
+    pub fn password(&self) -> &Password {
+        &self.password
     }
 }

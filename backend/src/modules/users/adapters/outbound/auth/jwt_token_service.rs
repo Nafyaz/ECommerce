@@ -21,13 +21,12 @@ impl JwtTokenService {
 
 // TODO: Learn how JsonWebToken works under the hood
 impl TokenServicePort for JwtTokenService {
-    fn generate_token(&self, user_id: &UserId, role: &str) -> Result<String, AppError> {
+    fn generate_token(&self, user_id: &UserId) -> Result<String, AppError> {
         let now = Utc::now().timestamp() as usize;
         let exp = now + (self.expiration_hours as usize * 3600);
 
         let claims = Claims {
             sub: user_id.to_string(),
-            role: role.to_string(),
             exp,
             iat: now,
         };

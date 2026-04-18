@@ -1,4 +1,5 @@
 use crate::modules::shared::AppError;
+use crate::modules::users::application::command_results::{CreateUserResult, LoginResult};
 use crate::modules::users::application::commands::{CreateUserByEmailCommand, LoginByEmailCommand};
 use crate::modules::users::domain::entities::User;
 use crate::modules::users::domain::errors::UserDomainError;
@@ -29,28 +30,34 @@ impl UserCommandService {
 
 #[async_trait]
 impl UserCommandPort for UserCommandService {
-    async fn create_user_by_email(&self, command: CreateUserByEmailCommand) -> Result<User, AppError> {
-        if let Some(_existing) = self.user_repo.find_by_email(&command.email).await? {
+    async fn create_user_by_email(&self, command: CreateUserByEmailCommand) -> Result<CreateUserResult, AppError> {
+        if let Some(_existing) = self.user_repo.find_by_email(command.email()).await? {
             return Err(UserDomainError::UserAlreadyExists.into());
         }
 
-        let password_hash = self.password_hasher.hash_from_plain(&command.password)?;
+        let password_hash = self.password_hasher.hash_from_plain(command.password())?;
 
-        let user = User::new_by_email(command.name, command.email, password_hash);
+        let user = User::new_by_email(command.name().to_owned(), command.email().to_owned(), password_hash);
 
         self.user_repo.save(&user).await?;
 
         // TODO: Publish event
         // TODO: Add tracing
 
-        Ok(user)
+        let result = CreateUserResult {
+            id: user.id().clone(),
+            name: user.name().to_owned(),
+            created_at: user.created_at(),
+        };
+
+        Ok(result)
     }
 
     async fn create_user_by_phone(&self, user: User) -> Result<User, AppError> {
         todo!()
     }
 
-    async fn login_by_email(&self, command: LoginByEmailCommand) -> Result<User, AppError> {
+    async fn login_by_email(&self, command: LoginByEmailCommand) -> Result<LoginResult, AppError> {
         let user = self
             .user_repo
             .find_by_email(&command.email)
@@ -65,7 +72,11 @@ impl UserCommandPort for UserCommandService {
 
         let token = self.token_service.generate_token(&user.id())?;
 
-        Ok(user)
+        // TODO: Add tracing
+
+        let result = LoginResult { token };
+
+        Ok(result)
     }
 
     async fn update_user(&self, user: User) -> Result<User, AppError> {

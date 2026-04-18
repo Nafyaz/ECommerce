@@ -12,8 +12,8 @@ pub async fn handle(
     Json(payload): Json<CreateUserByEmailRequest>,
 ) -> Result<impl IntoResponse, AppError> {
     let command = CreateUserByEmailCommand::new(payload.name, payload.email, payload.password)?;
-    let user = state.command_service.create_user_by_email(command).await?;
-    let response = CreateUserResponse::from_entity(&user);
+    let result = state.command_service.create_user_by_email(command).await?;
+    let response = CreateUserResponse::from_result(result);
 
     Ok((StatusCode::CREATED, Json(response)))
 }

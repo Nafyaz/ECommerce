@@ -1,10 +1,10 @@
 use crate::modules::users::adapters::inbound::http::handlers::{create_user_by_email_handler, login_by_email_handler};
-use crate::modules::users::adapters::outbound::auth::JwtTokenService;
+use crate::modules::users::adapters::outbound::auth::{Argon2PasswordHasher, JwtTokenService};
 use crate::modules::users::adapters::outbound::persistence::PgUserRepository;
 use crate::modules::users::application::command_services::UserCommandService;
 use crate::modules::users::application::query_services::UserQueryService;
 use crate::modules::users::ports::inbound::{UserCommandPort, UserQueryPort};
-use crate::modules::users::ports::outbound::{TokenServicePort, UserRepositoryPort};
+use crate::modules::users::ports::outbound::{PasswordHasherPort, TokenServicePort, UserRepositoryPort};
 use axum::Router;
 use axum::routing::post;
 use secrecy::SecretString;
@@ -22,10 +22,15 @@ pub struct UserState {
 pub fn create_router(pool: PgPool, jwt_secret: SecretString) -> Router {
     let user_repo: Arc<dyn UserRepositoryPort> = Arc::new(PgUserRepository::new(pool.clone()));
 
+    let password_hasher: Arc<dyn PasswordHasherPort> = Arc::new(Argon2PasswordHasher);
+
     let token_service: Arc<dyn TokenServicePort> = Arc::new(JwtTokenService::new(jwt_secret.clone(), 24));
 
-    let command_service: Arc<dyn UserCommandPort> =
-        Arc::new(UserCommandService::new(user_repo.clone(), token_service.clone()));
+    let command_service: Arc<dyn UserCommandPort> = Arc::new(UserCommandService::new(
+        user_repo.clone(),
+        password_hasher,
+        token_service.clone(),
+    ));
 
     let query_service: Arc<dyn UserQueryPort> = Arc::new(UserQueryService::new(user_repo.clone()));
 

@@ -1,6 +1,6 @@
 use crate::modules::users::domain::errors::UserDomainError;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Email(String);
 
 impl Email {

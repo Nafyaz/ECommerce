@@ -4,7 +4,6 @@ use crate::modules::users::ports::outbound::PasswordHasherPort;
 use argon2::password_hash::SaltString;
 use argon2::password_hash::rand_core::OsRng;
 use argon2::{Argon2, PasswordHasher, PasswordVerifier};
-use secrecy::{ExposeSecret, SecretString};
 
 pub struct Argon2PasswordHasher;
 
