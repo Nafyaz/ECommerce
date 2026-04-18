@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 #[derive(Debug, thiserror::Error)]
 #[error("{0}")]
-struct ParseAppEnvError(String);
+pub struct ParseAppEnvError(String);
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]

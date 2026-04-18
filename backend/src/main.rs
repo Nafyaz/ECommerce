@@ -1,35 +1,38 @@
 use axum::Router;
 use backend::infrastructure::config::config::Config;
-// use backend::infrastructure::database::connection::create_pool;
+use backend::infrastructure::database::connection_pool::create_pool;
 use backend::modules::users;
+use tower_http::cors::{Any, CorsLayer};
+use tower_http::trace::TraceLayer;
 use tracing_subscriber;
+use tracing_subscriber::EnvFilter;
 
+// TODO: Analyze every possible '?', their types and how they are getting handled
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env())
+        .init();
+
+    tracing::info!("Starting multi-vendors ecommerce backend");
+
     let config = Config::load()?;
-    // tracing::info!("Configuration loaded");
-    //
-    // tracing_subscriber::fmt()
-    //     .with_env_filter("multi_vendor_ecommerce=debug,tower_http=debug")
-    //     .init();
+    tracing::info!("Configuration loaded");
 
-    // tracing::info!("Starting multi-vendors ecommerce backend");
+    let db_pool = create_pool(&config.database).await?;
+    tracing::info!("Database connection established");
 
-    // let _db_pool = create_pool(&settings.database).await?;
-    // tracing::info!("Database connection established");
+    let app = Router::new()
+        .merge(users::create_router(db_pool, config.database.url().clone()))
+        .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any))
+        .layer(TraceLayer::new_for_http());
 
-    // TODO: Initialize application (legacy) state
+    let addr = format!("{}:{}", config.server.host, config.server.port);
+    let listener = tokio::net::TcpListener::bind(&addr).await?;
 
-    // TODO: Start HTTP server
-    let app_state = backend::modules::users::adapters::http::app_state::AppState::new();
-    let app = Router::new().merge(users::adapters::http::routes::create_router(app_state));
-    tokio::net::TcpListener::bind(&config.server.host).await?;
+    tracing::info!("Server starting on {}", addr);
 
-    // tracing::info!(
-    //     "Server starting on {}:{}",
-    //     settings.server.host,
-    //     settings.server.port
-    // );
+    axum::serve(listener, app).await?;
 
     Ok(())
 }

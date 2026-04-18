@@ -42,7 +42,8 @@ impl UserCommandPort for UserCommandService {
         self.user_repo.save(&user).await?;
 
         // TODO: Publish event
-        // TODO: Add tracing
+
+        tracing::info!(user_id = %user.id(), "User registered successfully");
 
         let result = CreateUserResult {
             id: user.id().clone(),
@@ -72,7 +73,7 @@ impl UserCommandPort for UserCommandService {
 
         let token = self.token_service.generate_token(&user.id())?;
 
-        // TODO: Add tracing
+        tracing::info!(user_id = %user.id(), "User logged in successfully");
 
         let result = LoginResult { token };
 

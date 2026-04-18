@@ -22,4 +22,4 @@ port = 8080
 
 [auth]
 access_token_ttl = "900s"
-refresh_token_ttl = "604800"
+refresh_token_ttl = "604800s"

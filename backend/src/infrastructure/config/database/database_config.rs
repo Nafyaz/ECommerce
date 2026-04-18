@@ -13,6 +13,16 @@ pub struct DatabaseConfig {
     // read_replica: ReadReplicaConfig,
 }
 
+impl DatabaseConfig {
+    pub fn url(&self) -> &SecretString {
+        &self.url
+    }
+
+    pub fn max_connections(&self) -> u32 {
+        self.max_connections
+    }
+}
+
 impl TryFrom<DatabaseConfigDto> for DatabaseConfig {
     type Error = DatabaseConfigError;
 

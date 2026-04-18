@@ -42,7 +42,7 @@ pub fn create_router(pool: PgPool, jwt_secret: SecretString) -> Router {
     Router::new()
         .route("/create-user-by-email", post(create_user_by_email_handler::handle))
         // .route("/create-user-by-phone", post(create_user_by_phone_handler))
-        .route("/login", post(login_by_email_handler::handle))
+        .route("/login-by-email", post(login_by_email_handler::handle))
         // .route("/get-info", get(get_info_handler))
         .with_state(state)
 }

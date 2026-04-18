@@ -1,3 +1,3 @@
 mod shared;
-mod users;
+pub mod users;
 mod vendors;
