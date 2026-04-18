@@ -1,6 +1,6 @@
 use axum::Router;
-use backend::infrastructure::config::config::Config;
-use backend::infrastructure::database::connection_pool::create_pool;
+use backend::config::config::Config;
+use backend::infrastructure::persistence::database::connection_pool::create_pool;
 use backend::modules::users;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
