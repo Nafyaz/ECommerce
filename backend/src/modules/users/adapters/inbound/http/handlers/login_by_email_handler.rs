@@ -5,12 +5,11 @@ use crate::modules::users::application::commands::LoginByEmailCommand;
 use axum::Json;
 use axum::extract::State;
 use axum::http::StatusCode;
-use axum::response::IntoResponse;
 
 pub async fn handle(
     State(state): State<UserState>,
     Json(payload): Json<LoginByEmailRequest>,
-) -> Result<impl IntoResponse, AppError> {
+) -> Result<(StatusCode, Json<LoginUserResponse>), AppError> {
     let command = LoginByEmailCommand::new(payload.email, payload.password)?;
     let result = state.command_service.login_by_email(command).await?;
     let response = LoginUserResponse { token: result.token };
