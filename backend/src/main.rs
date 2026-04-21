@@ -1,7 +1,9 @@
 use axum::Router;
 use backend::config::config::Config;
 use backend::infrastructure::persistence::database::connection_pool::create_pool;
-use backend::modules::users;
+use backend::modules::identity;
+use backend::modules::identity::{JwtTokenService, TokenServicePort};
+use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber;
@@ -22,8 +24,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db_pool = create_pool(&config.database).await?;
     tracing::info!("Database connection established");
 
+    // TODO: expiration_hours should be taken from config
+    let token_service: Arc<dyn TokenServicePort> = Arc::new(JwtTokenService::new(config.auth.jwt_secret().clone(), 24));
+
     let app = Router::new()
-        .merge(users::create_router(db_pool, config.database.url().clone()))
+        .nest("/api/v1/identity", identity::create_router(db_pool, token_service))
         .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any))
         .layer(TraceLayer::new_for_http());
 

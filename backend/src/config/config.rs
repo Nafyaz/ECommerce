@@ -4,9 +4,10 @@ use crate::config::config_error::ConfigError;
 use crate::config::database::DatabaseConfig;
 use crate::config::server::ServerConfig;
 
+// TODO: Is this architecture a good one? Should I change dto / TryFrom?
 #[derive(Debug)]
 pub struct Config {
-    // auth: AuthConfig,
+    pub auth: AuthConfig,
     pub database: DatabaseConfig,
     pub server: ServerConfig,
     // redis: RedisConfig,
@@ -18,13 +19,13 @@ pub struct Config {
 impl TryFrom<ConfigDto> for Config {
     type Error = ConfigError;
 
-    fn try_from(settings_dto: ConfigDto) -> Result<Self, Self::Error> {
+    fn try_from(configs_dto: ConfigDto) -> Result<Self, Self::Error> {
         // validate settings_dto
 
         Ok(Self {
-            // auth: settings.auth_dto.try_into()?,
-            database: settings_dto.database.try_into()?,
-            server: settings_dto.server.try_into()?,
+            auth: configs_dto.auth.try_into()?,
+            database: configs_dto.database.try_into()?,
+            server: configs_dto.server.try_into()?,
         })
     }
 }

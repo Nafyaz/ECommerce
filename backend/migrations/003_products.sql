@@ -46,4 +46,4 @@ CREATE TABLE product_images
 
 CREATE INDEX idx_product_name ON products (name);
 CREATE INDEX idx_product_created_at ON products (created_at DESC);
--- CREATE INDEX idx_product_active ON products (deleted_at) WHERE deleted_at IS NULL;
+-- CREATE INDEX idx_product_active ON catalog (deleted_at) WHERE deleted_at IS NULL;

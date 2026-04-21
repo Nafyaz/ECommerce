@@ -12,7 +12,6 @@ pub struct ConfigDto {
     pub server: ServerConfigDto,
     pub auth: AuthConfigDto,
     // pub cache: CacheConfigDto,
-    // pub session: SessionConfig,
     // pub payments: PaymentConfig,
     // pub storage: StorageConfig,
     // pub email: EmailConfig,

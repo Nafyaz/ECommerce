@@ -1,2 +1,2 @@
-mod error;
-pub use error::AppError;
+mod errors;
+pub use errors::AppError;

@@ -42,7 +42,7 @@ CREATE INDEX idx_vendor_owner ON vendors (owner_id);
 -- CREATE TABLE vendors__users
 -- (
 --     vendor_id UUID     NOT NULL REFERENCES vendors (id),
---     user_id   UUID     NOT NULL REFERENCES users (id),
+--     user_id   UUID     NOT NULL REFERENCES identity (id),
 --     role_id   SMALLINT NOT NULL REFERENCES vendors_users_roles (id),
 --     PRIMARY KEY (vendor_id, user_id)
 -- )

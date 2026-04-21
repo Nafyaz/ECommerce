@@ -14,7 +14,7 @@ CREATE TABLE users
 
 CREATE INDEX idx_user_email ON users (email);
 CREATE INDEX idx_user_phone ON users (phone);
--- CREATE INDEX idx_user_active ON users (deleted_at) WHERE deleted_at IS NULL;
+-- CREATE INDEX idx_user_active ON identity (deleted_at) WHERE deleted_at IS NULL;
 
 CREATE TABLE user_roles
 (
