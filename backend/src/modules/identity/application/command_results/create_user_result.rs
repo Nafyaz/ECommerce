@@ -1,8 +1,8 @@
-use crate::modules::identity::domain::value_objects::UserId;
 use chrono::{DateTime, Utc};
+use uuid::Uuid;
 
 pub struct CreateUserResult {
-    pub id: UserId,
+    pub id: Uuid,
     pub name: String,
     pub created_at: DateTime<Utc>,
 }

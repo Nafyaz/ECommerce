@@ -1,8 +1,10 @@
 use axum::Router;
+use axum::http::StatusCode;
 use backend::config::config::Config;
 use backend::infrastructure::persistence::database::connection_pool::create_pool;
-use backend::modules::identity;
 use backend::modules::identity::{JwtTokenService, TokenServicePort};
+use backend::modules::{identity, vendors};
+use secrecy::ExposeSecret;
 use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
@@ -28,7 +30,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let token_service: Arc<dyn TokenServicePort> = Arc::new(JwtTokenService::new(config.auth.jwt_secret().clone(), 24));
 
     let app = Router::new()
-        .nest("/api/v1/identity", identity::create_router(db_pool, token_service))
+        .nest(
+            "/api/v1/identity",
+            identity::create_router(db_pool.clone(), token_service.clone()),
+        )
+        .nest(
+            "/api/v1/vendor",
+            vendors::create_router(db_pool.clone(), token_service.clone()),
+        )
+        .fallback(|| async { (StatusCode::NOT_FOUND, "Not found") })
         .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any).allow_headers(Any))
         .layer(TraceLayer::new_for_http());
 

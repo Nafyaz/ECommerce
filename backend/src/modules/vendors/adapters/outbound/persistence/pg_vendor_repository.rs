@@ -1,4 +1,5 @@
 use crate::modules::shared::AppError;
+use crate::modules::vendors::adapters::outbound::persistence::mapper::VendorRow;
 use crate::modules::vendors::domain::entities::Vendor;
 use crate::modules::vendors::domain::value_objects::VendorId;
 use crate::modules::vendors::ports::outbound::VendorRepositoryPort;
@@ -17,7 +18,24 @@ impl PgVendorRepository {
 
 #[async_trait]
 impl VendorRepositoryPort for PgVendorRepository {
-    async fn save(&self, vendor: &Vendor) -> Result<(), AppError> {}
+    async fn save(&self, vendor: &Vendor) -> Result<(), AppError> {
+        let row = VendorRow::from_entity(vendor);
+
+        sqlx::query(
+            "INSERT INTO vendors \
+            (id, name, owner_id, created_at, updated_at) \
+            VALUES (&1, &2, &3, &4, &5)",
+        )
+        .bind(row.id)
+        .bind(&row.name)
+        .bind(row.owner_id)
+        .bind(row.created_at)
+        .bind(row.updated_at)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
 
     async fn find_by_id(&self, id: VendorId) -> Result<Option<Vendor>, AppError> {
         todo!()

@@ -1,5 +1,5 @@
-use crate::modules::vendors::domain::value_objects::VendorId;
+use uuid::Uuid;
 
 pub struct CreateVendorResult {
-    vendor_id: VendorId,
+    pub id: Uuid,
 }

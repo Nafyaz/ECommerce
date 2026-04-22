@@ -13,7 +13,7 @@ pub struct CreateUserResponse {
 impl CreateUserResponse {
     pub fn from_result(result: CreateUserResult) -> Self {
         Self {
-            id: result.id.as_uuid().to_owned(),
+            id: result.id.to_owned(),
             name: result.name,
             created_at: result.created_at,
         }

@@ -2,7 +2,6 @@ use crate::modules::vendors::domain::value_objects::{OwnerId, VendorId, VendorNa
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
-// TODO: Use name VO for validations
 pub struct Vendor {
     id: VendorId,
     name: VendorName,
@@ -13,7 +12,7 @@ pub struct Vendor {
 }
 
 impl Vendor {
-    fn new(name: VendorName, owner_id: OwnerId) -> Self {
+    pub fn new(name: VendorName, owner_id: OwnerId) -> Self {
         let now = Utc::now();
         Self {
             id: VendorId::new(),

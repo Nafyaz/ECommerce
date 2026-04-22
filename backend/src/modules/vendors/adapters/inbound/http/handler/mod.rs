@@ -1,1 +1,1 @@
-mod create_vendor;
+pub mod create_vendor;

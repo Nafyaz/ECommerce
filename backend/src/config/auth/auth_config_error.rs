@@ -13,6 +13,6 @@ pub enum AuthConfigError {
         refresh_token_ttl: Duration,
     },
 
-    #[error("jwt token must be at least 32 characters, got {0}")]
+    #[error("jwt secret must be at least 32 characters, got {0}")]
     WeakJwtSecret(usize),
 }

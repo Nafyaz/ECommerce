@@ -2,7 +2,7 @@ use crate::modules::vendors::domain::value_objects::VendorName;
 use crate::modules::vendors::errors::VendorDomainError;
 
 pub struct CreateVendorCommand {
-    name: VendorName,
+    pub name: VendorName,
 }
 
 impl CreateVendorCommand {

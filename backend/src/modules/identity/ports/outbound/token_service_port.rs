@@ -1,11 +1,11 @@
-use serde::{Deserialize, Serialize};
-
 use crate::modules::identity::domain::value_objects::UserId;
 use crate::modules::shared::AppError;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
-    pub subject: String,
+    pub subject: Uuid,
     pub expiration: usize,
     pub issued_at: usize,
 }

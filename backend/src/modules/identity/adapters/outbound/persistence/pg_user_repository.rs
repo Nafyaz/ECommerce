@@ -24,13 +24,21 @@ impl UserRepositoryPort for PgUserRepository {
         let row = UserRow::from_entity(user);
 
         sqlx::query(
-            "INSERT INTO identity (id, name, email, email_verified_at, phone, phone_verified_at, password_hash, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+            "INSERT INTO users \
+            (id, name, email, email_verified_at, phone, phone_verified_at, password_hash, created_at, updated_at) \
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
         )
-            .bind(row.id).bind(&row.name).bind(&row.email).bind(&row.email_verified_at)
-            .bind(&row.phone).bind(&row.phone_verified_at).bind(&row.password_hash)
-            .bind(row.created_at).bind(row.updated_at)
-            .execute(&self.pool)
-            .await?;
+        .bind(row.id)
+        .bind(&row.name)
+        .bind(&row.email)
+        .bind(&row.email_verified_at)
+        .bind(&row.phone)
+        .bind(&row.phone_verified_at)
+        .bind(&row.password_hash)
+        .bind(row.created_at)
+        .bind(row.updated_at)
+        .execute(&self.pool)
+        .await?;
 
         Ok(())
     }
@@ -41,7 +49,10 @@ impl UserRepositoryPort for PgUserRepository {
 
     async fn find_by_email(&self, email: &Email) -> Result<Option<User>, AppError> {
         let email = email.as_str();
-        let row = sqlx::query_as::<_, UserRow> ("SELECT id, name, email, email_verified_at, phone, phone_verified_at, password_hash, created_at, updated_at FROM identity WHERE email = $1")
+        let row = sqlx::query_as::<_, UserRow> (
+            "SELECT id, name, email, email_verified_at, phone, phone_verified_at, password_hash, created_at, updated_at \
+            FROM users \
+            WHERE email = $1")
             .bind(email).fetch_optional(&self.pool).await?;
 
         Ok(row.map(UserRow::into_entity))

@@ -46,7 +46,7 @@ impl UserCommandPort for UserCommandService {
         tracing::info!(user_id = %user.id(), "User registered successfully");
 
         let result = CreateUserResult {
-            id: user.id().clone(),
+            id: user.id().as_uuid().to_owned(),
             name: user.name().to_owned(),
             created_at: user.created_at(),
         };

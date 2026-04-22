@@ -1,2 +1,3 @@
+mod dtos;
 mod handler;
-mod router;
+pub mod router;

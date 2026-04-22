@@ -22,6 +22,6 @@ impl VendorRow {
     }
 
     pub fn into_entity(self) -> Vendor {
-        Vendor::reconstitute(id: self.id)
+        Vendor::reconstitute(self.id, self.name, self.owner_id, self.created_at, self.updated_at)
     }
 }
