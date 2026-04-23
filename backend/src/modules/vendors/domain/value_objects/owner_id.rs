@@ -17,12 +17,6 @@ impl OwnerId {
     }
 }
 
-impl Default for OwnerId {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl std::fmt::Display for OwnerId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)

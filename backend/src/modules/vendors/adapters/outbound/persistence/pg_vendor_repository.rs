@@ -24,7 +24,7 @@ impl VendorRepositoryPort for PgVendorRepository {
         sqlx::query(
             "INSERT INTO vendors \
             (id, name, owner_id, created_at, updated_at) \
-            VALUES (&1, &2, &3, &4, &5)",
+            VALUES ($1, $2, $3, $4, $5)",
         )
         .bind(row.id)
         .bind(&row.name)

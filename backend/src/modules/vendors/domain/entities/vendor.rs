@@ -32,7 +32,7 @@ impl Vendor {
     ) -> Self {
         Self {
             id: VendorId::from_uuid(id),
-            name: VendorName::from_trusted(name),
+            name: VendorName::from_str(name),
             owner_id: OwnerId::from_uuid(owner_id),
             created_at,
             updated_at,

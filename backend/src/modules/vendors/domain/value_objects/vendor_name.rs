@@ -22,7 +22,7 @@ impl VendorName {
         Ok(Self(name))
     }
 
-    pub fn from_trusted(value: String) -> Self {
+    pub fn from_str(value: String) -> Self {
         Self(value)
     }
 

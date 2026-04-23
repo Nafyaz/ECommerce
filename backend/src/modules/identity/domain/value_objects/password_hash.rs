@@ -1,11 +1,8 @@
-use crate::modules::identity::errors::UserDomainError;
-use secrecy::{ExposeSecret, SecretString};
-
 #[derive(Debug, Clone)]
 pub struct PasswordHash(String);
 
 impl PasswordHash {
-    pub fn from_hash(hash: String) -> Self {
+    pub fn from_str(hash: String) -> Self {
         Self(hash)
     }
 

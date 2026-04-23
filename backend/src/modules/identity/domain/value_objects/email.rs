@@ -30,16 +30,12 @@ impl Email {
         Ok(Self(email))
     }
 
-    pub fn from_trusted(value: String) -> Self {
+    pub fn from_str(value: String) -> Self {
         Self(value)
     }
 
     pub fn as_str(&self) -> &str {
         &self.0
-    }
-
-    pub fn into_inner(self) -> String {
-        self.0
     }
 }
 

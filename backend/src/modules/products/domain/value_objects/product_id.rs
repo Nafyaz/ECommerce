@@ -1,9 +1,10 @@
+use std::fmt;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct UserId(Uuid);
+pub struct ProductId(Uuid);
 
-impl UserId {
+impl ProductId {
     pub fn new() -> Self {
         Self(Uuid::now_v7())
     }
@@ -17,8 +18,8 @@ impl UserId {
     }
 }
 
-impl std::fmt::Display for UserId {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for ProductId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }

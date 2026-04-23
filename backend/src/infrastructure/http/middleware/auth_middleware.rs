@@ -22,11 +22,15 @@ pub async fn auth_middleware(
         .get(AUTHORIZATION)
         .ok_or(UserDomainError::MissingToken)?;
 
-    let token = auth_header.to_str().map_err(|_| UserDomainError::InvalidToken)?;
+    let auth_header = auth_header.to_str().map_err(|_| UserDomainError::InvalidToken)?;
+
+    let token = auth_header
+        .strip_prefix("Bearer ")
+        .ok_or(UserDomainError::InvalidToken)?;
 
     let claim = state.token_service.validate_token(token)?;
 
-    let current_user = CurrentUser { id: claim.subject };
+    let current_user = CurrentUser { id: claim.sub };
 
     request.extensions_mut().insert(current_user);
 

@@ -5,9 +5,8 @@ use uuid::Uuid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claims {
-    pub subject: Uuid,
-    pub expiration: usize,
-    pub issued_at: usize,
+    pub sub: Uuid,
+    pub exp: usize,
 }
 
 pub trait TokenServicePort: Send + Sync {

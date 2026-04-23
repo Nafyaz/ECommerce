@@ -16,7 +16,7 @@ impl PasswordHasherPort for Argon2PasswordHasher {
             .hash_password(password.expose().as_bytes(), &salt)
             .map_err(|e| AppError::Internal(format!("Password hashing failed: {}", e)))?;
 
-        Ok(PasswordHash::from_hash(hash.to_string()))
+        Ok(PasswordHash::from_str(hash.to_string()))
     }
 
     fn verify(&self, hash: &PasswordHash, plain_candidate: &Password) -> Result<bool, AppError> {

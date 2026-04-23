@@ -17,12 +17,6 @@ impl VendorId {
     }
 }
 
-impl Default for VendorId {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl std::fmt::Display for VendorId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)

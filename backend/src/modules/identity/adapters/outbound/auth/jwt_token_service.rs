@@ -26,9 +26,8 @@ impl TokenServicePort for JwtTokenService {
         let expiration = now + (self.expiration_hours as usize * 3600);
 
         let claims = Claims {
-            subject: user_id.as_uuid().to_owned(),
-            expiration,
-            issued_at: now,
+            sub: user_id.as_uuid().to_owned(),
+            exp: expiration,
         };
 
         let token = encode(

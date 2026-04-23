@@ -55,11 +55,11 @@ impl User {
         Self {
             id: UserId::from_uuid(id),
             name,
-            email: email.map(Email::from_trusted),
+            email: email.map(Email::from_str),
             email_verified_at,
-            phone: phone.map(Phone::from_trusted),
+            phone: phone.map(Phone::from_str),
             phone_verified_at,
-            password_hash: PasswordHash::from_hash(password_hash),
+            password_hash: PasswordHash::from_str(password_hash),
             created_at,
             updated_at,
         }

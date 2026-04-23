@@ -3,9 +3,9 @@ CREATE TABLE users
 (
     id                UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
     name              VARCHAR(128)             NOT NULL,
-    email             VARCHAR(254),
+    email             VARCHAR(254) UNIQUE,
     email_verified_at TIMESTAMP WITH TIME ZONE,
-    phone             VARCHAR(32),
+    phone             VARCHAR(32) UNIQUE,
     phone_verified_at TIMESTAMP WITH TIME ZONE,
     password_hash     VARCHAR(255),
 
