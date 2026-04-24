@@ -1,7 +1,8 @@
+use crate::modules::identity::IdentityDomainError;
 use crate::modules::identity::domain::entities::User;
+use crate::modules::identity::domain::value_objects::UserId;
 use crate::modules::identity::ports::inbound::UserQueryPort;
 use crate::modules::identity::ports::outbound::UserRepositoryPort;
-use crate::modules::shared::AppError;
 use async_trait::async_trait;
 use std::sync::Arc;
 
@@ -17,7 +18,7 @@ impl UserQueryService {
 
 #[async_trait]
 impl UserQueryPort for UserQueryService {
-    async fn get_user_by_id(&self, user_id: &str) -> Result<User, AppError> {
+    async fn get_user_by_id(&self, user_id: UserId) -> Result<User, IdentityDomainError> {
         todo!()
     }
 }

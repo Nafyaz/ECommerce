@@ -27,18 +27,6 @@ pub enum AppError {
     Forbidden(String),
 }
 
-impl From<sqlx::Error> for AppError {
-    fn from(err: sqlx::Error) -> Self {
-        match err {
-            sqlx::Error::RowNotFound => AppError::NotFound("Requested record was not found".to_string()),
-            _ => {
-                tracing::error!("Database error: {:?}", err);
-                AppError::Internal("An internal database error occurred".to_string())
-            }
-        }
-    }
-}
-
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let (status, code) = match &self {

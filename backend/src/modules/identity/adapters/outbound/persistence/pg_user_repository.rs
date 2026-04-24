@@ -1,11 +1,11 @@
+use crate::modules::identity::IdentityDomainError;
 use crate::modules::identity::adapters::outbound::persistence::UserRow;
 use crate::modules::identity::domain::entities::User;
-use crate::modules::identity::domain::value_objects::{Email, Phone};
+use crate::modules::identity::domain::value_objects::{Email, Phone, UserId};
 use crate::modules::identity::ports::outbound::UserRepositoryPort;
 use crate::modules::shared::AppError;
 use async_trait::async_trait;
 use sqlx::PgPool;
-use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct PgUserRepository {
@@ -20,7 +20,7 @@ impl PgUserRepository {
 
 #[async_trait]
 impl UserRepositoryPort for PgUserRepository {
-    async fn save(&self, user: &User) -> Result<(), AppError> {
+    async fn save(&self, user: &User) -> Result<(), IdentityDomainError> {
         let row = UserRow::from_entity(user);
 
         sqlx::query(
@@ -43,11 +43,11 @@ impl UserRepositoryPort for PgUserRepository {
         Ok(())
     }
 
-    async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, AppError> {
+    async fn find_by_id(&self, id: &UserId) -> Result<Option<User>, IdentityDomainError> {
         todo!()
     }
 
-    async fn find_by_email(&self, email: &Email) -> Result<Option<User>, AppError> {
+    async fn find_by_email(&self, email: &Email) -> Result<Option<User>, IdentityDomainError> {
         let email = email.as_str();
         let row = sqlx::query_as::<_, UserRow> (
             "SELECT id, name, email, email_verified_at, phone, phone_verified_at, password_hash, created_at, updated_at \
@@ -58,19 +58,19 @@ impl UserRepositoryPort for PgUserRepository {
         Ok(row.map(UserRow::into_entity))
     }
 
-    async fn find_by_phone(&self, phone: &Phone) -> Result<Option<User>, AppError> {
+    async fn find_by_phone(&self, phone: &Phone) -> Result<Option<User>, IdentityDomainError> {
         todo!()
     }
 
-    async fn find_all(&self) -> Result<Vec<User>, AppError> {
+    async fn find_all(&self) -> Result<Vec<User>, IdentityDomainError> {
         todo!()
     }
 
-    async fn find_by_role(&self, role: &str) -> Result<Vec<User>, AppError> {
+    async fn find_by_role(&self, role: &str) -> Result<Vec<User>, IdentityDomainError> {
         todo!()
     }
 
-    async fn delete(&self, id: Uuid) -> Result<(), AppError> {
+    async fn delete(&self, id: &UserId) -> Result<(), IdentityDomainError> {
         todo!()
     }
 }

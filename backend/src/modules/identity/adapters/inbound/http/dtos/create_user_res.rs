@@ -13,9 +13,9 @@ pub struct CreateUserResponse {
 impl CreateUserResponse {
     pub fn from_result(result: CreateUserResult) -> Self {
         Self {
-            id: result.id.to_owned(),
-            name: result.name,
-            created_at: result.created_at,
+            id: result.id().to_owned(),
+            name: result.name().to_owned(),
+            created_at: result.created_at().to_owned(),
         }
     }
 }

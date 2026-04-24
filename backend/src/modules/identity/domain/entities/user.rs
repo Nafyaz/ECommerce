@@ -1,12 +1,12 @@
-use crate::modules::identity::domain::value_objects::{Email, PasswordHash, Phone, UserId};
+use crate::modules::identity::IdentityDomainError;
+use crate::modules::identity::domain::value_objects::{Email, PasswordHash, Phone, UserId, UserName};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
 //TODO: Manually implement slugs and use them
-// TODO: Use name VO for empty / size validation
 pub struct User {
     id: UserId,
-    name: String,
+    name: UserName,
     email: Option<Email>,
     email_verified_at: Option<DateTime<Utc>>,
     phone: Option<Phone>,
@@ -18,9 +18,15 @@ pub struct User {
 }
 
 impl User {
-    fn new(name: String, email: Option<Email>, phone: Option<Phone>, password_hash: PasswordHash) -> Self {
+    fn new(
+        name: UserName,
+        email: Option<Email>,
+        phone: Option<Phone>,
+        password_hash: PasswordHash,
+    ) -> Result<Self, IdentityDomainError> {
         let now = Utc::now();
-        Self {
+
+        Ok(Self {
             id: UserId::new(),
             name,
             email,
@@ -30,17 +36,26 @@ impl User {
             password_hash,
             created_at: now,
             updated_at: now,
-        }
+        })
     }
 
-    pub fn new_by_email(name: String, email: Email, password_hash: PasswordHash) -> Self {
+    pub fn new_by_email(
+        name: UserName,
+        email: Email,
+        password_hash: PasswordHash,
+    ) -> Result<Self, IdentityDomainError> {
         Self::new(name, Some(email), None, password_hash)
     }
 
-    pub fn new_by_phone(name: String, phone: Phone, password_hash: PasswordHash) -> Self {
+    pub fn new_by_phone(
+        name: UserName,
+        phone: Phone,
+        password_hash: PasswordHash,
+    ) -> Result<Self, IdentityDomainError> {
         Self::new(name, None, Some(phone), password_hash)
     }
 
+    // TODO: Should it be TryFrom / FromStr + Result?
     pub fn reconstitute(
         id: Uuid,
         name: String,
@@ -54,7 +69,7 @@ impl User {
     ) -> Self {
         Self {
             id: UserId::from_uuid(id),
-            name,
+            name: UserName::from_str(name),
             email: email.map(Email::from_str),
             email_verified_at,
             phone: phone.map(Phone::from_str),
@@ -69,7 +84,7 @@ impl User {
         &self.id
     }
 
-    pub fn name(&self) -> &str {
+    pub fn name(&self) -> &UserName {
         &self.name
     }
 

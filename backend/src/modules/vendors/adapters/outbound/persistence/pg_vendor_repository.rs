@@ -2,6 +2,7 @@ use crate::modules::shared::AppError;
 use crate::modules::vendors::adapters::outbound::persistence::mapper::VendorRow;
 use crate::modules::vendors::domain::entities::Vendor;
 use crate::modules::vendors::domain::value_objects::VendorId;
+use crate::modules::vendors::errors::VendorDomainError;
 use crate::modules::vendors::ports::outbound::VendorRepositoryPort;
 use async_trait::async_trait;
 use sqlx::PgPool;
@@ -18,7 +19,7 @@ impl PgVendorRepository {
 
 #[async_trait]
 impl VendorRepositoryPort for PgVendorRepository {
-    async fn save(&self, vendor: &Vendor) -> Result<(), AppError> {
+    async fn save(&self, vendor: &Vendor) -> Result<(), VendorDomainError> {
         let row = VendorRow::from_entity(vendor);
 
         sqlx::query(
@@ -37,15 +38,15 @@ impl VendorRepositoryPort for PgVendorRepository {
         Ok(())
     }
 
-    async fn find_by_id(&self, id: VendorId) -> Result<Option<Vendor>, AppError> {
+    async fn find_by_id(&self, id: VendorId) -> Result<Option<Vendor>, VendorDomainError> {
         todo!()
     }
 
-    async fn find_all(&self) -> Result<Vec<Vendor>, AppError> {
+    async fn find_all(&self) -> Result<Vec<Vendor>, VendorDomainError> {
         todo!()
     }
 
-    async fn delete(&self, id: VendorId) -> Result<(), AppError> {
+    async fn delete(&self, id: VendorId) -> Result<(), VendorDomainError> {
         todo!()
     }
 }

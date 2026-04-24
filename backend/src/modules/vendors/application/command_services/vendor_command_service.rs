@@ -1,8 +1,8 @@
-use crate::modules::shared::AppError;
 use crate::modules::vendors::application::command_results::CreateVendorResult;
 use crate::modules::vendors::application::commands::CreateVendorCommand;
 use crate::modules::vendors::domain::entities::Vendor;
 use crate::modules::vendors::domain::value_objects::OwnerId;
+use crate::modules::vendors::errors::VendorDomainError;
 use crate::modules::vendors::ports::inbound::VendorCommandPort;
 use crate::modules::vendors::ports::outbound::VendorRepositoryPort;
 use async_trait::async_trait;
@@ -23,8 +23,8 @@ impl VendorCommandPort for VendorCommandService {
         &self,
         command: CreateVendorCommand,
         owner_id: OwnerId,
-    ) -> Result<CreateVendorResult, AppError> {
-        let vendor = Vendor::new(command.name, owner_id);
+    ) -> Result<CreateVendorResult, VendorDomainError> {
+        let vendor = Vendor::new(command.name, owner_id)?;
         self.vendor_repo.save(&vendor).await?;
         Ok(CreateVendorResult {
             id: vendor.id().as_uuid().to_owned(),

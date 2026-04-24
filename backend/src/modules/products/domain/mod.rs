@@ -1,2 +1,2 @@
-mod entities;
-mod value_objects;
+pub mod entities;
+pub mod value_objects;

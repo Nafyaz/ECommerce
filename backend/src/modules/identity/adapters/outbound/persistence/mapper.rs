@@ -1,5 +1,4 @@
 use crate::modules::identity::domain::entities::User;
-use crate::modules::identity::domain::value_objects::{Email, PasswordHash, Phone, UserId};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
@@ -20,7 +19,7 @@ impl UserRow {
     pub fn from_entity(user: &User) -> Self {
         Self {
             id: user.id().as_uuid().to_owned(),
-            name: user.name().to_owned(),
+            name: user.name().as_str().to_owned(),
             email: user.email().map(|email| email.as_str().to_owned()),
             email_verified_at: user.email_verified_at(),
             phone: user.phone().map(|phone| phone.as_str().to_owned()),

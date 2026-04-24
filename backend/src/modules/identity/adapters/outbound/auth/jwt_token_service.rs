@@ -1,29 +1,28 @@
+use crate::modules::identity::IdentityDomainError;
 use crate::modules::identity::domain::value_objects::UserId;
-use crate::modules::identity::ports::outbound::{Claims, TokenServicePort};
+use crate::modules::identity::ports::outbound::{Claims, TokenServiceError, TokenServicePort};
 use crate::modules::shared::AppError;
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use secrecy::{ExposeSecret, SecretString};
+use std::time::Duration;
 
 pub struct JwtTokenService {
     secret: SecretString,
-    expiration_hours: u64,
+    duration: Duration,
 }
 
 impl JwtTokenService {
-    pub fn new(secret: SecretString, expiration_hours: u64) -> Self {
-        Self {
-            secret,
-            expiration_hours,
-        }
+    pub fn new(secret: SecretString, duration: Duration) -> Self {
+        Self { secret, duration }
     }
 }
 
 // TODO: Learn how JsonWebToken works under the hood
 impl TokenServicePort for JwtTokenService {
-    fn generate_token(&self, user_id: &UserId) -> Result<String, AppError> {
-        let now = Utc::now().timestamp() as usize;
-        let expiration = now + (self.expiration_hours as usize * 3600);
+    fn generate_token(&self, user_id: &UserId) -> Result<String, TokenServiceError> {
+        let now = Utc::now();
+        let expiration = now + self.duration;
 
         let claims = Claims {
             sub: user_id.as_uuid().to_owned(),
@@ -35,18 +34,18 @@ impl TokenServicePort for JwtTokenService {
             &claims,
             &EncodingKey::from_secret(self.secret.expose_secret().as_bytes()),
         )
-        .map_err(|e| AppError::Internal(format!("Token generation failed: {}", e)))?;
+        .map_err(|_| TokenServiceError::FailedGeneration)?;
 
         Ok(token)
     }
 
-    fn validate_token(&self, token: &str) -> Result<Claims, AppError> {
+    fn validate_token(&self, token: &str) -> Result<Claims, TokenServiceError> {
         let token_data = decode::<Claims>(
             token,
             &DecodingKey::from_secret(self.secret.expose_secret().as_bytes()),
             &Validation::default(),
         )
-        .map_err(|e| AppError::Unauthorized(format!("Invalid token: {}", e)))?;
+        .map_err(|e| TokenServiceError::InvalidToken)?;
 
         Ok(token_data.claims)
     }

@@ -26,8 +26,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db_pool = create_pool(&config.database).await?;
     tracing::info!("Database connection established");
 
-    // TODO: expiration_hours should be taken from config
-    let token_service: Arc<dyn TokenServicePort> = Arc::new(JwtTokenService::new(config.auth.jwt_secret().clone(), 24));
+    // TODO: Add refresh token capabilities
+    let token_service: Arc<dyn TokenServicePort> = Arc::new(JwtTokenService::new(
+        config.auth.jwt_secret().clone(),
+        config.auth.access_token_ttl(),
+    ));
 
     let app = Router::new()
         .nest(

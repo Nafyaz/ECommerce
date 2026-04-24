@@ -1,4 +1,5 @@
 use crate::modules::vendors::domain::value_objects::{OwnerId, VendorId, VendorName};
+use crate::modules::vendors::errors::VendorDomainError;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
@@ -12,15 +13,15 @@ pub struct Vendor {
 }
 
 impl Vendor {
-    pub fn new(name: VendorName, owner_id: OwnerId) -> Self {
+    pub fn new(name: VendorName, owner_id: OwnerId) -> Result<Self, VendorDomainError> {
         let now = Utc::now();
-        Self {
+        Ok(Self {
             id: VendorId::new(),
             name,
             owner_id,
             created_at: now,
             updated_at: now,
-        }
+        })
     }
 
     pub fn reconstitute(

@@ -2,7 +2,7 @@ use crate::modules::shared::AppError;
 use thiserror::Error;
 
 #[derive(Error, Debug, Clone)]
-pub enum UserDomainError {
+pub enum IdentityDomainError {
     #[error("Invalid name: {0}")]
     InvalidName(String),
 
@@ -15,14 +15,11 @@ pub enum UserDomainError {
     #[error("Weak password: {0}")]
     WeakPassword(String),
 
+    #[error("Internal error: {0}")]
+    InternalError(String),
+
     #[error("Invalid credentials")]
     InvalidCredentials,
-
-    #[error("Missing authentication token")]
-    MissingToken,
-
-    #[error("Invalid authentication token")]
-    InvalidToken,
 
     #[error("User already exists")]
     UserAlreadyExists,
@@ -31,18 +28,29 @@ pub enum UserDomainError {
     UserNotFound,
 }
 
-impl From<UserDomainError> for AppError {
-    fn from(error: UserDomainError) -> Self {
+impl From<sqlx::Error> for IdentityDomainError {
+    fn from(err: sqlx::Error) -> Self {
+        match err {
+            sqlx::Error::RowNotFound => IdentityDomainError::UserNotFound,
+            _ => {
+                tracing::error!("Database error: {:?}", err);
+                IdentityDomainError::InternalError("An internal database error occurred".to_string())
+            }
+        }
+    }
+}
+
+impl From<IdentityDomainError> for AppError {
+    fn from(error: IdentityDomainError) -> Self {
         match error {
-            UserDomainError::InvalidName(msg) => AppError::Validation(msg),
-            UserDomainError::InvalidEmail(msg) => AppError::Validation(msg),
-            UserDomainError::InvalidPhone(msg) => AppError::Validation(msg),
-            UserDomainError::WeakPassword(msg) => AppError::Validation(msg),
-            UserDomainError::InvalidCredentials => AppError::Unauthorized("Invalid email or password".into()),
-            UserDomainError::MissingToken => AppError::Unauthorized("Missing authentication token".into()),
-            UserDomainError::InvalidToken => AppError::Unauthorized("Invalid authentication token".into()),
-            UserDomainError::UserNotFound => AppError::NotFound("User not found".into()),
-            UserDomainError::UserAlreadyExists => AppError::Conflict("User already exists with this email".into()),
+            IdentityDomainError::InvalidName(msg) => AppError::Validation(msg),
+            IdentityDomainError::InvalidEmail(msg) => AppError::Validation(msg),
+            IdentityDomainError::InvalidPhone(msg) => AppError::Validation(msg),
+            IdentityDomainError::WeakPassword(msg) => AppError::Validation(msg),
+            IdentityDomainError::InternalError(msg) => AppError::Internal(msg),
+            IdentityDomainError::InvalidCredentials => AppError::Unauthorized("Invalid email or password".into()),
+            IdentityDomainError::UserNotFound => AppError::NotFound("User not found".into()),
+            IdentityDomainError::UserAlreadyExists => AppError::Conflict("User already exists with this email".into()),
         }
     }
 }

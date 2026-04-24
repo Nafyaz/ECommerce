@@ -7,8 +7,8 @@ use crate::modules::identity::application::command_services::UserCommandService;
 use crate::modules::identity::application::query_services::UserQueryService;
 use crate::modules::identity::ports::inbound::{UserCommandPort, UserQueryPort};
 use crate::modules::identity::ports::outbound::{PasswordHasherPort, TokenServicePort, UserRepositoryPort};
+use axum::Router;
 use axum::routing::post;
-use axum::{Router, middleware};
 use sqlx::PgPool;
 use std::sync::Arc;
 

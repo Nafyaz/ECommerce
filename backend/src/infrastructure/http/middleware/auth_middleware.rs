@@ -1,5 +1,5 @@
 use crate::infrastructure::http::dtos::CurrentUser;
-use crate::modules::identity::{TokenServicePort, UserDomainError};
+use crate::modules::identity::{IdentityDomainError, TokenServiceError, TokenServicePort};
 use crate::modules::shared::AppError;
 use axum::extract::{Request, State};
 use axum::http::header::AUTHORIZATION;
@@ -20,15 +20,20 @@ pub async fn auth_middleware(
     let auth_header = request
         .headers()
         .get(AUTHORIZATION)
-        .ok_or(UserDomainError::MissingToken)?;
+        .ok_or(IdentityDomainError::from(TokenServiceError::MissingToken))?;
 
-    let auth_header = auth_header.to_str().map_err(|_| UserDomainError::InvalidToken)?;
+    let auth_header = auth_header
+        .to_str()
+        .map_err(|_| IdentityDomainError::from(TokenServiceError::InvalidToken))?;
 
     let token = auth_header
         .strip_prefix("Bearer ")
-        .ok_or(UserDomainError::InvalidToken)?;
+        .ok_or(IdentityDomainError::from(TokenServiceError::InvalidToken))?;
 
-    let claim = state.token_service.validate_token(token)?;
+    let claim = state
+        .token_service
+        .validate_token(token)
+        .map_err(|_| IdentityDomainError::from(TokenServiceError::InvalidToken))?;
 
     let current_user = CurrentUser { id: claim.sub };
 

@@ -1,12 +1,11 @@
-use crate::modules::identity::errors::UserDomainError;
+use crate::modules::identity::IdentityDomainError;
 use secrecy::{ExposeSecret, SecretString};
-
-const MIN_PASSWORD_LENGTH: usize = 8;
 
 pub struct Password(SecretString);
 
 impl Password {
-    pub fn new(plain: SecretString) -> Result<Self, UserDomainError> {
+    const MIN_PASSWORD_LENGTH: usize = 8;
+    pub fn new(plain: SecretString) -> Result<Self, IdentityDomainError> {
         let plain_str = plain.expose_secret();
 
         Self::validate_strength(plain_str)?;
@@ -18,10 +17,11 @@ impl Password {
         self.0.expose_secret()
     }
 
-    fn validate_strength(plain: &str) -> Result<(), UserDomainError> {
-        if plain.len() < MIN_PASSWORD_LENGTH {
-            return Err(UserDomainError::WeakPassword(format!(
-                "Password must be at least {MIN_PASSWORD_LENGTH} characters",
+    fn validate_strength(plain: &str) -> Result<(), IdentityDomainError> {
+        if plain.len() < Self::MIN_PASSWORD_LENGTH {
+            return Err(IdentityDomainError::WeakPassword(format!(
+                "Password must be at least {} characters",
+                Self::MIN_PASSWORD_LENGTH
             )));
         }
 
@@ -30,7 +30,7 @@ impl Password {
         let has_digit = plain.chars().any(|c| c.is_ascii_digit());
 
         if !has_uppercase || !has_lowercase || !has_digit {
-            return Err(UserDomainError::WeakPassword(
+            return Err(IdentityDomainError::WeakPassword(
                 "Password must contain uppercase, lowercase, and a digit".to_string(),
             ));
         }

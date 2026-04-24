@@ -1,14 +1,15 @@
-use crate::modules::identity::errors::UserDomainError;
+use crate::modules::identity::errors::IdentityDomainError;
+use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Phone(String);
 
 impl Phone {
     // TODO: Implement proper phone no validation
-    pub fn new(phone: impl Into<String>) -> Result<Self, UserDomainError> {
+    pub fn new(phone: impl Into<String>) -> Result<Self, IdentityDomainError> {
         let phone = phone.into();
         if phone.is_empty() {
-            return Err(UserDomainError::InvalidPhone("Phone cannot be empty".into()));
+            return Err(IdentityDomainError::InvalidPhone("Phone cannot be empty".into()));
         }
         Ok(Self(phone))
     }
@@ -19,5 +20,11 @@ impl Phone {
 
     pub fn as_str(&self) -> &str {
         &self.0
+    }
+}
+
+impl fmt::Display for Phone {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }

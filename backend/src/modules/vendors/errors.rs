@@ -1,7 +1,7 @@
+use crate::modules::identity::IdentityDomainError;
 use crate::modules::shared::AppError;
 use thiserror::Error;
 
-// TODO: Should names be unique?
 #[derive(Error, Debug)]
 pub enum VendorDomainError {
     #[error("Invalid name: {0}")]
@@ -9,6 +9,21 @@ pub enum VendorDomainError {
 
     #[error("Vendor not found")]
     VendorNotFound,
+
+    #[error("Internal error: {0}")]
+    InternalError(String),
+}
+
+impl From<sqlx::Error> for VendorDomainError {
+    fn from(err: sqlx::Error) -> Self {
+        match err {
+            sqlx::Error::RowNotFound => VendorDomainError::VendorNotFound,
+            _ => {
+                tracing::error!("Database error: {:?}", err);
+                VendorDomainError::InternalError("An internal database error occurred".to_string())
+            }
+        }
+    }
 }
 
 impl From<VendorDomainError> for AppError {
@@ -16,6 +31,7 @@ impl From<VendorDomainError> for AppError {
         match error {
             VendorDomainError::InvalidName(name) => AppError::Validation(format!("Invalid name: {}", name)),
             VendorDomainError::VendorNotFound => AppError::NotFound("Vendor not found".into()),
+            VendorDomainError::InternalError(msg) => AppError::Internal(msg),
         }
     }
 }
