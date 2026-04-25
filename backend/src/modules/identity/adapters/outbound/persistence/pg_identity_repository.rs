@@ -25,7 +25,7 @@ impl IdentityRepositoryPort for PgIdentityRepository {
         sqlx::query(
             "INSERT INTO identities \
             (id, email, email_verified_at, password_hash, created_at, updated_at) \
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+            VALUES ($1, $2, $3, $4, $5, $6)",
         )
         .bind(row.id)
         .bind(&row.email)
