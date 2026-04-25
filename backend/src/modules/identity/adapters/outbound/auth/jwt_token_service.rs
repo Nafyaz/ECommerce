@@ -1,5 +1,5 @@
 use crate::modules::identity::IdentityDomainError;
-use crate::modules::identity::domain::value_objects::UserId;
+use crate::modules::identity::domain::value_objects::IdentityId;
 use crate::modules::identity::ports::outbound::{Claims, TokenServiceError, TokenServicePort};
 use crate::modules::shared::AppError;
 use chrono::Utc;
@@ -20,7 +20,7 @@ impl JwtTokenService {
 
 // TODO: Learn how JsonWebToken works under the hood
 impl TokenServicePort for JwtTokenService {
-    fn generate_token(&self, user_id: &UserId) -> Result<String, TokenServiceError> {
+    fn generate_token(&self, user_id: &IdentityId) -> Result<String, TokenServiceError> {
         let now = Utc::now();
         let expiration = now + self.duration;
 

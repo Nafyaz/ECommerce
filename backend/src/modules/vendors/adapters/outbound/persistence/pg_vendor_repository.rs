@@ -1,4 +1,3 @@
-use crate::modules::shared::AppError;
 use crate::modules::vendors::adapters::outbound::persistence::mapper::VendorRow;
 use crate::modules::vendors::domain::entities::Vendor;
 use crate::modules::vendors::domain::value_objects::VendorId;
@@ -39,7 +38,14 @@ impl VendorRepositoryPort for PgVendorRepository {
     }
 
     async fn find_by_id(&self, id: VendorId) -> Result<Option<Vendor>, VendorDomainError> {
-        todo!()
+        let row = sqlx::query_as::<_, VendorRow>(
+            "SELECT id, name, owner_id, created_at, updated_at FROM vendors WHERE id = $1",
+        )
+        .bind(id.as_uuid().to_owned())
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(row.map(VendorRow::into_entity))
     }
 
     async fn find_all(&self) -> Result<Vec<Vendor>, VendorDomainError> {

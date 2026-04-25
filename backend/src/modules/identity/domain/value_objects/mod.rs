@@ -1,13 +1,9 @@
 mod email;
+mod identity_id;
 mod password;
 mod password_hash;
-mod phone;
-mod user_id;
-mod user_name;
 
 pub use email::Email;
+pub use identity_id::IdentityId;
 pub use password::Password;
 pub use password_hash::PasswordHash;
-pub use phone::Phone;
-pub use user_id::UserId;
-pub use user_name::UserName;

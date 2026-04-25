@@ -1,3 +1,3 @@
-mod user_command_service;
+mod identity_command_service;
 
-pub use user_command_service::UserCommandService;
+pub use identity_command_service::IdentityCommandService;

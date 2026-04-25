@@ -1,47 +1,42 @@
-use crate::modules::identity::adapters::inbound::http::handlers::{
-    create_user_by_email_handler, login_by_email_handler,
-};
+use crate::modules::identity::adapters::inbound::http::handlers::{login_handler, register_handler};
 use crate::modules::identity::adapters::outbound::auth::Argon2PasswordHasher;
-use crate::modules::identity::adapters::outbound::persistence::PgUserRepository;
-use crate::modules::identity::application::command_services::UserCommandService;
-use crate::modules::identity::application::query_services::UserQueryService;
-use crate::modules::identity::ports::inbound::{UserCommandPort, UserQueryPort};
-use crate::modules::identity::ports::outbound::{PasswordHasherPort, TokenServicePort, UserRepositoryPort};
+use crate::modules::identity::adapters::outbound::persistence::PgIdentityRepository;
+use crate::modules::identity::application::command_services::IdentityCommandService;
+use crate::modules::identity::ports::inbound::IdentityCommandPort;
+use crate::modules::identity::ports::outbound::{IdentityRepositoryPort, PasswordHasherPort, TokenServicePort};
 use axum::Router;
 use axum::routing::post;
 use sqlx::PgPool;
 use std::sync::Arc;
 
-// TODO: should UserState be defined in router, or in port / application / root directory of identity module?
+// TODO: should IdentityState be defined in router, or in port / application / root directory of identity module?
 #[derive(Clone)]
-pub struct UserState {
-    pub command_service: Arc<dyn UserCommandPort>,
-    pub query_service: Arc<dyn UserQueryPort>,
+pub struct IdentityState {
+    pub command_service: Arc<dyn IdentityCommandPort>,
+    // pub query_service: Arc<dyn IdentityQueryPort>,
 }
 
 pub fn create_router(pool: PgPool, token_service: Arc<dyn TokenServicePort>) -> Router {
-    let user_repo: Arc<dyn UserRepositoryPort> = Arc::new(PgUserRepository::new(pool.clone()));
+    let identity_repo: Arc<dyn IdentityRepositoryPort> = Arc::new(PgIdentityRepository::new(pool.clone()));
 
     let password_hasher: Arc<dyn PasswordHasherPort> = Arc::new(Argon2PasswordHasher);
 
-    let command_service: Arc<dyn UserCommandPort> = Arc::new(UserCommandService::new(
-        user_repo.clone(),
+    let command_service: Arc<dyn IdentityCommandPort> = Arc::new(IdentityCommandService::new(
+        identity_repo.clone(),
         password_hasher,
         token_service.clone(),
     ));
 
-    let query_service: Arc<dyn UserQueryPort> = Arc::new(UserQueryService::new(user_repo.clone()));
+    // let query_service: Arc<dyn IdentityQueryPort> = Arc::new(IdentityQueryService::new(identity_repo.clone()));
 
-    let state = UserState {
+    let state = IdentityState {
         command_service,
-        query_service,
+        // query_service,
     };
 
-    // TODO: Should I make separate endpoints or unified for create user by email / phone??
     let public_router = Router::new()
-        .route("/create-user-by-email", post(create_user_by_email_handler::handle))
-        // .route("/create-user-by-phone", post(create_user_by_phone_handler))
-        .route("/login-by-email", post(login_by_email_handler::handle));
+        .route("/register", post(register_handler::handle))
+        .route("/login", post(login_handler::handle));
 
     Router::new().merge(public_router).with_state(state)
 }

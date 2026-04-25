@@ -1,5 +1,5 @@
 mod mapper;
-mod pg_user_repository;
+mod pg_identity_repository;
 
-pub use mapper::UserRow;
-pub use pg_user_repository::PgUserRepository;
+pub use mapper::IdentityRow;
+pub use pg_identity_repository::PgIdentityRepository;

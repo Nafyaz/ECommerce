@@ -1,6 +1,7 @@
-use crate::modules::products::domain::value_objects::{ProductId, ProductName, VendorId};
+use crate::modules::products::domain::value_objects::{ProductId, ProductName};
 use crate::modules::products::errors::ProductDomainError;
 use crate::modules::shared::Money;
+use crate::modules::vendors::VendorId;
 use chrono::{DateTime, Utc};
 
 pub struct Product {

@@ -1,4 +1,4 @@
-use crate::infrastructure::http::dtos::CurrentUser;
+use crate::infrastructure::http::dtos::CurrentIdentity;
 use crate::modules::identity::{IdentityDomainError, TokenServiceError, TokenServicePort};
 use crate::modules::shared::AppError;
 use axum::extract::{Request, State};
@@ -35,9 +35,9 @@ pub async fn auth_middleware(
         .validate_token(token)
         .map_err(|_| IdentityDomainError::from(TokenServiceError::InvalidToken))?;
 
-    let current_user = CurrentUser { id: claim.sub };
+    let current_identity = CurrentIdentity { id: claim.sub };
 
-    request.extensions_mut().insert(current_user);
+    request.extensions_mut().insert(current_identity);
 
     let response = next.run(request).await;
 

@@ -1,5 +1,4 @@
-mod user_command_port;
-mod user_query_port;
+mod identity_command_port;
+mod identity_query_port;
 
-pub use user_command_port::UserCommandPort;
-pub use user_query_port::UserQueryPort;
+pub use identity_command_port::IdentityCommandPort;

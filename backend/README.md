@@ -17,6 +17,8 @@ Modules:
 - shared
 - cart
 
+Roles Table is for platform-wide permissions.
+
 # Multi-Vendor E-Commerce Backend - Rust/Axum
 
 ## Architecture Overview

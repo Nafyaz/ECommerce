@@ -1,6 +1,5 @@
-mod create_user_by_email_command;
-mod create_user_by_phone_command;
-mod login_by_email_command;
+mod login_command;
+mod register_command;
 
-pub use create_user_by_email_command::CreateUserByEmailCommand;
-pub use login_by_email_command::LoginByEmailCommand;
+pub use login_command::LoginCommand;
+pub use register_command::RegisterCommand;

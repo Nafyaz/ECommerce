@@ -1,7 +1,9 @@
 use crate::modules::vendors::domain::entities::Vendor;
 use chrono::{DateTime, Utc};
+use sqlx::FromRow;
 use uuid::Uuid;
 
+#[derive(FromRow)]
 pub struct VendorRow {
     pub id: Uuid,
     pub name: String,

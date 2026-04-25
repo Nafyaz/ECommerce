@@ -1,3 +1,3 @@
-mod current_user;
+mod current_identity;
 
-pub use current_user::CurrentUser;
+pub use current_identity::CurrentIdentity;

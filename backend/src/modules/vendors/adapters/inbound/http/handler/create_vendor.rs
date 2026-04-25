@@ -1,4 +1,4 @@
-use crate::infrastructure::http::dtos::CurrentUser;
+use crate::infrastructure::http::dtos::CurrentIdentity;
 use crate::modules::shared::AppError;
 use crate::modules::vendors::adapters::inbound::http::dtos::{CreateVendorRequest, CreateVendorResponse};
 use crate::modules::vendors::adapters::inbound::http::router::VendorState;
@@ -10,10 +10,11 @@ use axum::{Extension, Json};
 
 pub async fn handle(
     State(state): State<VendorState>,
-    Extension(current_user): Extension<CurrentUser>,
+    Extension(current_identity): Extension<CurrentIdentity>,
     Json(payload): Json<CreateVendorRequest>,
 ) -> Result<(StatusCode, Json<CreateVendorResponse>), AppError> {
-    let owner_id = OwnerId::from_uuid(current_user.id);
+    // TODO: owner_id should come from user module
+    let owner_id = OwnerId::from_uuid(current_identity.id);
     let command = CreateVendorCommand::new(payload.name)?;
     let result = state.command_service.create_vendor(command, owner_id).await?;
     let response = CreateVendorResponse::from_result(result);

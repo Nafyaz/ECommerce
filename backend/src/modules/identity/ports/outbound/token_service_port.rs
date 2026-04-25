@@ -1,5 +1,5 @@
 use crate::modules::identity::IdentityDomainError;
-use crate::modules::identity::domain::value_objects::UserId;
+use crate::modules::identity::domain::value_objects::IdentityId;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -12,7 +12,7 @@ pub struct Claims {
 }
 
 pub trait TokenServicePort: Send + Sync {
-    fn generate_token(&self, user_id: &UserId) -> Result<String, TokenServiceError>;
+    fn generate_token(&self, user_id: &IdentityId) -> Result<String, TokenServiceError>;
     fn validate_token(&self, token: &str) -> Result<Claims, TokenServiceError>;
 }
 

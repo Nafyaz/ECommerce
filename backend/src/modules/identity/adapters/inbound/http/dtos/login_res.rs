@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 #[derive(Serialize)]
-pub struct LoginUserResponse {
+pub struct LoginResponse {
     pub token: String,
 }

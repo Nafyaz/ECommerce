@@ -1,2 +1,2 @@
-mod user;
-pub use user::User;
+mod identity;
+pub use identity::Identity;

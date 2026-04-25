@@ -1,6 +1,7 @@
 use crate::infrastructure::http::middleware::AuthState;
 use crate::infrastructure::http::middleware::auth_middleware::auth_middleware;
 use crate::modules::identity::TokenServicePort;
+use crate::modules::users::ports::inbound::user_query_port::UserQueryPort;
 use crate::modules::vendors::adapters::inbound::http::handler::create_vendor;
 use crate::modules::vendors::adapters::outbound::persistence::PgVendorRepository;
 use crate::modules::vendors::application::command_services::VendorCommandService;
@@ -15,6 +16,7 @@ use std::sync::Arc;
 pub struct VendorState {
     pub command_service: Arc<dyn VendorCommandPort>,
     // pub query_service: Arc<dyn VendorQueryPort>,
+    pub user_query_service: Arc<dyn UserQueryPort>,
 }
 
 pub fn create_router(pool: PgPool, token_service: Arc<dyn TokenServicePort>) -> Router {

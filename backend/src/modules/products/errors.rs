@@ -1,3 +1,5 @@
+use crate::modules::shared::AppError;
+use crate::modules::vendors::errors::VendorDomainError;
 use thiserror::Error;
 
 #[derive(Error, Debug, Clone)]
@@ -7,4 +9,49 @@ pub enum ProductDomainError {
 
     #[error("Invalid price: {0}")]
     InvalidPrice(String),
+
+    #[error("Vendor not found")]
+    VendorNotFound,
+
+    #[error("You do not have access to this vendor")]
+    VendorOwnershipMismatch,
+
+    #[error("Internal error: {0}")]
+    InternalError(String),
+}
+
+impl From<VendorDomainError> for ProductDomainError {
+    fn from(error: VendorDomainError) -> Self {
+        match error {
+            VendorDomainError::VendorNotFound => ProductDomainError::VendorNotFound,
+            VendorDomainError::InternalError(message) => ProductDomainError::InternalError(message),
+            VendorDomainError::InvalidName(message) => ProductDomainError::InternalError(message),
+        }
+    }
+}
+
+impl From<sqlx::Error> for ProductDomainError {
+    fn from(err: sqlx::Error) -> Self {
+        match err {
+            sqlx::Error::RowNotFound => ProductDomainError::VendorNotFound,
+            _ => {
+                tracing::error!("Database error: {:?}", err);
+                ProductDomainError::InternalError("An internal database error occurred".to_string())
+            }
+        }
+    }
+}
+
+impl From<ProductDomainError> for AppError {
+    fn from(error: ProductDomainError) -> Self {
+        match error {
+            ProductDomainError::InvalidProductName(message) => AppError::Validation(message),
+            ProductDomainError::InvalidPrice(message) => AppError::Validation(message),
+            ProductDomainError::VendorNotFound => AppError::NotFound("Vendor not found".into()),
+            ProductDomainError::VendorOwnershipMismatch => {
+                AppError::Forbidden("You do not have access to this vendor".into())
+            }
+            ProductDomainError::InternalError(message) => AppError::Internal(message),
+        }
+    }
 }
