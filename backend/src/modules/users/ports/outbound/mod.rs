@@ -1,1 +1,3 @@
-pub use crate::modules::users::ports::inbound::user_query_port::UserQueryPort;
+mod user_repository_port;
+
+pub use user_repository_port::UserRepositoryPort;

@@ -1,4 +1,3 @@
-use crate::modules::shared::AppError;
 use crate::modules::vendors::domain::entities::Vendor;
 use crate::modules::vendors::domain::value_objects::VendorId;
 use crate::modules::vendors::errors::VendorDomainError;

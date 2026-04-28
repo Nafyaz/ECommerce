@@ -13,7 +13,7 @@ impl UserId {
         Self(uuid)
     }
 
-    pub fn into_uuid(self) -> Uuid {
+    pub fn as_uuid(&self) -> Uuid {
         self.0
     }
 }

@@ -1,5 +1,5 @@
 mod app_env;
-mod auth;
+pub mod auth;
 pub mod config;
 mod config_dto;
 mod config_error;

@@ -1,4 +1,4 @@
-use crate::modules::identity::IdentityDomainError;
+use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{Password, PasswordHash};
 use thiserror::Error;
 
@@ -15,11 +15,11 @@ pub enum PasswordHasherError {
     FailedVerification(String),
 }
 
-impl From<PasswordHasherError> for IdentityDomainError {
+impl From<PasswordHasherError> for IdentityError {
     fn from(error: PasswordHasherError) -> Self {
         match error {
-            PasswordHasherError::FailedHashing(msg) => IdentityDomainError::InternalError(msg),
-            PasswordHasherError::FailedVerification(msg) => IdentityDomainError::InvalidCredentials,
+            PasswordHasherError::FailedHashing(msg) => IdentityError::InternalError(msg),
+            PasswordHasherError::FailedVerification(msg) => IdentityError::InvalidCredentials,
         }
     }
 }

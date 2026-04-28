@@ -1,7 +1,5 @@
-use crate::modules::identity::IdentityDomainError;
 use crate::modules::identity::domain::value_objects::IdentityId;
 use crate::modules::identity::ports::outbound::{Claims, TokenServiceError, TokenServicePort};
-use crate::modules::shared::AppError;
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use secrecy::{ExposeSecret, SecretString};

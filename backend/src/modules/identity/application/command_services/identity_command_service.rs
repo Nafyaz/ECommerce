@@ -1,4 +1,4 @@
-use crate::modules::identity::IdentityDomainError;
+use crate::modules::identity::IdentityError;
 use crate::modules::identity::application::command_results::{LoginResult, RegisterResult};
 use crate::modules::identity::application::commands::{LoginCommand, RegisterCommand};
 use crate::modules::identity::domain::entities::Identity;
@@ -29,9 +29,9 @@ impl IdentityCommandService {
 
 #[async_trait]
 impl IdentityCommandPort for IdentityCommandService {
-    async fn register(&self, command: RegisterCommand) -> Result<RegisterResult, IdentityDomainError> {
+    async fn register(&self, command: RegisterCommand) -> Result<RegisterResult, IdentityError> {
         if let Some(_existing) = self.identity_repo.find_by_email(command.email()).await? {
-            return Err(IdentityDomainError::IdentityAlreadyExists.into());
+            return Err(IdentityError::IdentityAlreadyExists.into());
         }
 
         let password_hash = self.password_hasher.hash_from_plain(command.password())?;
@@ -41,25 +41,26 @@ impl IdentityCommandPort for IdentityCommandService {
         self.identity_repo.save(&identity).await?;
 
         // TODO: Publish event
+        // TODO: Send email OTP
 
-        tracing::info!(user_id = %identity.id(), "User registered successfully");
+        tracing::info!(identity_id = %identity.id(), "Identity saved successfully");
 
         let result = RegisterResult::new(identity.id().as_uuid().to_owned(), identity.created_at());
 
         Ok(result)
     }
 
-    async fn login(&self, command: LoginCommand) -> Result<LoginResult, IdentityDomainError> {
+    async fn login(&self, command: LoginCommand) -> Result<LoginResult, IdentityError> {
         let user = self
             .identity_repo
             .find_by_email(command.email())
             .await?
-            .ok_or(IdentityDomainError::InvalidCredentials)?;
+            .ok_or(IdentityError::InvalidCredentials)?;
 
         let is_valid = self.password_hasher.verify(&user.password_hash(), command.password())?;
 
         if !is_valid {
-            return Err(IdentityDomainError::InvalidCredentials.into());
+            return Err(IdentityError::InvalidCredentials.into());
         }
 
         let token = self.token_service.generate_token(&user.id())?;

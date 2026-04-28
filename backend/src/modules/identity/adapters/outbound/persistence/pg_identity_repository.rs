@@ -1,4 +1,4 @@
-use crate::modules::identity::IdentityDomainError;
+use crate::modules::identity::IdentityError;
 use crate::modules::identity::adapters::outbound::persistence::IdentityRow;
 use crate::modules::identity::domain::entities::Identity;
 use crate::modules::identity::domain::value_objects::{Email, IdentityId};
@@ -19,7 +19,7 @@ impl PgIdentityRepository {
 
 #[async_trait]
 impl IdentityRepositoryPort for PgIdentityRepository {
-    async fn save(&self, identity: &Identity) -> Result<(), IdentityDomainError> {
+    async fn save(&self, identity: &Identity) -> Result<(), IdentityError> {
         let row = IdentityRow::from_entity(identity);
 
         sqlx::query(
@@ -27,23 +27,23 @@ impl IdentityRepositoryPort for PgIdentityRepository {
             (id, email, email_verified_at, password_hash, created_at, updated_at) \
             VALUES ($1, $2, $3, $4, $5, $6)",
         )
-        .bind(row.id)
-        .bind(&row.email)
-        .bind(&row.email_verified_at)
-        .bind(&row.password_hash)
-        .bind(row.created_at)
-        .bind(row.updated_at)
+        .bind(row.id())
+        .bind(&row.email())
+        .bind(&row.email_verified_at())
+        .bind(&row.password_hash())
+        .bind(row.created_at())
+        .bind(row.updated_at())
         .execute(&self.pool)
         .await?;
 
         Ok(())
     }
 
-    async fn find_by_id(&self, id: &IdentityId) -> Result<Option<Identity>, IdentityDomainError> {
+    async fn find_by_id(&self, id: &IdentityId) -> Result<Option<Identity>, IdentityError> {
         todo!()
     }
 
-    async fn find_by_email(&self, email: &Email) -> Result<Option<Identity>, IdentityDomainError> {
+    async fn find_by_email(&self, email: &Email) -> Result<Option<Identity>, IdentityError> {
         let email = email.as_str();
         let row = sqlx::query_as::<_, IdentityRow>(
             "SELECT id, email, email_verified_at, password_hash, created_at, updated_at \
@@ -57,15 +57,15 @@ impl IdentityRepositoryPort for PgIdentityRepository {
         Ok(row.map(IdentityRow::into_entity))
     }
 
-    async fn find_all(&self) -> Result<Vec<Identity>, IdentityDomainError> {
+    async fn find_all(&self) -> Result<Vec<Identity>, IdentityError> {
         todo!()
     }
 
-    async fn find_by_role(&self, role: &str) -> Result<Vec<Identity>, IdentityDomainError> {
+    async fn find_by_role(&self, role: &str) -> Result<Vec<Identity>, IdentityError> {
         todo!()
     }
 
-    async fn delete(&self, id: &IdentityId) -> Result<(), IdentityDomainError> {
+    async fn delete(&self, id: &IdentityId) -> Result<(), IdentityError> {
         todo!()
     }
 }

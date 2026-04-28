@@ -1,4 +1,4 @@
-use crate::modules::identity::IdentityDomainError;
+use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::IdentityId;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -26,14 +26,12 @@ pub enum TokenServiceError {
     InvalidToken,
 }
 
-impl From<TokenServiceError> for IdentityDomainError {
+impl From<TokenServiceError> for IdentityError {
     fn from(error: TokenServiceError) -> Self {
         match error {
-            TokenServiceError::FailedGeneration => {
-                IdentityDomainError::InternalError("Failed to generate token".to_string())
-            }
-            TokenServiceError::MissingToken => IdentityDomainError::InvalidCredentials,
-            TokenServiceError::InvalidToken => IdentityDomainError::InvalidCredentials,
+            TokenServiceError::FailedGeneration => IdentityError::InternalError("Failed to generate token".to_string()),
+            TokenServiceError::MissingToken => IdentityError::InvalidCredentials,
+            TokenServiceError::InvalidToken => IdentityError::InvalidCredentials,
         }
     }
 }

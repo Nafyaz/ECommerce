@@ -1,4 +1,4 @@
-use crate::modules::identity::IdentityDomainError;
+use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{Email, IdentityId, PasswordHash};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
@@ -14,7 +14,7 @@ pub struct Identity {
 }
 
 impl Identity {
-    pub fn new(email: Email, password_hash: PasswordHash) -> Result<Self, IdentityDomainError> {
+    pub fn new(email: Email, password_hash: PasswordHash) -> Result<Self, IdentityError> {
         let now = Utc::now();
 
         Ok(Self {

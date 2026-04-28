@@ -1,5 +1,5 @@
+use crate::modules::identity::adapters::inbound::http::IdentityState;
 use crate::modules::identity::adapters::inbound::http::dtos::{RegisterRequest, RegisterResponse};
-use crate::modules::identity::adapters::inbound::http::router::IdentityState;
 use crate::modules::identity::application::commands::RegisterCommand;
 use crate::modules::shared::AppError;
 use axum::Json;
