@@ -1,6 +1,5 @@
 use crate::modules::identity::IdentityState;
 use axum::extract::FromRef;
-use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AppState {
