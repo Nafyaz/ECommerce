@@ -3,12 +3,16 @@ use crate::modules::identity::application::command_results::{LoginResult, Regist
 use crate::modules::identity::application::commands::{LoginCommand, RegisterCommand};
 use crate::modules::identity::domain::entities::Identity;
 use crate::modules::identity::ports::inbound::IdentityCommandPort;
-use crate::modules::identity::ports::outbound::{IdentityRepositoryPort, PasswordHasherPort, TokenServicePort};
+use crate::modules::identity::ports::outbound::{
+    IdentityRepositoryPort, NotificationPort, OtpServicePort, PasswordHasherPort, TokenServicePort,
+};
 use async_trait::async_trait;
 use std::sync::Arc;
 
 pub struct IdentityCommandService {
     identity_repo: Arc<dyn IdentityRepositoryPort>,
+    notification_service: Arc<dyn NotificationPort>,
+    otp_service: Arc<dyn OtpServicePort>,
     password_hasher: Arc<dyn PasswordHasherPort>,
     token_service: Arc<dyn TokenServicePort>,
 }
@@ -16,11 +20,15 @@ pub struct IdentityCommandService {
 impl IdentityCommandService {
     pub fn new(
         identity_repo: Arc<dyn IdentityRepositoryPort>,
+        notification_service: Arc<dyn NotificationPort>,
+        otp_service: Arc<dyn OtpServicePort>,
         password_hasher: Arc<dyn PasswordHasherPort>,
         token_service: Arc<dyn TokenServicePort>,
     ) -> Self {
         Self {
             identity_repo,
+            notification_service,
+            otp_service,
             password_hasher,
             token_service,
         }
@@ -41,7 +49,10 @@ impl IdentityCommandPort for IdentityCommandService {
         self.identity_repo.save(&identity).await?;
 
         // TODO: Publish event
-        // TODO: Send email OTP
+        let otp = self.otp_service.generate_otp(&identity)?;
+        self.notification_service
+            .send_email_verification_otp(&command.email(), &otp)
+            .await?;
 
         tracing::info!(identity_id = %identity.id(), "Identity saved successfully");
 

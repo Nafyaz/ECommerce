@@ -10,6 +10,7 @@ where
 {
     let public_router = Router::new()
         .route("/register", post(register_handler::handle))
+        .route("/verify-otp", post(verify_otp_handler::handle))
         .route("/login", post(login_handler::handle));
 
     Router::new().merge(public_router)

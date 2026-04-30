@@ -1,5 +1,5 @@
-use crate::modules::identity::domain::value_objects::IdentityId;
-use crate::modules::identity::ports::outbound::{Claims, TokenServiceError, TokenServicePort};
+use crate::modules::identity::domain::value_objects::{Claim, IdentityId};
+use crate::modules::identity::ports::outbound::{TokenServiceError, TokenServicePort};
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use secrecy::{ExposeSecret, SecretString};
@@ -22,7 +22,7 @@ impl TokenServicePort for JwtTokenService {
         let now = Utc::now();
         let expiration = now + self.duration;
 
-        let claims = Claims {
+        let claims = Claim {
             sub: user_id.as_uuid().to_owned(),
             exp: expiration,
         };
@@ -37,8 +37,8 @@ impl TokenServicePort for JwtTokenService {
         Ok(token)
     }
 
-    fn validate_token(&self, token: &str) -> Result<Claims, TokenServiceError> {
-        let token_data = decode::<Claims>(
+    fn validate_token(&self, token: &str) -> Result<Claim, TokenServiceError> {
+        let token_data = decode::<Claim>(
             token,
             &DecodingKey::from_secret(self.secret.expose_secret().as_bytes()),
             &Validation::default(),

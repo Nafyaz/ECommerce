@@ -15,4 +15,8 @@ impl Subject {
 
         Ok(Self(subject))
     }
+
+    pub fn as_str(&self) -> &str {
+        self.0.as_str()
+    }
 }

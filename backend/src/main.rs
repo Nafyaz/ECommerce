@@ -5,7 +5,6 @@ use backend::config::config::Config;
 use backend::infrastructure::persistence::database::connection_pool::create_pool;
 use backend::modules::identity::{IdentityState, JwtTokenService, TokenServicePort};
 use backend::modules::{identity, vendors};
-use std::sync::Arc;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber;

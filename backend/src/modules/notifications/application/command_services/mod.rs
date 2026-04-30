@@ -1,1 +1,3 @@
 mod notification_command_service;
+
+pub use notification_command_service::NotificationCommandService;

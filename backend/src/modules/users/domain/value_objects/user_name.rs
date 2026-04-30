@@ -1,4 +1,3 @@
-use crate::modules::identity::IdentityDomainError;
 use crate::modules::users::errors::UserDomainError;
 use std::fmt;
 

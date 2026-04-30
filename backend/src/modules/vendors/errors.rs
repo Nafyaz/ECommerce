@@ -1,4 +1,3 @@
-use crate::modules::identity::IdentityDomainError;
 use crate::modules::shared::AppError;
 use thiserror::Error;
 

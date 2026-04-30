@@ -1,3 +1,4 @@
+use crate::modules::notifications::NotificationError;
 use crate::modules::shared::AppError;
 use thiserror::Error;
 
@@ -8,6 +9,9 @@ pub enum IdentityError {
 
     #[error("Weak password: {0}")]
     WeakPassword(String),
+
+    #[error("Invalid OTP")]
+    InvalidOtp,
 
     #[error("Invalid credentials")]
     InvalidCredentials,
@@ -30,16 +34,23 @@ impl From<sqlx::Error> for IdentityError {
     }
 }
 
+impl From<NotificationError> for IdentityError {
+    fn from(err: NotificationError) -> Self {
+        IdentityError::InternalError(format!("Notification error: {}", err))
+    }
+}
+
 impl From<IdentityError> for AppError {
     fn from(error: IdentityError) -> Self {
         match error {
             IdentityError::InvalidEmail(msg) => AppError::Validation(msg),
             IdentityError::WeakPassword(msg) => AppError::Validation(msg),
+            IdentityError::InvalidOtp => AppError::Validation("Invalid OTP".to_owned()),
             IdentityError::InternalError(msg) => AppError::Internal(msg),
-            IdentityError::InvalidCredentials => AppError::Unauthorized("Invalid email or password".into()),
-            IdentityError::IdentityNotFound => AppError::NotFound("User not found".into()),
+            IdentityError::InvalidCredentials => AppError::Unauthorized("Invalid email or password".to_owned()),
+            IdentityError::IdentityNotFound => AppError::NotFound("User not found".to_owned()),
             IdentityError::IdentityAlreadyExists => {
-                AppError::Conflict("User identity already exists with this email".into())
+                AppError::Conflict("User identity already exists with this email".to_owned())
             }
         }
     }

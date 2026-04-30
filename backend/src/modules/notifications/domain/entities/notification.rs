@@ -35,4 +35,32 @@ impl Notification {
             created_at: now,
         })
     }
+
+    pub fn id(&self) -> &NotificationId {
+        &self.id
+    }
+
+    pub fn recipient(&self) -> &Recipient {
+        &self.recipient
+    }
+
+    pub fn channel(&self) -> &Channel {
+        &self.channel
+    }
+
+    pub fn subject(&self) -> Option<&Subject> {
+        self.subject.as_ref()
+    }
+
+    pub fn body(&self) -> &NotificationBody {
+        &self.body
+    }
+
+    pub fn status(&self) -> &NotificationStatus {
+        &self.status
+    }
+
+    pub fn created_at(&self) -> &DateTime<Utc> {
+        &self.created_at
+    }
 }
