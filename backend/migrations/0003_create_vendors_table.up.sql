@@ -1,26 +1,17 @@
-CREATE TABLE vendor_statuses
-(
-    id          SMALLINT PRIMARY KEY,
-    name        VARCHAR(16)              NOT NULL UNIQUE,
-    description VARCHAR(64)              NOT NULL UNIQUE,
-
-    created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at  TIMESTAMP WITH TIME ZONE NOT NULL
-);
+CREATE TYPE vendor_status AS ENUM ('ACTIVE', 'INACTIVE');
 
 CREATE TABLE vendors
 (
     id         UUID PRIMARY KEY,
     name       VARCHAR(128)             NOT NULL,
     owner_id   UUID                     NOT NULL REFERENCES users (id),
---     status_id  SMALLINT                 NOT NULL REFERENCES vendor_statuses (id),
+    status     vendor_status            NOT NULL,
 
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE INDEX idx_vendor_owner ON vendors (owner_id);
--- CREATE INDEX idx_vendor_status_id ON vendors (status_id);
 -- CREATE INDEX idx_vendor_created_at ON vendors (created_at DESC);
 -- CREATE INDEX idx_vendor_active ON vendors (status_id, deleted_at) WHERE deleted_at IS NULL;
 

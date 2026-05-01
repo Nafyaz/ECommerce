@@ -28,4 +28,6 @@ thiserror = "2.0.18"
 tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 async-trait = "0.1.89"
-totp-rs = { version = "5.7.1" }
+
+sha2 = "0.11.0"
+rand = "0.10.1"

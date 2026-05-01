@@ -16,12 +16,24 @@ pub enum IdentityError {
     #[error("Invalid credentials")]
     InvalidCredentials,
 
+    #[error("Email not verified")]
+    EmailNotVerified,
+
+    #[error("Invalid identity status {0}")]
+    InvalidIdentityStatus(String),
+
     // Should I return to user that mail is sent give otp even if Identity Already Exists?
     #[error("User Identity already exists")]
-    IdentityAlreadyExists,
+    VerifiedIdentityAlreadyExists,
 
     #[error("User not found")]
     IdentityNotFound,
+
+    #[error("Invalid OTP purpose: {0}")]
+    InvalidOtpPurpose(String),
+
+    #[error("Invalid OTP status: {0}")]
+    InvalidOtpStatus(String),
 
     #[error("Internal error: {0}")]
     InternalError(String),
@@ -48,10 +60,16 @@ impl From<IdentityError> for AppError {
             IdentityError::InvalidOtp => AppError::Validation("Invalid OTP".to_owned()),
             IdentityError::InternalError(msg) => AppError::Internal(msg),
             IdentityError::InvalidCredentials => AppError::Unauthorized("Invalid email or password".to_owned()),
+            IdentityError::EmailNotVerified => AppError::Unauthorized("Email not verified".to_owned()),
             IdentityError::IdentityNotFound => AppError::NotFound("User not found".to_owned()),
-            IdentityError::IdentityAlreadyExists => {
-                AppError::Conflict("User identity already exists with this email".to_owned())
+            IdentityError::VerifiedIdentityAlreadyExists => {
+                AppError::Conflict("A validated user identity already exists with this email".to_owned())
             }
+            IdentityError::InvalidIdentityStatus(msg) => {
+                AppError::Internal(format!("Invalid identity status: {}", msg))
+            }
+            IdentityError::InvalidOtpPurpose(msg) => AppError::Internal(format!("Invalid OTP purpose: {}", msg)),
+            IdentityError::InvalidOtpStatus(msg) => AppError::Internal(format!("Invalid OTP status: {}", msg)),
         }
     }
 }

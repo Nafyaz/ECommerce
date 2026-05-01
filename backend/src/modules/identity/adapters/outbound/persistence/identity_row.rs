@@ -1,4 +1,6 @@
+use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::entities::Identity;
+use crate::modules::identity::domain::value_objects::{Email, IdentityId, IdentityStatus, PasswordHash};
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 use uuid::Uuid;
@@ -7,8 +9,8 @@ use uuid::Uuid;
 pub struct IdentityRow {
     id: Uuid,
     email: String,
-    email_verified_at: Option<DateTime<Utc>>,
     password_hash: String,
+    status: String,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 }
@@ -18,22 +20,11 @@ impl IdentityRow {
         Self {
             id: identity.id().as_uuid().to_owned(),
             email: identity.email().as_str().to_owned(),
-            email_verified_at: identity.email_verified_at(),
             password_hash: identity.password_hash().as_str().to_owned(),
+            status: identity.status().as_str().to_owned(),
             created_at: identity.created_at(),
             updated_at: identity.updated_at(),
         }
-    }
-
-    pub fn into_entity(self) -> Identity {
-        Identity::reconstitute(
-            self.id,
-            self.email,
-            self.email_verified_at,
-            self.password_hash,
-            self.created_at,
-            self.updated_at,
-        )
     }
 
     pub fn id(&self) -> &Uuid {
@@ -44,19 +35,32 @@ impl IdentityRow {
         &self.email
     }
 
-    pub fn email_verified_at(&self) -> Option<DateTime<Utc>> {
-        self.email_verified_at
-    }
-
     pub fn password_hash(&self) -> &str {
         &self.password_hash
     }
-
+    pub fn status(&self) -> &str {
+        &self.status
+    }
     pub fn created_at(&self) -> DateTime<Utc> {
         self.created_at
     }
 
     pub fn updated_at(&self) -> DateTime<Utc> {
         self.updated_at
+    }
+}
+
+impl TryFrom<IdentityRow> for Identity {
+    type Error = IdentityError;
+
+    fn try_from(identity_row: IdentityRow) -> Result<Self, Self::Error> {
+        Identity::reconstitute(
+            IdentityId::from_uuid(identity_row.id),
+            Email::new(identity_row.email)?,
+            PasswordHash::from_str(identity_row.password_hash),
+            IdentityStatus::from_str(identity_row.status)?,
+            identity_row.created_at,
+            identity_row.updated_at,
+        )
     }
 }

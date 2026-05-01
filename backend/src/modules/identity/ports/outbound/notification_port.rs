@@ -1,8 +1,13 @@
 use crate::modules::identity::IdentityError;
-use crate::modules::identity::domain::value_objects::{Email, Otp};
+use crate::modules::identity::domain::value_objects::{Email, OtpCode, OtpPurpose};
 use async_trait::async_trait;
 
 #[async_trait]
 pub trait NotificationPort: Send + Sync {
-    async fn send_email_verification_otp(&self, email: &Email, otp: &Otp) -> Result<(), IdentityError>;
+    async fn send_otp_to_email(
+        &self,
+        email: &Email,
+        otp_purpose: &OtpPurpose,
+        otp_code: &OtpCode,
+    ) -> Result<(), IdentityError>;
 }

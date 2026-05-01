@@ -1,6 +1,5 @@
 use crate::modules::identity::domain::value_objects::{Password, PasswordHash};
 use crate::modules::identity::ports::outbound::{PasswordHasherError, PasswordHasherPort};
-use crate::modules::shared::AppError;
 use argon2::password_hash::SaltString;
 use argon2::password_hash::rand_core::OsRng;
 use argon2::{Argon2, PasswordHasher, PasswordVerifier};

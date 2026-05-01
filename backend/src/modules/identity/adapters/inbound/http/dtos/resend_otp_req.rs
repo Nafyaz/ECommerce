@@ -1,9 +1,8 @@
-use secrecy::SecretString;
 use serde::Deserialize;
 use uuid::Uuid;
 
 #[derive(Deserialize)]
-pub struct VerifyOtpRequest {
+pub struct ResendOtpRequest {
     pub identity_id: Uuid,
-    pub otp_code: SecretString,
+    pub otp_purpose: String,
 }

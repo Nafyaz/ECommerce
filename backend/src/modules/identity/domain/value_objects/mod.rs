@@ -1,13 +1,23 @@
 mod claim;
 mod email;
 mod identity_id;
-mod otp;
+mod identity_status;
+mod otp_code;
+mod otp_code_hash;
+mod otp_id;
+mod otp_purpose;
+mod otp_status;
 mod password;
 mod password_hash;
 
 pub use claim::Claim;
 pub use email::Email;
 pub use identity_id::IdentityId;
-pub use otp::Otp;
+pub use identity_status::IdentityStatus;
+pub use otp_code::OtpCode;
+pub use otp_code_hash::OtpCodeHash;
+pub use otp_id::OtpId;
+pub use otp_purpose::OtpPurpose;
+pub use otp_status::OtpStatus;
 pub use password::Password;
 pub use password_hash::PasswordHash;

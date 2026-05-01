@@ -15,7 +15,4 @@ pub enum AuthConfigError {
 
     #[error("jwt secret must be at least 32 characters, got {0}")]
     WeakJwtSecret(usize),
-
-    #[error("otp secret must be at least 32 characters, got {0}")]
-    WeakOtpSecret(usize),
 }

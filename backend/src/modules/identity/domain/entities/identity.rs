@@ -1,14 +1,14 @@
 use crate::modules::identity::IdentityError;
-use crate::modules::identity::domain::value_objects::{Email, IdentityId, PasswordHash};
+use crate::modules::identity::domain::value_objects::{Email, IdentityId, IdentityStatus, PasswordHash};
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
 
+// TODO: should I add email_verified_at?
 pub struct Identity {
     id: IdentityId,
     email: Email,
-    email_verified_at: Option<DateTime<Utc>>,
     password_hash: PasswordHash,
-
+    status: IdentityStatus,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 }
@@ -20,30 +20,41 @@ impl Identity {
         Ok(Self {
             id: IdentityId::new(),
             email,
-            email_verified_at: None,
             password_hash,
+            status: IdentityStatus::Pending,
             created_at: now,
             updated_at: now,
         })
     }
 
-    // TODO: Should it be TryFrom / FromStr + Result?
     pub fn reconstitute(
-        id: Uuid,
-        email: String,
-        email_verified_at: Option<DateTime<Utc>>,
-        password_hash: String,
+        id: IdentityId,
+        email: Email,
+        password_hash: PasswordHash,
+        status: IdentityStatus,
         created_at: DateTime<Utc>,
         updated_at: DateTime<Utc>,
-    ) -> Self {
-        Self {
-            id: IdentityId::from_uuid(id),
-            email: Email::from_str(email),
-            email_verified_at,
-            password_hash: PasswordHash::from_str(password_hash),
+    ) -> Result<Self, IdentityError> {
+        if updated_at < created_at {
+            return Err(IdentityError::InternalError(
+                "identity updated_at cannot be earlier than created_at".to_owned(),
+            ));
+        }
+
+        Ok(Self {
+            id,
+            email,
+            password_hash,
+            status,
             created_at,
             updated_at,
-        }
+        })
+    }
+
+    pub fn verify_email(&mut self) {
+        let now = Utc::now();
+        self.status = IdentityStatus::Verified;
+        self.updated_at = now;
     }
 
     pub fn id(&self) -> &IdentityId {
@@ -54,8 +65,8 @@ impl Identity {
         &self.email
     }
 
-    pub fn email_verified_at(&self) -> Option<DateTime<Utc>> {
-        self.email_verified_at
+    pub fn status(&self) -> &IdentityStatus {
+        &self.status
     }
 
     pub fn password_hash(&self) -> &PasswordHash {

@@ -1,3 +1,3 @@
-mod totp_otp_service;
+mod otp_service_adapter;
 
-pub use totp_otp_service::TotpOtpService;
+pub use otp_service_adapter::OtpServiceAdapter;

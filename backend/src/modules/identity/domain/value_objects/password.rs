@@ -5,6 +5,7 @@ pub struct Password(SecretString);
 
 impl Password {
     const MIN_PASSWORD_LENGTH: usize = 8;
+
     pub fn new(plain: SecretString) -> Result<Self, IdentityError> {
         let plain_str = plain.expose_secret();
 

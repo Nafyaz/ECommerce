@@ -1,5 +1,5 @@
 use super::AuthConfigError;
-use super::AuthConfigError::{InvalidTtlOrder, WeakJwtSecret, WeakOtpSecret, ZeroAccessTtl};
+use super::AuthConfigError::{InvalidTtlOrder, WeakJwtSecret, ZeroAccessTtl};
 use secrecy::{ExposeSecret, SecretString};
 use serde::Deserialize;
 use std::time::Duration;
@@ -14,8 +14,6 @@ pub struct AuthConfigDto {
 
     #[serde(with = "humantime_serde")]
     pub refresh_token_ttl: Duration,
-
-    pub otp_secret: SecretString,
 }
 
 impl AuthConfigDto {
@@ -34,11 +32,6 @@ impl AuthConfigDto {
         let jwt_secret_len = self.jwt_secret.expose_secret().len();
         if self.jwt_secret.expose_secret().len() < 32 {
             return Err(WeakJwtSecret(jwt_secret_len));
-        }
-
-        let otp_secret_len = self.otp_secret.expose_secret().len();
-        if self.otp_secret.expose_secret().len() < 32 {
-            return Err(WeakOtpSecret(otp_secret_len));
         }
 
         Ok(())
