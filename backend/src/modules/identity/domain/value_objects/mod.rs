@@ -9,6 +9,7 @@ mod otp_purpose;
 mod otp_status;
 mod password;
 mod password_hash;
+mod token_type;
 
 pub use claim::Claim;
 pub use email::Email;
@@ -21,3 +22,4 @@ pub use otp_purpose::OtpPurpose;
 pub use otp_status::OtpStatus;
 pub use password::Password;
 pub use password_hash::PasswordHash;
+pub use token_type::TokenType;

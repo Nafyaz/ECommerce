@@ -1,6 +1,5 @@
 DROP TABLE identities__roles;
 DROP TABLE roles__permissions;
-DROP TYPE identity_status;
 
 DROP TABLE otps;
 DROP TYPE otp_status;
@@ -10,4 +9,6 @@ DROP TABLE revoked_tokens;
 
 DROP TABLE permissions;
 DROP TABLE roles;
+
 DROP TABLE identities;
+DROP TYPE identity_status;

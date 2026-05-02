@@ -24,14 +24,16 @@ impl OtpRepositoryPort for PgOtpRepository {
 
         sqlx::query(
             "INSERT INTO otps \
-            (id, identity_id, purpose, code_hash, attempts, expires_at, created_at) \
-            VALUES ($1, $2, $3, $4, $5, $6, $7)",
+            (id, identity_id, purpose, code_hash, status, attempts, consumed_at, expires_at, created_at) \
+            VALUES ($1, $2, $3::otp_purpose, $4, $5::otp_status, $6, $7, $8, $9)",
         )
         .bind(row.id)
         .bind(row.identity_id)
         .bind(row.purpose)
         .bind(row.code_hash)
+        .bind(row.status)
         .bind(row.attempts)
+        .bind(row.consumed_at)
         .bind(row.expires_at)
         .bind(row.created_at)
         .execute(&self.pool)
@@ -40,11 +42,30 @@ impl OtpRepositoryPort for PgOtpRepository {
         Ok(())
     }
 
+    async fn update(&self, otp: &Otp) -> Result<(), IdentityError> {
+        let row = OtpRow::from_entity(otp);
+
+        sqlx::query(
+            "UPDATE otps \
+            SET status = $2::otp_status, attempts = $3, consumed_at = $4, expires_at = $5 \
+            WHERE id = $1",
+        )
+        .bind(row.id)
+        .bind(row.status)
+        .bind(row.attempts)
+        .bind(row.consumed_at)
+        .bind(row.expires_at)
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
+    }
+
     async fn find_active(&self, identity_id: &IdentityId, purpose: &OtpPurpose) -> Result<Option<Otp>, IdentityError> {
         let otp_row = sqlx::query_as::<_, OtpRow>(
-            "SELECT id, identity_id, purpose, code_hash, status, attempts, consumed_at, expires_at, created_at \
+            "SELECT id, identity_id, purpose::TEXT, code_hash, status::TEXT, attempts, consumed_at, expires_at, created_at \
             FROM otps \
-            WHERE identity_id = $1 AND purpose = $2 AND status = $3 AND expires_at > NOW()",
+            WHERE identity_id = $1 AND purpose = $2::otp_purpose AND status = $3::otp_status AND expires_at > NOW()",
         )
         .bind(identity_id.as_uuid())
         .bind(purpose.as_str())

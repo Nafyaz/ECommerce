@@ -5,7 +5,7 @@ use uuid::Uuid;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Claim {
     pub sub: Uuid,
-    pub purpose: String,
+    pub token_type: String,
     pub iat: DateTime<Utc>,
     pub exp: DateTime<Utc>,
 }

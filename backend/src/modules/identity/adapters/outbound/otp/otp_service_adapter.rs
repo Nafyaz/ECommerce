@@ -31,19 +31,20 @@ impl OtpServicePort for OtpServiceAdapter {
             .expect("HMAC can take key of any size");
         mac.update(otp_code.expose().as_bytes());
 
-        let result = mac.finalize();
-        let bytes = result.into_bytes();
-        let hex_string: String = bytes.iter().map(|b| format!("{:02x}", b)).collect();
-        let code_hash = OtpCodeHash::from_str(hex_string);
+        let result = mac.finalize().into_bytes();
+        let code_hash = OtpCodeHash::from_str(hex::encode(result));
 
         Ok(code_hash)
     }
 
-    fn verify_otp(&self, otp_code: &OtpCode, otp_code_hash: &OtpCodeHash) -> bool {
+    fn verify_otp(&self, otp_code: &OtpCode, otp_code_hash: &OtpCodeHash) -> Result<bool, IdentityError> {
+        let expected_bytes = hex::decode(otp_code_hash.as_str())
+            .map_err(|_| IdentityError::InternalError("Failed to decode OTP hex".to_owned()))?;
+
         let mut mac = Hmac::<Sha256>::new_from_slice(self.secret.expose_secret().as_bytes())
             .expect("HMAC can take key of any size");
         mac.update(otp_code.expose().as_bytes());
 
-        mac.verify_slice(otp_code_hash.as_str().as_bytes()).is_ok()
+        Ok(mac.verify_slice(&expected_bytes).is_ok())
     }
 }

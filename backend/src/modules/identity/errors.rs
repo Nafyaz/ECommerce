@@ -35,6 +35,9 @@ pub enum IdentityError {
     #[error("Invalid OTP status: {0}")]
     InvalidOtpStatus(String),
 
+    #[error("No Active OTP found")]
+    NoActiveOtp,
+
     #[error("Internal error: {0}")]
     InternalError(String),
 }
@@ -70,6 +73,7 @@ impl From<IdentityError> for AppError {
             }
             IdentityError::InvalidOtpPurpose(msg) => AppError::Internal(format!("Invalid OTP purpose: {}", msg)),
             IdentityError::InvalidOtpStatus(msg) => AppError::Internal(format!("Invalid OTP status: {}", msg)),
+            IdentityError::NoActiveOtp => AppError::Internal("No active OTP found".to_owned()),
         }
     }
 }

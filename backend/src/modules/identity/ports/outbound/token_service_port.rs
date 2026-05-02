@@ -1,9 +1,9 @@
 use crate::modules::identity::IdentityError;
-use crate::modules::identity::domain::value_objects::{Claim, IdentityId};
+use crate::modules::identity::domain::value_objects::{Claim, IdentityId, TokenType};
 use thiserror::Error;
 
 pub trait TokenServicePort: Send + Sync {
-    fn generate_token(&self, user_id: &IdentityId) -> Result<String, TokenServiceError>;
+    fn generate_token(&self, user_id: &IdentityId, token_type: &TokenType) -> Result<String, TokenServiceError>;
     fn validate_token(&self, token: &str) -> Result<Claim, TokenServiceError>;
 }
 

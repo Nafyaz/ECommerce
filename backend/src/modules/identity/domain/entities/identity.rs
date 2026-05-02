@@ -51,7 +51,7 @@ impl Identity {
         })
     }
 
-    pub fn verify_email(&mut self) {
+    pub fn verify_identity(&mut self) {
         let now = Utc::now();
         self.status = IdentityStatus::Verified;
         self.updated_at = now;

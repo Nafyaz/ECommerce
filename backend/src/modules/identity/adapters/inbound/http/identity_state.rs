@@ -31,10 +31,10 @@ impl IdentityState {
 
         let password_hasher: Arc<dyn PasswordHasherPort> = Arc::new(Argon2PasswordHasher);
 
-        // TODO: Add refresh token capabilities
         let token_service: Arc<dyn TokenServicePort> = Arc::new(JwtTokenService::new(
             auth_config.jwt_secret().clone(),
             auth_config.access_token_ttl(),
+            auth_config.refresh_token_ttl(),
         ));
 
         let command_service: Arc<dyn IdentityCommandPort> = Arc::new(IdentityCommandService::new(

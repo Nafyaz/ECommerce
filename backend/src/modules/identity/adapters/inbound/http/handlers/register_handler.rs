@@ -12,7 +12,7 @@ pub async fn handle(
 ) -> Result<(StatusCode, Json<RegisterResponse>), AppError> {
     let command = RegisterCommand::new(payload.email, payload.password)?;
     let result = state.command_service.register(command).await?;
-    let response = RegisterResponse::from_result(result);
+    let response = RegisterResponse::from(result);
 
     Ok((StatusCode::CREATED, Json(response)))
 }

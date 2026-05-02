@@ -4,7 +4,7 @@ use crate::modules::identity::application::commands::{
     ForgotPasswordCommand, LoginCommand, RegisterCommand, ResendOtpCommand, VerifyOtpCommand,
 };
 use crate::modules::identity::domain::entities::{Identity, Otp};
-use crate::modules::identity::domain::value_objects::OtpPurpose;
+use crate::modules::identity::domain::value_objects::{OtpPurpose, TokenType};
 use crate::modules::identity::ports::inbound::IdentityCommandPort;
 use crate::modules::identity::ports::outbound::{
     IdentityRepositoryPort, NotificationPort, OtpRepositoryPort, OtpServicePort, PasswordHasherPort, TokenServicePort,
@@ -56,26 +56,28 @@ impl IdentityCommandPort for IdentityCommandService {
 
         self.identity_repo.save(&identity).await?;
 
-        tracing::info!(identity_id = %identity.id(), "Identity saved successfully");
+        tracing::trace!(identity_id = %identity.id(), "Identity saved successfully");
 
         // TODO: Publish event
         // TODO: OTP generation / hashing / sending should be done by separate async worker
+        // TODO: Take OTP Duration from auth_config
         let otp_code = self.otp_service.generate_otp()?;
         let otp_code_hash = self.otp_service.hash_otp(&otp_code)?;
         let otp = Otp::new(
             identity.id().to_owned(),
-            OtpPurpose::EmailVerification,
+            OtpPurpose::Registration,
             otp_code_hash,
             Duration::minutes(10),
         )?;
 
         self.otp_repo.save(&otp).await?;
+        tracing::trace!("OTP saved successfully");
 
         self.notification_service
             .send_otp_to_email(&identity.email(), &otp.purpose(), &otp_code)
             .await?;
 
-        let result = RegisterResult::new(identity.id().as_uuid().to_owned(), identity.created_at());
+        let result = RegisterResult::new(identity.id().as_uuid().to_owned());
 
         Ok(result)
     }
@@ -87,11 +89,17 @@ impl IdentityCommandPort for IdentityCommandService {
             .find_by_id(command.identity_id())
             .await?
             .ok_or(IdentityError::IdentityNotFound)?;
+        tracing::trace!(identity_id = %identity.id(), "Identity found successfully");
 
-        if let Some(mut old_otp) = self.otp_repo.find_active(identity.id(), command.otp_purpose()).await? {
-            old_otp.revoke();
-            self.otp_repo.save(&old_otp).await?;
-        }
+        let mut old_otp = self
+            .otp_repo
+            .find_active(identity.id(), command.otp_purpose())
+            .await?
+            .ok_or(IdentityError::NoActiveOtp)?;
+
+        old_otp.revoke();
+        self.otp_repo.update(&old_otp).await?;
+        tracing::trace!("Old OTP revoked successfully");
 
         let otp_code = self.otp_service.generate_otp()?;
         let otp_code_hash = self.otp_service.hash_otp(&otp_code)?;
@@ -103,6 +111,7 @@ impl IdentityCommandPort for IdentityCommandService {
         )?;
 
         self.otp_repo.save(&otp).await?;
+        tracing::trace!("OTP saved successfully");
 
         self.notification_service
             .send_otp_to_email(&identity.email(), &otp.purpose(), &otp_code)
@@ -112,32 +121,52 @@ impl IdentityCommandPort for IdentityCommandService {
     }
 
     async fn verify_otp(&self, command: VerifyOtpCommand) -> Result<VerifyOtpResult, IdentityError> {
-        let identity = self
+        let mut identity = self
             .identity_repo
             .find_by_id(command.identity_id())
             .await?
             .ok_or(IdentityError::IdentityNotFound)?;
+        tracing::trace!(identity_id = %identity.id(), "Identity found successfully");
 
         let mut otp = self
             .otp_repo
             .find_active(identity.id(), command.otp_purpose())
             .await?
             .ok_or(IdentityError::InvalidOtp)?;
+        tracing::trace!("OTP found successfully");
 
-        let is_valid = self.otp_service.verify_otp(&command.otp_code(), &otp.code_hash());
+        let is_valid = self.otp_service.verify_otp(&command.otp_code(), &otp.code_hash())?;
         if !is_valid {
             otp.increment_attempts();
-            self.otp_repo.save(&otp).await?;
+            self.otp_repo.update(&otp).await?;
+            tracing::trace!("OTP incremented successfully");
             return Err(IdentityError::InvalidOtp);
         }
+
+        otp.consume();
+        self.otp_repo.update(&otp).await?;
+        tracing::trace!("OTP consumed successfully");
+
+        if command.otp_purpose() == &OtpPurpose::Registration {
+            identity.verify_identity();
+            self.identity_repo.update(&identity).await?;
+            tracing::trace!("Email verified successfully");
+
+            //     TODO: Create user as here.
+        }
+
+        if let Some(token_type) = command.otp_purpose().issuing_token_after_verification() {
+            let token = self.token_service.generate_token(identity.id(), token_type)?;
+            return Ok(VerifyOtpResult::with_token(token));
+        }
+
+        Ok(VerifyOtpResult::without_token())
     }
 
-    async fn login(&self, command: LoginCommand) -> Result<(), IdentityError> {
-        // TODO: There might be more than one identity with the same email. But only one should have verified email.
-        // Use find_verified_by_email()
+    async fn login(&self, command: LoginCommand) -> Result<LoginResult, IdentityError> {
         let identity = self
             .identity_repo
-            .find_by_email(command.email())
+            .find_verified_by_email(command.email())
             .await?
             .ok_or(IdentityError::InvalidCredentials)?;
 
@@ -149,11 +178,12 @@ impl IdentityCommandPort for IdentityCommandService {
             return Err(IdentityError::InvalidCredentials.into());
         }
 
-        let token = self.token_service.generate_token(&identity.id())?;
+        let access_token = self.token_service.generate_token(identity.id(), &TokenType::Access)?;
+        let refresh_token = self.token_service.generate_token(identity.id(), &TokenType::Refresh)?;
 
         tracing::info!(identity_id = %identity.id(), "User logged in successfully");
 
-        let result = LoginResult { token };
+        let result = LoginResult::new(access_token, refresh_token);
 
         Ok(result)
     }

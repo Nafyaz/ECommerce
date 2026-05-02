@@ -77,6 +77,12 @@ impl Otp {
         self.status = OtpStatus::Revoked;
     }
 
+    pub fn consume(&mut self) {
+        let now = Utc::now();
+        self.status = OtpStatus::Consumed;
+        self.consumed_at = Some(now);
+    }
+
     pub fn id(&self) -> &OtpId {
         &self.id
     }

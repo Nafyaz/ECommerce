@@ -1,13 +1,17 @@
 pub struct VerifyOtpResult {
-    token: String,
+    token: Option<String>,
 }
 
 impl VerifyOtpResult {
-    pub fn new(token: String) -> Self {
-        Self { token }
+    pub fn without_token() -> Self {
+        Self { token: None }
     }
 
-    pub fn token(&self) -> &str {
-        &self.token
+    pub fn with_token(token: String) -> Self {
+        Self { token: Some(token) }
+    }
+
+    pub fn token(&self) -> Option<&str> {
+        self.token.as_deref()
     }
 }

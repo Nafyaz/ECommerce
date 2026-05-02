@@ -1,5 +1,5 @@
 use crate::modules::identity::adapters::inbound::http::IdentityState;
-use crate::modules::identity::adapters::inbound::http::dtos::LoginRequest;
+use crate::modules::identity::adapters::inbound::http::dtos::{LoginRequest, LoginResponse};
 use crate::modules::identity::application::commands::LoginCommand;
 use crate::modules::shared::AppError;
 use axum::Json;
@@ -9,9 +9,10 @@ use axum::http::StatusCode;
 pub async fn handle(
     State(state): State<IdentityState>,
     Json(payload): Json<LoginRequest>,
-) -> Result<StatusCode, AppError> {
+) -> Result<(StatusCode, Json<LoginResponse>), AppError> {
     let command = LoginCommand::new(payload.email, payload.password)?;
-    state.command_service.login(command).await?;
+    let result = state.command_service.login(command).await?;
+    let response = LoginResponse::from(result);
 
-    Ok(StatusCode::OK)
+    Ok((StatusCode::OK, Json(response)))
 }

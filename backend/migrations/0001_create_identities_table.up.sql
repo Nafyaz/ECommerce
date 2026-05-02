@@ -8,12 +8,16 @@ CREATE TYPE identity_status AS ENUM (
 CREATE TABLE identities
 (
     id            UUID PRIMARY KEY,
-    email         VARCHAR(254)             NOT NULL UNIQUE,
+    email         VARCHAR(254)             NOT NULL,
     password_hash VARCHAR(255)             NOT NULL,
     status        identity_status          NOT NULL,
     created_at    TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at    TIMESTAMP WITH TIME ZONE NOT NULL
 );
+
+CREATE UNIQUE INDEX uniq_active_email
+    ON identities (email)
+    WHERE status = 'VERIFIED';
 
 CREATE TABLE roles
 (
@@ -67,6 +71,7 @@ CREATE TABLE revoked_tokens
 -- );
 
 CREATE TYPE otp_purpose AS ENUM (
+    'REGISTRATION',
     'EMAIL_VERIFICATION',
     'PHONE_VERIFICATION',
     'LOGIN',
