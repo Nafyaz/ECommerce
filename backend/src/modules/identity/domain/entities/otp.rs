@@ -1,7 +1,6 @@
 use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{IdentityId, OtpCodeHash, OtpId, OtpPurpose, OtpStatus};
 use chrono::{DateTime, Duration, Utc};
-use uuid::Uuid;
 
 // TODO: Otp expiry duration from config
 // TODO: Use totp-rs for only for MFA. Otherwise, just rand + sha2
@@ -72,6 +71,10 @@ impl Otp {
 
     pub fn increment_attempts(&mut self) {
         self.attempts += 1;
+    }
+
+    pub fn revoke(&mut self) {
+        self.status = OtpStatus::Revoked;
     }
 
     pub fn id(&self) -> &OtpId {

@@ -26,7 +26,7 @@ impl IdentityState {
         let notification_service: Arc<dyn NotificationPort> =
             Arc::new(NotificationModuleAdapter::new(NotificationState::build()));
 
-        let otp_service: Arc<dyn OtpServicePort> = Arc::new(OtpServiceAdapter::new());
+        let otp_service: Arc<dyn OtpServicePort> = Arc::new(OtpServiceAdapter::new(auth_config.otp_secret().clone()));
         let otp_repo: Arc<dyn OtpRepositoryPort> = Arc::new(PgOtpRepository::new(pool.clone()));
 
         let password_hasher: Arc<dyn PasswordHasherPort> = Arc::new(Argon2PasswordHasher);

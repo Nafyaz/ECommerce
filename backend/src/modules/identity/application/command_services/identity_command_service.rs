@@ -1,5 +1,5 @@
 use crate::modules::identity::IdentityError;
-use crate::modules::identity::application::command_results::{LoginResult, RegisterResult};
+use crate::modules::identity::application::command_results::{LoginResult, RegisterResult, VerifyOtpResult};
 use crate::modules::identity::application::commands::{
     ForgotPasswordCommand, LoginCommand, RegisterCommand, ResendOtpCommand, VerifyOtpCommand,
 };
@@ -88,6 +88,11 @@ impl IdentityCommandPort for IdentityCommandService {
             .await?
             .ok_or(IdentityError::IdentityNotFound)?;
 
+        if let Some(mut old_otp) = self.otp_repo.find_active(identity.id(), command.otp_purpose()).await? {
+            old_otp.revoke();
+            self.otp_repo.save(&old_otp).await?;
+        }
+
         let otp_code = self.otp_service.generate_otp()?;
         let otp_code_hash = self.otp_service.hash_otp(&otp_code)?;
         let otp = Otp::new(
@@ -100,17 +105,34 @@ impl IdentityCommandPort for IdentityCommandService {
         self.otp_repo.save(&otp).await?;
 
         self.notification_service
-            .send_email_verification_otp(&identity.email(), &otp_code)
+            .send_otp_to_email(&identity.email(), &otp.purpose(), &otp_code)
             .await?;
 
         Ok(())
     }
 
-    async fn verify_otp(&self, command: VerifyOtpCommand) -> Result<(), IdentityError> {
-        todo!()
+    async fn verify_otp(&self, command: VerifyOtpCommand) -> Result<VerifyOtpResult, IdentityError> {
+        let identity = self
+            .identity_repo
+            .find_by_id(command.identity_id())
+            .await?
+            .ok_or(IdentityError::IdentityNotFound)?;
+
+        let mut otp = self
+            .otp_repo
+            .find_active(identity.id(), command.otp_purpose())
+            .await?
+            .ok_or(IdentityError::InvalidOtp)?;
+
+        let is_valid = self.otp_service.verify_otp(&command.otp_code(), &otp.code_hash());
+        if !is_valid {
+            otp.increment_attempts();
+            self.otp_repo.save(&otp).await?;
+            return Err(IdentityError::InvalidOtp);
+        }
     }
 
-    async fn login(&self, command: LoginCommand) -> Result<LoginResult, IdentityError> {
+    async fn login(&self, command: LoginCommand) -> Result<(), IdentityError> {
         // TODO: There might be more than one identity with the same email. But only one should have verified email.
         // Use find_verified_by_email()
         let identity = self

@@ -18,12 +18,14 @@ impl JwtTokenService {
 
 // TODO: Learn how JsonWebToken works under the hood
 impl TokenServicePort for JwtTokenService {
-    fn generate_token(&self, user_id: &IdentityId) -> Result<String, TokenServiceError> {
+    fn generate_token(&self, identity_id: &IdentityId, purpose: &) -> Result<String, TokenServiceError> {
         let now = Utc::now();
         let expiration = now + self.duration;
 
         let claims = Claim {
-            sub: user_id.as_uuid().to_owned(),
+            sub: identity_id.as_uuid().to_owned(),
+            purpose:
+            iat: now,
             exp: expiration,
         };
 
@@ -32,7 +34,7 @@ impl TokenServicePort for JwtTokenService {
             &claims,
             &EncodingKey::from_secret(self.secret.expose_secret().as_bytes()),
         )
-        .map_err(|_| TokenServiceError::FailedGeneration)?;
+            .map_err(|_| TokenServiceError::FailedGeneration)?;
 
         Ok(token)
     }
@@ -43,7 +45,7 @@ impl TokenServicePort for JwtTokenService {
             &DecodingKey::from_secret(self.secret.expose_secret().as_bytes()),
             &Validation::default(),
         )
-        .map_err(|e| TokenServiceError::InvalidToken)?;
+            .map_err(|e| TokenServiceError::InvalidToken)?;
 
         Ok(token_data.claims)
     }

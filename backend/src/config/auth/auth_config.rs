@@ -8,6 +8,7 @@ pub struct AuthConfig {
     jwt_secret: SecretString,
     access_token_ttl: Duration,
     refresh_token_ttl: Duration,
+    otp_secret: SecretString,
 }
 
 impl AuthConfig {
@@ -22,6 +23,10 @@ impl AuthConfig {
     pub fn refresh_token_ttl(&self) -> Duration {
         self.refresh_token_ttl
     }
+
+    pub fn otp_secret(&self) -> &SecretString {
+        &self.otp_secret
+    }
 }
 
 impl TryFrom<AuthConfigDto> for AuthConfig {
@@ -34,6 +39,7 @@ impl TryFrom<AuthConfigDto> for AuthConfig {
             jwt_secret: auth_config_dto.jwt_secret,
             access_token_ttl: auth_config_dto.access_token_ttl,
             refresh_token_ttl: auth_config_dto.refresh_token_ttl,
+            otp_secret: auth_config_dto.otp_secret,
         })
     }
 }

@@ -31,7 +31,7 @@ impl OtpRepositoryPort for PgOtpRepository {
         .bind(row.identity_id)
         .bind(row.purpose)
         .bind(row.code_hash)
-        .bind(row.attempts as i16)
+        .bind(row.attempts)
         .bind(row.expires_at)
         .bind(row.created_at)
         .execute(&self.pool)
@@ -41,8 +41,8 @@ impl OtpRepositoryPort for PgOtpRepository {
     }
 
     async fn find_active(&self, identity_id: &IdentityId, purpose: &OtpPurpose) -> Result<Option<Otp>, IdentityError> {
-        let otp_row = sqlx::query(
-            "SELECT id, identity_id, purpose, code_hash, attempts, expires_at, created_at \
+        let otp_row = sqlx::query_as::<_, OtpRow>(
+            "SELECT id, identity_id, purpose, code_hash, status, attempts, consumed_at, expires_at, created_at \
             FROM otps \
             WHERE identity_id = $1 AND purpose = $2 AND status = $3 AND expires_at > NOW()",
         )
@@ -52,7 +52,7 @@ impl OtpRepositoryPort for PgOtpRepository {
         .fetch_optional(&self.pool)
         .await?;
 
-        Ok(None)
+        Ok(otp_row.map(Otp::try_from).transpose()?)
     }
 
     async fn find_by_id(&self, id: &OtpId) -> Result<Otp, IdentityError> {

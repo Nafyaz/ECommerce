@@ -29,5 +29,6 @@ tracing = "0.1.44"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 async-trait = "0.1.89"
 
-sha2 = "0.11.0"
+sha2 = "0.10.9"
 rand = "0.10.1"
+hmac = "0.12.0"
