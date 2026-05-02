@@ -1,12 +1,12 @@
 use uuid::Uuid;
 
-pub struct RegisterResult {
+pub struct CreateUserResult {
     id: Uuid,
 }
 
-impl RegisterResult {
+impl CreateUserResult {
     pub fn new(id: Uuid) -> Self {
-        Self { id }
+        CreateUserResult { id }
     }
 
     pub fn id(&self) -> &Uuid {

@@ -1,4 +1,8 @@
 use crate::modules::users::domain::entities::User;
+use crate::modules::users::domain::value_objects::phone::Phone;
+use crate::modules::users::domain::value_objects::user_name::UserName;
+use crate::modules::users::domain::value_objects::{IdentityId, UserId};
+use crate::modules::users::errors::UserDomainError;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 use uuid::Uuid;
@@ -27,18 +31,6 @@ impl UserRow {
         }
     }
 
-    pub fn into_entity(self) -> User {
-        User::reconstitute(
-            self.id,
-            self.identity_id,
-            self.name,
-            self.phone,
-            self.phone_verified_at,
-            self.created_at,
-            self.updated_at,
-        )
-    }
-
     pub fn id(&self) -> &Uuid {
         &self.id
     }
@@ -65,5 +57,21 @@ impl UserRow {
 
     pub fn updated_at(&self) -> DateTime<Utc> {
         self.updated_at
+    }
+}
+
+impl TryFrom<UserRow> for User {
+    type Error = UserDomainError;
+
+    fn try_from(user_row: UserRow) -> Result<Self, Self::Error> {
+        User::reconstitute(
+            UserId::from_uuid(user_row.id),
+            IdentityId::from_uuid(user_row.identity_id),
+            UserName::new(user_row.name)?,
+            user_row.phone.map(Phone::new).transpose()?,
+            user_row.phone_verified_at,
+            user_row.created_at,
+            user_row.updated_at,
+        )
     }
 }

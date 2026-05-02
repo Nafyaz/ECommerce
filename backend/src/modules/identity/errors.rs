@@ -2,6 +2,7 @@ use crate::modules::notifications::NotificationError;
 use crate::modules::shared::AppError;
 use thiserror::Error;
 
+// TODO: Rename to IdentityDomainError
 #[derive(Error, Debug, Clone)]
 pub enum IdentityError {
     #[error("Invalid email: {0}")]

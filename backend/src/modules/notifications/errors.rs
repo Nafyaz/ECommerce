@@ -1,6 +1,7 @@
 use crate::modules::shared::AppError;
 use thiserror::Error;
 
+// TODO: Rename to NotificationDomainError
 #[derive(Error, Debug, Clone)]
 pub enum NotificationError {
     #[error("Invalid Subject: {0}")]

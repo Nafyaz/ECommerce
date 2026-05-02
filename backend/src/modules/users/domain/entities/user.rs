@@ -37,23 +37,29 @@ impl User {
     }
 
     pub fn reconstitute(
-        id: Uuid,
-        identity_id: Uuid,
-        name: String,
-        phone: Option<String>,
+        id: UserId,
+        identity_id: IdentityId,
+        name: UserName,
+        phone: Option<Phone>,
         phone_verified_at: Option<DateTime<Utc>>,
         created_at: DateTime<Utc>,
         updated_at: DateTime<Utc>,
-    ) -> Self {
-        Self {
-            id: UserId::from_uuid(id),
-            identity_id: IdentityId::from_uuid(identity_id),
-            name: UserName::from_str(name),
-            phone: phone.map(|p| Phone::from_str(p)),
+    ) -> Result<Self, UserDomainError> {
+        if updated_at < created_at {
+            return Err(UserDomainError::InternalError(
+                "User updated_at cannot be earlier than created_at".to_owned(),
+            ));
+        }
+
+        Ok(Self {
+            id,
+            identity_id,
+            name,
+            phone,
             phone_verified_at,
             created_at,
             updated_at,
-        }
+        })
     }
 
     pub fn id(&self) -> &UserId {
