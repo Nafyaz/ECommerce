@@ -6,6 +6,6 @@ CREATE TABLE users
     phone             VARCHAR(32) UNIQUE,
     phone_verified_at TIMESTAMP WITH TIME ZONE,
 
-    created_at        TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at        TIMESTAMP WITH TIME ZONE NOT NULL
+    updated_at        TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at        TIMESTAMP WITH TIME ZONE NOT NULL
 );

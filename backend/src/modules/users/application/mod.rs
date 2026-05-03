@@ -1,3 +1,3 @@
 pub mod command_results;
-mod command_services;
-mod commands;
+pub mod command_services;
+pub mod commands;

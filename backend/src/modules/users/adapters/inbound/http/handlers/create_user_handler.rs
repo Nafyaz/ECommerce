@@ -1,3 +1,20 @@
+use crate::infrastructure::http::dtos::CurrentIdentity;
+use crate::modules::users::adapters::inbound::http::dtos::{CreateUserRequest, CreateUserResponse};
+use crate::modules::users::adapters::inbound::user_state::UserState;
+use crate::modules::users::application::commands::CreateUserCommand;
+use crate::modules::users::errors::UserDomainError;
+use axum::extract::State;
+use axum::http::StatusCode;
+use axum::{Extension, Json};
+
 pub async fn handle(
-    State(state): State<UserState>
-)
+    State(state): State<UserState>,
+    Extension(current_identity): Extension<CurrentIdentity>,
+    Json(payload): Json<CreateUserRequest>,
+) -> Result<(StatusCode, Json<CreateUserResponse>), UserDomainError> {
+    let command = CreateUserCommand::new(current_identity.id, payload.name, payload.phone)?;
+    let result = state.command_service.create_user(&command).await?;
+    let response = CreateUserResponse::from(result);
+
+    Ok((StatusCode::CREATED, Json(response)))
+}

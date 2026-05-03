@@ -1,13 +1,17 @@
+use crate::modules::vendors::OwnerId;
 use crate::modules::vendors::domain::value_objects::VendorName;
 use crate::modules::vendors::errors::VendorDomainError;
+use uuid::Uuid;
 
 pub struct CreateVendorCommand {
-    pub name: VendorName,
+    owner_id: OwnerId,
+    name: VendorName,
 }
 
 impl CreateVendorCommand {
-    pub fn new(name: String) -> Result<Self, VendorDomainError> {
+    pub fn new(owner_id: Uuid, name: String) -> Result<Self, VendorDomainError> {
+        let owner_id = OwnerId::from_uuid(owner_id);
         let name = VendorName::new(name)?;
-        Ok(Self { name })
+        Ok(Self { owner_id, name })
     }
 }

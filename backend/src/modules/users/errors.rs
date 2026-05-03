@@ -1,5 +1,6 @@
 use crate::modules::shared::AppError;
 use thiserror::Error;
+use uuid::Uuid;
 
 #[derive(Error, Debug, Clone)]
 pub enum UserDomainError {
@@ -8,6 +9,9 @@ pub enum UserDomainError {
 
     #[error("Invalid phone: {0}")]
     InvalidPhone(String),
+
+    #[error("User already exists {0}")]
+    UserAlreadyExists(Uuid),
 
     #[error("User not found")]
     UserNotFound,
@@ -28,6 +32,7 @@ impl From<UserDomainError> for AppError {
         match error {
             UserDomainError::InvalidName(msg) => AppError::Validation(msg),
             UserDomainError::InvalidPhone(msg) => AppError::Validation(msg),
+            UserDomainError::UserAlreadyExists(id) => AppError::Conflict(format!("User already exists: {}", id)),
             UserDomainError::UserNotFound => AppError::NotFound("User not found".into()),
             UserDomainError::InternalError(msg) => AppError::Internal(msg),
         }

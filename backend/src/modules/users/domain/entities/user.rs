@@ -17,12 +17,7 @@ pub struct User {
 }
 
 impl User {
-    pub fn new(
-        identity_id: IdentityId,
-        name: UserName,
-        phone: Option<Phone>,
-        phone_verified_at: Option<DateTime<Utc>>,
-    ) -> Result<Self, UserDomainError> {
+    pub fn new(identity_id: IdentityId, name: UserName, phone: Option<Phone>) -> Result<Self, UserDomainError> {
         let now = Utc::now();
 
         Ok(Self {
@@ -30,7 +25,7 @@ impl User {
             identity_id,
             name,
             phone,
-            phone_verified_at,
+            phone_verified_at: None,
             created_at: now,
             updated_at: now,
         })

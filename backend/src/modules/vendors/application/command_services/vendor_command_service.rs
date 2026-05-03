@@ -9,6 +9,7 @@ use async_trait::async_trait;
 use std::sync::Arc;
 
 pub struct VendorCommandService {
+    identity_service: Arc<dyn IdentityPort>,
     vendor_repo: Arc<dyn VendorRepositoryPort>,
 }
 impl VendorCommandService {
@@ -19,12 +20,8 @@ impl VendorCommandService {
 
 #[async_trait]
 impl VendorCommandPort for VendorCommandService {
-    async fn create_vendor(
-        &self,
-        command: CreateVendorCommand,
-        owner_id: OwnerId,
-    ) -> Result<CreateVendorResult, VendorDomainError> {
-        let vendor = Vendor::new(command.name, owner_id)?;
+    async fn create_vendor(&self, command: CreateVendorCommand) -> Result<CreateVendorResult, VendorDomainError> {
+        let vendor = Vendor::new(command.name)?;
         self.vendor_repo.save(&vendor).await?;
         Ok(CreateVendorResult {
             id: vendor.id().as_uuid().to_owned(),
