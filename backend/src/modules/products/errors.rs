@@ -1,5 +1,4 @@
 use crate::modules::shared::AppError;
-use crate::modules::vendors::errors::VendorDomainError;
 use thiserror::Error;
 
 #[derive(Error, Debug, Clone)]
@@ -18,16 +17,6 @@ pub enum ProductDomainError {
 
     #[error("Internal error: {0}")]
     InternalError(String),
-}
-
-impl From<VendorDomainError> for ProductDomainError {
-    fn from(error: VendorDomainError) -> Self {
-        match error {
-            VendorDomainError::VendorNotFound => ProductDomainError::VendorNotFound,
-            VendorDomainError::InternalError(message) => ProductDomainError::InternalError(message),
-            VendorDomainError::InvalidName(message) => ProductDomainError::InternalError(message),
-        }
-    }
 }
 
 impl From<sqlx::Error> for ProductDomainError {

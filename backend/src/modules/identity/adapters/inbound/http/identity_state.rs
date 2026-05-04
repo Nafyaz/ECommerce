@@ -3,8 +3,8 @@ use crate::modules::identity::adapters::outbound::auth::Argon2PasswordHasher;
 use crate::modules::identity::adapters::outbound::notifications::NotificationModuleAdapter;
 use crate::modules::identity::adapters::outbound::otp::OtpServiceAdapter;
 use crate::modules::identity::adapters::outbound::persistence::{PgIdentityRepository, PgOtpRepository};
-use crate::modules::identity::application::command_services::IdentityCommandService;
-use crate::modules::identity::ports::inbound::IdentityCommandPort;
+use crate::modules::identity::application::command_services::{IdentityCommandService, IdentityQueryService};
+use crate::modules::identity::ports::inbound::{IdentityCommandPort, IdentityQueryPort};
 use crate::modules::identity::ports::outbound::{
     IdentityRepositoryPort, NotificationPort, OtpRepositoryPort, OtpServicePort, PasswordHasherPort,
 };
@@ -16,7 +16,7 @@ use std::sync::Arc;
 #[derive(Clone)]
 pub struct IdentityState {
     pub command_service: Arc<dyn IdentityCommandPort>,
-    // pub query_service: Arc<dyn IdentityQueryPort>,
+    pub query_service: Arc<dyn IdentityQueryPort>,
 }
 
 impl IdentityState {
@@ -38,19 +38,20 @@ impl IdentityState {
         ));
 
         let command_service: Arc<dyn IdentityCommandPort> = Arc::new(IdentityCommandService::new(
-            identity_repo,
+            identity_repo.clone(),
             notification_service,
             otp_service,
             otp_repo,
-            password_hasher,
-            token_service,
+            password_hasher.clone(),
+            token_service.clone(),
         ));
 
-        // let query_service: Arc<dyn IdentityQueryPort> = Arc::new(IdentityQueryService::new(identity_repo.clone()));
+        let query_service: Arc<dyn IdentityQueryPort> =
+            Arc::new(IdentityQueryService::new(identity_repo, password_hasher, token_service));
 
         Self {
             command_service,
-            // query_service,
+            query_service,
         }
     }
 }

@@ -1,9 +1,21 @@
 use crate::modules::vendors::OwnerId;
-use crate::modules::vendors::errors::VendorDomainError;
 use async_trait::async_trait;
+use thiserror::Error;
+
+// TODO: All outbound ports should have their own errors
+#[derive(Debug, Error)]
+pub enum IdentityPortError {
+    #[error("identity not found")]
+    NotFound,
+
+    #[error("identity service unavailable")]
+    Unavailable,
+
+    #[error("unexpected identity error")]
+    Unexpected,
+}
 
 #[async_trait]
 pub trait IdentityPort: Send + Sync {
-    // TODO: IdentityPort should not know about VendorDomainError
-    async fn is_verified(&self, id: OwnerId) -> Result<bool, VendorDomainError>;
+    async fn is_verified(&self, owner_id: &OwnerId) -> Result<bool, IdentityPortError>;
 }

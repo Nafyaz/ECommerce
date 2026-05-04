@@ -11,7 +11,7 @@ pub async fn handle(
     Json(payload): Json<LoginRequest>,
 ) -> Result<(StatusCode, Json<LoginResponse>), AppError> {
     let command = LoginCommand::new(payload.email, payload.password)?;
-    let result = state.command_service.login(command).await?;
+    let result = state.query_service.login(command).await?;
     let response = LoginResponse::from(result);
 
     Ok((StatusCode::OK, Json(response)))

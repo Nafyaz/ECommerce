@@ -1,6 +1,7 @@
 use crate::modules::identity::IdentityError;
 
 // TODO: Implement expired and locked
+#[derive(PartialEq)]
 pub enum IdentityStatus {
     Pending,
     Verified,

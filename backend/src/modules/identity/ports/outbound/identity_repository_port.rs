@@ -1,6 +1,6 @@
 use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::entities::Identity;
-use crate::modules::identity::domain::value_objects::{Email, IdentityId};
+use crate::modules::identity::domain::value_objects::{Email, IdentityId, IdentityStatus};
 use async_trait::async_trait;
 
 #[async_trait]

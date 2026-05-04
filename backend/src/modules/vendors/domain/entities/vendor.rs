@@ -5,20 +5,20 @@ use uuid::Uuid;
 
 pub struct Vendor {
     id: VendorId,
-    name: VendorName,
     owner_id: OwnerId,
+    name: VendorName,
 
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 }
 
 impl Vendor {
-    pub fn new(name: VendorName, owner_id: OwnerId) -> Result<Self, VendorDomainError> {
+    pub fn new(owner_id: OwnerId, name: VendorName) -> Result<Self, VendorDomainError> {
         let now = Utc::now();
         Ok(Self {
             id: VendorId::new(),
-            name,
             owner_id,
+            name,
             created_at: now,
             updated_at: now,
         })

@@ -30,9 +30,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let app = Router::new()
-        .nest("/api/v1/identity", identity::create_router())
+        .nest("/v1/identity", identity::create_router())
         // .nest(
-        //     "/api/v1/vendor",
+        //     "/v1/vendor",
         //     vendors::create_router(db_pool.clone(), token_service.clone()),
         // )
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not found") })

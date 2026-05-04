@@ -14,4 +14,12 @@ impl CreateVendorCommand {
         let name = VendorName::new(name)?;
         Ok(Self { owner_id, name })
     }
+
+    pub fn owner_id(&self) -> &OwnerId {
+        &self.owner_id
+    }
+
+    pub fn name(&self) -> &VendorName {
+        &self.name
+    }
 }

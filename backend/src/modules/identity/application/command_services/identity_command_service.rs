@@ -1,10 +1,10 @@
 use crate::modules::identity::IdentityError;
-use crate::modules::identity::application::command_results::{LoginResult, RegisterResult, VerifyOtpResult};
+use crate::modules::identity::application::command_results::{RegisterResult, VerifyOtpResult};
 use crate::modules::identity::application::commands::{
-    ForgotPasswordCommand, LoginCommand, RegisterCommand, ResendOtpCommand, VerifyOtpCommand,
+    ForgotPasswordCommand, RegisterCommand, ResendOtpCommand, VerifyOtpCommand,
 };
 use crate::modules::identity::domain::entities::{Identity, Otp};
-use crate::modules::identity::domain::value_objects::{OtpPurpose, TokenType};
+use crate::modules::identity::domain::value_objects::OtpPurpose;
 use crate::modules::identity::ports::inbound::IdentityCommandPort;
 use crate::modules::identity::ports::outbound::{
     IdentityRepositoryPort, NotificationPort, OtpRepositoryPort, OtpServicePort, PasswordHasherPort, TokenServicePort,
@@ -161,31 +161,6 @@ impl IdentityCommandPort for IdentityCommandService {
         }
 
         Ok(VerifyOtpResult::without_token())
-    }
-
-    async fn login(&self, command: LoginCommand) -> Result<LoginResult, IdentityError> {
-        let identity = self
-            .identity_repo
-            .find_verified_by_email(command.email())
-            .await?
-            .ok_or(IdentityError::InvalidCredentials)?;
-
-        let is_valid = self
-            .password_hasher
-            .verify(&identity.password_hash(), command.password())?;
-
-        if !is_valid {
-            return Err(IdentityError::InvalidCredentials.into());
-        }
-
-        let access_token = self.token_service.generate_token(identity.id(), &TokenType::Access)?;
-        let refresh_token = self.token_service.generate_token(identity.id(), &TokenType::Refresh)?;
-
-        tracing::info!(identity_id = %identity.id(), "User logged in successfully");
-
-        let result = LoginResult::new(access_token, refresh_token);
-
-        Ok(result)
     }
 
     async fn forgot_password(&self, command: ForgotPasswordCommand) -> Result<(), IdentityError> {
