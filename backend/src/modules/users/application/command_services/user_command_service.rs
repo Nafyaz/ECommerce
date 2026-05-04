@@ -20,12 +20,12 @@ impl UserCommandService {
 #[async_trait]
 impl UserCommandPort for UserCommandService {
     async fn create_user(&self, command: &CreateUserCommand) -> Result<CreateUserResult, UserDomainError> {
-        if let Some(_existing) = self.user_repo.find_by_identity_id(command.identity_id()).await? {
+        if let Some(_existing) = self.user_repo.find_by_identity_id(command.auth_identity_id()).await? {
             return Err(UserDomainError::UserAlreadyExists(_existing.id().as_uuid()));
         }
 
         let user = User::new(
-            command.identity_id().to_owned(),
+            command.auth_identity_id().to_owned(),
             command.name().to_owned(),
             command.phone().to_owned(),
         )?;

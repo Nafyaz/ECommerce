@@ -50,7 +50,7 @@ impl IdentityCommandPort for IdentityCommandService {
             return Err(IdentityError::VerifiedIdentityAlreadyExists);
         }
 
-        let password_hash = self.password_hasher.hash_from_plain(command.password())?;
+        let password_hash = self.password_hasher.hash_password(command.password())?;
 
         let identity = Identity::new(command.email().to_owned(), password_hash)?;
 

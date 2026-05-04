@@ -1,6 +1,6 @@
 use crate::modules::users::adapters::outbound::persistence::user_row::UserRow;
 use crate::modules::users::domain::entities::User;
-use crate::modules::users::domain::value_objects::{IdentityId, UserId};
+use crate::modules::users::domain::value_objects::{AuthIdentityId, UserId};
 use crate::modules::users::errors::UserDomainError;
 use crate::modules::users::ports::outbound::UserRepositoryPort;
 use async_trait::async_trait;
@@ -40,7 +40,7 @@ impl UserRepositoryPort for PgUserRepository {
         Ok(())
     }
 
-    async fn find_by_identity_id(&self, identity_id: &IdentityId) -> Result<Option<User>, UserDomainError> {
+    async fn find_by_identity_id(&self, identity_id: &AuthIdentityId) -> Result<Option<User>, UserDomainError> {
         let row = sqlx::query_as::<_, UserRow>(
             "SELECT id, identity_id, name, phone, phone_verified_at, updated_at, created_at
             FROM users

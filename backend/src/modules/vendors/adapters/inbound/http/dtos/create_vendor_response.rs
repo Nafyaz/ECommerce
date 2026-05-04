@@ -6,8 +6,8 @@ pub struct CreateVendorResponse {
     pub id: String,
 }
 
-impl CreateVendorResponse {
-    pub fn from_result(result: CreateVendorResult) -> Self {
+impl From<CreateVendorResult> for CreateVendorResponse {
+    fn from(result: CreateVendorResult) -> Self {
         Self {
             id: result.id.to_string(),
         }

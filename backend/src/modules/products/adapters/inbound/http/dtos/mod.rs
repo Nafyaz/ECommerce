@@ -1,5 +1,5 @@
-mod create_product_req;
-mod create_product_res;
+mod create_product_request;
+mod create_product_response;
 
-pub use create_product_req::CreateProductRequest;
-pub use create_product_res::CreateProductResponse;
+pub use create_product_request::CreateProductRequest;
+pub use create_product_response::CreateProductResponse;

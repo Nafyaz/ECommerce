@@ -1,6 +1,6 @@
 use crate::modules::users::domain::value_objects::phone::Phone;
 use crate::modules::users::domain::value_objects::user_name::UserName;
-use crate::modules::users::domain::value_objects::{IdentityId, UserId};
+use crate::modules::users::domain::value_objects::{AuthIdentityId, UserId};
 use crate::modules::users::errors::UserDomainError;
 use chrono::{DateTime, Utc};
 use uuid::Uuid;
@@ -8,7 +8,7 @@ use uuid::Uuid;
 //TODO: Manually implement slugs and use them
 pub struct User {
     id: UserId,
-    identity_id: IdentityId,
+    auth_identity_id: AuthIdentityId,
     name: UserName,
     phone: Option<Phone>,
     phone_verified_at: Option<DateTime<Utc>>,
@@ -17,12 +17,16 @@ pub struct User {
 }
 
 impl User {
-    pub fn new(identity_id: IdentityId, name: UserName, phone: Option<Phone>) -> Result<Self, UserDomainError> {
+    pub fn new(
+        auth_identity_id: AuthIdentityId,
+        name: UserName,
+        phone: Option<Phone>,
+    ) -> Result<Self, UserDomainError> {
         let now = Utc::now();
 
         Ok(Self {
             id: UserId::new(),
-            identity_id,
+            auth_identity_id,
             name,
             phone,
             phone_verified_at: None,
@@ -33,7 +37,7 @@ impl User {
 
     pub fn reconstitute(
         id: UserId,
-        identity_id: IdentityId,
+        auth_identity_id: AuthIdentityId,
         name: UserName,
         phone: Option<Phone>,
         phone_verified_at: Option<DateTime<Utc>>,
@@ -48,7 +52,7 @@ impl User {
 
         Ok(Self {
             id,
-            identity_id,
+            auth_identity_id,
             name,
             phone,
             phone_verified_at,
@@ -61,8 +65,8 @@ impl User {
         &self.id
     }
 
-    pub fn identity_id(&self) -> &IdentityId {
-        &self.identity_id
+    pub fn auth_identity_id(&self) -> &AuthIdentityId {
+        &self.auth_identity_id
     }
 
     pub fn name(&self) -> &UserName {

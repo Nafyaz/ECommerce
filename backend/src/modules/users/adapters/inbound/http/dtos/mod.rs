@@ -1,5 +1,5 @@
-mod create_user_req;
-mod create_user_res;
+mod create_user_request;
+mod create_user_response;
 
-pub use create_user_req::CreateUserRequest;
-pub use create_user_res::CreateUserResponse;
+pub use create_user_request::CreateUserRequest;
+pub use create_user_response::CreateUserResponse;

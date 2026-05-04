@@ -1,7 +1,7 @@
 use crate::modules::identity::IdentityError;
-use crate::modules::identity::application::command_results::{LoginResult, RegisterResult, VerifyOtpResult};
+use crate::modules::identity::application::command_results::{RegisterResult, VerifyOtpResult};
 use crate::modules::identity::application::commands::{
-    ForgotPasswordCommand, LoginCommand, RegisterCommand, ResendOtpCommand, VerifyOtpCommand,
+    ForgotPasswordCommand, RegisterCommand, ResendOtpCommand, VerifyOtpCommand,
 };
 use async_trait::async_trait;
 

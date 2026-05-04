@@ -1,7 +1,6 @@
 use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{Email, IdentityId, IdentityStatus, PasswordHash};
 use chrono::{DateTime, Utc};
-use uuid::Uuid;
 
 // TODO: should I add email_verified_at?
 pub struct Identity {

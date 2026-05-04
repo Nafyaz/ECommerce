@@ -7,7 +7,7 @@ use argon2::{Argon2, PasswordHasher, PasswordVerifier};
 pub struct Argon2PasswordHasher;
 
 impl PasswordHasherPort for Argon2PasswordHasher {
-    fn hash_from_plain(&self, password: &Password) -> Result<PasswordHash, PasswordHasherError> {
+    fn hash_password(&self, password: &Password) -> Result<PasswordHash, PasswordHasherError> {
         let salt = SaltString::generate(&mut OsRng);
 
         let argon2 = Argon2::default();
@@ -18,7 +18,7 @@ impl PasswordHasherPort for Argon2PasswordHasher {
         Ok(PasswordHash::from_str(hash.to_string()))
     }
 
-    fn verify(&self, hash: &PasswordHash, plain_candidate: &Password) -> Result<bool, PasswordHasherError> {
+    fn verify_password(&self, hash: &PasswordHash, plain_candidate: &Password) -> Result<bool, PasswordHasherError> {
         let parsed_hash = argon2::PasswordHash::new(hash.as_str())
             .map_err(|e| PasswordHasherError::FailedVerification(format!("Password verification failed: {}", e)))?;
 

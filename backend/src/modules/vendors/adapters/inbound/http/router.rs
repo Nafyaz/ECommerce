@@ -2,7 +2,7 @@
 // use crate::infrastructure::http::middleware::auth_middleware::auth_middleware;
 // use crate::modules::identity::TokenServicePort;
 // use crate::modules::users::ports::inbound::user_query_port::UserQueryPort;
-// use crate::modules::vendors::adapters::inbound::http::handler::create_vendor;
+// use crate::modules::vendors::adapters::inbound::http::handlers::create_vendor;
 // use crate::modules::vendors::adapters::outbound::persistence::PgVendorRepository;
 // use crate::modules::vendors::application::command_services::VendorCommandService;
 // use crate::modules::vendors::ports::inbound::VendorCommandPort;

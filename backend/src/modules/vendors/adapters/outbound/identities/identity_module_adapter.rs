@@ -17,6 +17,7 @@ impl IdentityModuleAdapter {
 
 #[async_trait]
 impl IdentityPort for IdentityModuleAdapter {
+    // TODO: It should not use IdentityId directly.
     async fn is_verified(&self, owner_id: &OwnerId) -> Result<bool, IdentityPortError> {
         let identity_id = IdentityId::from_uuid(owner_id.as_uuid().to_owned());
 

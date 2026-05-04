@@ -1,6 +1,6 @@
 mod bootstrap;
 mod dtos;
-mod handler;
+mod handlers;
 pub mod router;
 mod vendor_state;
 

@@ -53,7 +53,7 @@ impl IdentityQueryPort for IdentityQueryService {
 
         let is_valid = self
             .password_hasher
-            .verify(&identity.password_hash(), command.password())?;
+            .verify_password(&identity.password_hash(), command.password())?;
 
         if !is_valid {
             return Err(IdentityError::InvalidCredentials.into());
