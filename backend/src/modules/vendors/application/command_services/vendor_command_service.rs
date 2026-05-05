@@ -25,7 +25,7 @@ impl VendorCommandPort for VendorCommandService {
     async fn create_vendor(&self, command: CreateVendorCommand) -> Result<CreateVendorResult, VendorDomainError> {
         let is_verified = self
             .identity_service
-            .is_verified(command.owner_id())
+            .check_verified(command.owner_id())
             .await
             .map_err(|_| VendorDomainError::IdentityPortError)?;
 

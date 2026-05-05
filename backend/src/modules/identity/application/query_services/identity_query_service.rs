@@ -34,7 +34,7 @@ impl IdentityQueryPort for IdentityQueryService {
         todo!()
     }
 
-    async fn is_verified(&self, identity_id: &IdentityId) -> Result<bool, IdentityError> {
+    async fn check_verified(&self, identity_id: &IdentityId) -> Result<bool, IdentityError> {
         let identity = self
             .identity_repo
             .find_by_id(identity_id)

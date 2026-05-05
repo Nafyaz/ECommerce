@@ -10,7 +10,7 @@ pub struct NotificationState {
 }
 
 impl NotificationState {
-    pub fn build() -> Self {
+    pub fn new() -> Self {
         let email_provider: Arc<dyn EmailProviderPort> = Arc::new(LogEmailProvider);
         let command_service: Arc<dyn NotificationCommandPort> =
             Arc::new(NotificationCommandService::new(email_provider));

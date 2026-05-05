@@ -1,6 +1,6 @@
 use crate::modules::users::adapters::outbound::persistence::user_row::UserRow;
 use crate::modules::users::domain::entities::User;
-use crate::modules::users::domain::value_objects::{AuthIdentityId, UserId};
+use crate::modules::users::domain::value_objects::{AccountId, UserId};
 use crate::modules::users::errors::UserDomainError;
 use crate::modules::users::ports::outbound::UserRepositoryPort;
 use async_trait::async_trait;
@@ -17,6 +17,13 @@ impl PgUserRepository {
     }
 }
 
+impl From<sqlx::Error> for UserDomainError {
+    fn from(err: sqlx::Error) -> Self {
+        tracing::error!("Database error: {:?}", err);
+        UserDomainError::InternalError(format!("Database error: {}", err))
+    }
+}
+
 #[async_trait]
 impl UserRepositoryPort for PgUserRepository {
     async fn save(&self, user: &User) -> Result<(), UserDomainError> {
@@ -24,11 +31,11 @@ impl UserRepositoryPort for PgUserRepository {
 
         sqlx::query(
             "INSERT INTO users \
-        (id, identity_id, name, phone, phone_verified_at, created_at, updated_at) \
+        (id, account_id, name, phone, phone_verified_at, created_at, updated_at) \
         VALUES ($1, $2, $3, $4, $5, $6, $7)",
         )
         .bind(row.id())
-        .bind(row.identity_id())
+        .bind(row.account_id())
         .bind(row.name())
         .bind(row.phone())
         .bind(row.phone_verified_at())
@@ -40,11 +47,11 @@ impl UserRepositoryPort for PgUserRepository {
         Ok(())
     }
 
-    async fn find_by_identity_id(&self, identity_id: &AuthIdentityId) -> Result<Option<User>, UserDomainError> {
+    async fn find_by_account_id(&self, identity_id: &AccountId) -> Result<Option<User>, UserDomainError> {
         let row = sqlx::query_as::<_, UserRow>(
-            "SELECT id, identity_id, name, phone, phone_verified_at, updated_at, created_at
+            "SELECT id, account_id, name, phone, phone_verified_at, updated_at, created_at
             FROM users
-            WHERE identity_id = $1",
+            WHERE account_id = $1",
         )
         .bind(identity_id.as_uuid())
         .fetch_optional(&self.pool)

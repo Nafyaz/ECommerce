@@ -1,6 +1,6 @@
 use crate::infrastructure::http::dtos::CurrentIdentity;
 use crate::modules::users::adapters::inbound::http::dtos::{CreateUserRequest, CreateUserResponse};
-use crate::modules::users::adapters::inbound::user_state::UserState;
+use crate::modules::users::adapters::inbound::http::user_http_state::UserHttpState;
 use crate::modules::users::application::commands::CreateUserCommand;
 use crate::modules::users::errors::UserDomainError;
 use axum::extract::State;
@@ -8,7 +8,7 @@ use axum::http::StatusCode;
 use axum::{Extension, Json};
 
 pub async fn handle(
-    State(state): State<UserState>,
+    State(state): State<UserHttpState>,
     Extension(current_identity): Extension<CurrentIdentity>,
     Json(payload): Json<CreateUserRequest>,
 ) -> Result<(StatusCode, Json<CreateUserResponse>), UserDomainError> {

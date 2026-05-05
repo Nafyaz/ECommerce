@@ -1,6 +1,6 @@
-use crate::modules::identity::adapters::inbound::http::IdentityState;
+use crate::modules::identity::adapters::inbound::http::IdentityHttpState;
 use crate::modules::identity::adapters::inbound::http::handlers::{
-    forgot_password_handler, login_handler, register_handler, resend_otp_handler, verify_otp_handler,
+    login_handler, register_handler, resend_otp_handler, verify_otp_handler,
 };
 use axum::Router;
 use axum::routing::post;
@@ -8,7 +8,7 @@ use axum::routing::post;
 pub fn create_router<S>() -> Router<S>
 where
     S: Send + Sync + 'static + Clone,
-    IdentityState: axum::extract::FromRef<S>,
+    IdentityHttpState: axum::extract::FromRef<S>,
 {
     // TODO: Add rate limiting
     let public_router = Router::new()

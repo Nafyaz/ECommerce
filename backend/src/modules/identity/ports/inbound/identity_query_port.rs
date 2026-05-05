@@ -8,6 +8,6 @@ use async_trait::async_trait;
 #[async_trait]
 pub trait IdentityQueryPort: Send + Sync {
     async fn get_identity_by_id(&self, identity_id: &IdentityId) -> Result<Identity, IdentityError>;
-    async fn is_verified(&self, identity_id: &IdentityId) -> Result<bool, IdentityError>;
+    async fn check_verified(&self, identity_id: &IdentityId) -> Result<bool, IdentityError>;
     async fn login(&self, command: LoginCommand) -> Result<LoginResult, IdentityError>;
 }

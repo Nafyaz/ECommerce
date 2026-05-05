@@ -17,5 +17,5 @@ pub enum IdentityPortError {
 
 #[async_trait]
 pub trait IdentityPort: Send + Sync {
-    async fn is_verified(&self, owner_id: &OwnerId) -> Result<bool, IdentityPortError>;
+    async fn check_verified(&self, owner_id: &OwnerId) -> Result<bool, IdentityPortError>;
 }

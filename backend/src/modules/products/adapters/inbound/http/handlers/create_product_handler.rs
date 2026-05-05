@@ -1,6 +1,6 @@
 use crate::infrastructure::http::dtos::CurrentIdentity;
+use crate::modules::products::adapters::inbound::http::ProductHttpState;
 use crate::modules::products::adapters::inbound::http::dtos::{CreateProductRequest, CreateProductResponse};
-use crate::modules::products::adapters::inbound::http::router::ProductState;
 use crate::modules::products::application::commands::CreateProductCommand;
 use crate::modules::shared::AppError;
 use axum::extract::State;
@@ -8,7 +8,7 @@ use axum::http::StatusCode;
 use axum::{Extension, Json};
 
 pub async fn handle(
-    State(state): State<ProductState>,
+    State(state): State<ProductHttpState>,
     Extension(current_user): Extension<CurrentIdentity>,
     Json(payload): Json<CreateProductRequest>,
 ) -> Result<(StatusCode, Json<CreateProductResponse>), AppError> {

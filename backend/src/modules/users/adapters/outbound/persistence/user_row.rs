@@ -1,7 +1,7 @@
 use crate::modules::users::domain::entities::User;
 use crate::modules::users::domain::value_objects::phone::Phone;
 use crate::modules::users::domain::value_objects::user_name::UserName;
-use crate::modules::users::domain::value_objects::{AuthIdentityId, UserId};
+use crate::modules::users::domain::value_objects::{AccountId, UserId};
 use crate::modules::users::errors::UserDomainError;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
@@ -10,7 +10,7 @@ use uuid::Uuid;
 #[derive(FromRow)]
 pub struct UserRow {
     id: Uuid,
-    auth_identity_id: Uuid,
+    account_id: Uuid,
     name: String,
     phone: Option<String>,
     phone_verified_at: Option<DateTime<Utc>>,
@@ -22,7 +22,7 @@ impl UserRow {
     pub fn from_entity(user: &User) -> Self {
         Self {
             id: user.id().as_uuid().to_owned(),
-            auth_identity_id: user.auth_identity_id().as_uuid().to_owned(),
+            account_id: user.account_id().as_uuid().to_owned(),
             name: user.name().as_str().to_owned(),
             phone: user.phone().as_ref().map(|p| p.as_str().to_owned()),
             phone_verified_at: user.phone_verified_at(),
@@ -35,8 +35,8 @@ impl UserRow {
         &self.id
     }
 
-    pub fn identity_id(&self) -> &Uuid {
-        &self.auth_identity_id
+    pub fn account_id(&self) -> &Uuid {
+        &self.account_id
     }
 
     pub fn name(&self) -> &String {
@@ -66,7 +66,7 @@ impl TryFrom<UserRow> for User {
     fn try_from(user_row: UserRow) -> Result<Self, Self::Error> {
         User::reconstitute(
             UserId::from_uuid(user_row.id),
-            AuthIdentityId::from_uuid(user_row.auth_identity_id),
+            AccountId::from_uuid(user_row.account_id),
             UserName::new(user_row.name)?,
             user_row.phone.map(Phone::new).transpose()?,
             user_row.phone_verified_at,

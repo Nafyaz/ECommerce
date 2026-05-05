@@ -37,7 +37,7 @@ impl VendorRepositoryPort for PgVendorRepository {
         Ok(())
     }
 
-    async fn find_by_id(&self, id: VendorId) -> Result<Option<Vendor>, VendorDomainError> {
+    async fn find_by_id(&self, id: &VendorId) -> Result<Option<Vendor>, VendorDomainError> {
         let row = sqlx::query_as::<_, VendorRow>(
             "SELECT id, name, owner_id, created_at, updated_at FROM vendors WHERE id = $1",
         )
@@ -52,7 +52,7 @@ impl VendorRepositoryPort for PgVendorRepository {
         todo!()
     }
 
-    async fn delete(&self, id: VendorId) -> Result<(), VendorDomainError> {
+    async fn delete(&self, id: &VendorId) -> Result<(), VendorDomainError> {
         todo!()
     }
 }

@@ -1,8 +1,7 @@
-use crate::modules::users::domain::value_objects::AuthIdentityId;
+use crate::modules::users::domain::value_objects::AccountId;
 use async_trait::async_trait;
 use thiserror::Error;
 
-// TODO: All outbound ports should have their own errors
 #[derive(Debug, Error)]
 pub enum IdentityPortError {
     #[error("identity not found")]
@@ -17,5 +16,5 @@ pub enum IdentityPortError {
 
 #[async_trait]
 pub trait IdentityPort: Send + Sync {
-    async fn is_verified(&self, auth_identity_id: &AuthIdentityId) -> Result<bool, IdentityPortError>;
+    async fn check_verified(&self, account_id: &AccountId) -> Result<bool, IdentityPortError>;
 }

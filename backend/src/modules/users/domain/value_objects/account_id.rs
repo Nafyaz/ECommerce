@@ -2,9 +2,9 @@ use std::fmt;
 use uuid::Uuid;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct AuthIdentityId(Uuid);
+pub struct AccountId(Uuid);
 
-impl AuthIdentityId {
+impl AccountId {
     pub fn from_uuid(uuid: Uuid) -> Self {
         Self(uuid)
     }
@@ -14,7 +14,7 @@ impl AuthIdentityId {
     }
 }
 
-impl fmt::Display for AuthIdentityId {
+impl fmt::Display for AccountId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }

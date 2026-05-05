@@ -14,30 +14,29 @@ use sqlx::PgPool;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct IdentityState {
+pub struct IdentityHttpState {
     pub command_service: Arc<dyn IdentityCommandPort>,
     pub query_service: Arc<dyn IdentityQueryPort>,
 }
 
-impl IdentityState {
-    pub fn build(pool: PgPool, auth_config: AuthConfig) -> Self {
-        let identity_repo: Arc<dyn IdentityRepositoryPort> = Arc::new(PgIdentityRepository::new(pool.clone()));
+impl IdentityHttpState {
+    pub fn new(pool: PgPool, auth_config: AuthConfig, notification_state: NotificationState) -> Self {
+        let identity_repo = Arc::new(PgIdentityRepository::new(pool.clone()));
 
-        let notification_service: Arc<dyn NotificationPort> =
-            Arc::new(NotificationModuleAdapter::new(NotificationState::build()));
+        let notification_service = Arc::new(NotificationModuleAdapter::new(notification_state));
 
-        let otp_service: Arc<dyn OtpServicePort> = Arc::new(OtpServiceAdapter::new(auth_config.otp_secret().clone()));
-        let otp_repo: Arc<dyn OtpRepositoryPort> = Arc::new(PgOtpRepository::new(pool.clone()));
+        let otp_service = Arc::new(OtpServiceAdapter::new(auth_config.otp_secret().clone()));
+        let otp_repo = Arc::new(PgOtpRepository::new(pool.clone()));
 
-        let password_hasher: Arc<dyn PasswordHasherPort> = Arc::new(Argon2PasswordHasher);
+        let password_hasher = Arc::new(Argon2PasswordHasher);
 
-        let token_service: Arc<dyn TokenServicePort> = Arc::new(JwtTokenService::new(
+        let token_service = Arc::new(JwtTokenService::new(
             auth_config.jwt_secret().clone(),
             auth_config.access_token_ttl(),
             auth_config.refresh_token_ttl(),
         ));
 
-        let command_service: Arc<dyn IdentityCommandPort> = Arc::new(IdentityCommandService::new(
+        let command_service = Arc::new(IdentityCommandService::new(
             identity_repo.clone(),
             notification_service,
             otp_service,
@@ -46,8 +45,7 @@ impl IdentityState {
             token_service.clone(),
         ));
 
-        let query_service: Arc<dyn IdentityQueryPort> =
-            Arc::new(IdentityQueryService::new(identity_repo, password_hasher, token_service));
+        let query_service = Arc::new(IdentityQueryService::new(identity_repo, password_hasher, token_service));
 
         Self {
             command_service,

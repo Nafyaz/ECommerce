@@ -1,7 +1,6 @@
-mod bootstrap;
 mod dtos;
 mod handlers;
 pub mod router;
-mod vendor_state;
+mod vendor_http_state;
 
-pub use vendor_state::VendorState;
+pub use vendor_http_state::VendorHttpState;

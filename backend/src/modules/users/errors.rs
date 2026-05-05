@@ -10,6 +10,12 @@ pub enum UserDomainError {
     #[error("Invalid phone: {0}")]
     InvalidPhone(String),
 
+    #[error("Identity port error")]
+    IdentityPortError,
+
+    #[error("Account not verified {0}")]
+    AccountNotVerified(Uuid),
+
     #[error("User already exists {0}")]
     UserAlreadyExists(Uuid),
 
@@ -20,13 +26,6 @@ pub enum UserDomainError {
     InternalError(String),
 }
 
-impl From<sqlx::Error> for UserDomainError {
-    fn from(err: sqlx::Error) -> Self {
-        tracing::error!("Database error: {:?}", err);
-        UserDomainError::InternalError(format!("Database error: {}", err))
-    }
-}
-
 impl From<UserDomainError> for AppError {
     fn from(error: UserDomainError) -> Self {
         match error {
@@ -35,6 +34,8 @@ impl From<UserDomainError> for AppError {
             UserDomainError::UserAlreadyExists(id) => AppError::Conflict(format!("User already exists: {}", id)),
             UserDomainError::UserNotFound => AppError::NotFound("User not found".into()),
             UserDomainError::InternalError(msg) => AppError::Internal(msg),
+            UserDomainError::IdentityPortError => AppError::Internal("Identity port error".into()),
+            UserDomainError::AccountNotVerified(id) => AppError::Conflict(format!("Account not verified: {}", id)),
         }
     }
 }
