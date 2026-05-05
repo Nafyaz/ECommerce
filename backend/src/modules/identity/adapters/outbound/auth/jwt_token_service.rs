@@ -60,7 +60,7 @@ impl TokenServicePort for JwtTokenService {
             &DecodingKey::from_secret(self.secret.expose_secret().as_bytes()),
             &Validation::default(),
         )
-        .map_err(|_| TokenServiceError::InvalidToken)?;
+        .map_err(|_| TokenServiceError::InvalidSignature)?;
 
         Ok(token_data.claims)
     }

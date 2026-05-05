@@ -4,9 +4,11 @@ mod domain;
 pub mod errors;
 pub mod ports;
 
+// TODO: I still don't understand pub vs pub(crate) ToT
 pub use adapters::inbound::http::IdentityHttpState;
 pub use adapters::inbound::http::router::create_router;
 pub(crate) use adapters::outbound::auth::Argon2PasswordHasher;
+pub(crate) use adapters::outbound::auth::JwtAuthenticator;
 pub use adapters::outbound::auth::JwtTokenService;
 pub(crate) use adapters::outbound::notifications::NotificationModuleAdapter;
 pub(crate) use adapters::outbound::otp::OtpServiceAdapter;

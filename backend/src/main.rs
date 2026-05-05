@@ -3,7 +3,7 @@ use axum::http::StatusCode;
 use backend::build_app_state;
 use backend::config::config::Config;
 use backend::infrastructure::persistence::database::connection_pool::create_pool;
-use backend::modules::identity;
+use backend::modules::{identity, users};
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber;
@@ -28,6 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .nest("/v1/identity", identity::create_router())
+        .nest("/v1/users", users::create_router())
         // .nest(
         //     "/v1/vendor",
         //     vendors::create_router(db_pool.clone(), token_service.clone()),

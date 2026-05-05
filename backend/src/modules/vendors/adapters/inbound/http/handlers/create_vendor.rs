@@ -12,7 +12,7 @@ pub async fn handle(
     Extension(current_identity): Extension<CurrentIdentity>,
     Json(payload): Json<CreateVendorRequest>,
 ) -> Result<(StatusCode, Json<CreateVendorResponse>), AppError> {
-    let command = CreateVendorCommand::new(current_identity.id, payload.name)?;
+    let command = CreateVendorCommand::new(current_identity.identity_id, payload.name)?;
     let result = state.command_service.create_vendor(command).await?;
     let response = CreateVendorResponse::from(result);
 

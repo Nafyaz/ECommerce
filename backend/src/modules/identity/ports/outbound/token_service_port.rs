@@ -11,8 +11,22 @@ pub trait TokenServicePort: Send + Sync {
 pub enum TokenServiceError {
     #[error("Failed to generate token")]
     FailedGeneration,
+
+    #[error("Token has expired")]
+    Expired,
+
+    #[error("Token signature is invalid")]
+    InvalidSignature,
+
+    #[error("Token format is malformed")]
+    Malformed,
+
+    #[error("Token type mismatch: expected {expected}, got {actual}")]
+    TypeMismatch { expected: String, actual: String },
+
     #[error("Missing authentication token")]
     MissingToken,
+
     #[error("Invalid token")]
     InvalidToken,
 }
@@ -21,8 +35,12 @@ impl From<TokenServiceError> for IdentityError {
     fn from(error: TokenServiceError) -> Self {
         match error {
             TokenServiceError::FailedGeneration => IdentityError::InternalError("Failed to generate token".to_string()),
-            TokenServiceError::MissingToken => IdentityError::InvalidCredentials,
-            TokenServiceError::InvalidToken => IdentityError::InvalidCredentials,
+            TokenServiceError::Expired
+            | TokenServiceError::InvalidSignature
+            | TokenServiceError::Malformed
+            | TokenServiceError::TypeMismatch { .. }
+            | TokenServiceError::MissingToken
+            | TokenServiceError::InvalidToken => IdentityError::InvalidCredentials,
         }
     }
 }

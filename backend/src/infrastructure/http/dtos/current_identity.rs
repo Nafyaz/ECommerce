@@ -7,7 +7,7 @@ use uuid::Uuid;
 // TODO: Add roles. Or, roles will be added in application handlers??
 #[derive(Clone, Debug)]
 pub struct CurrentIdentity {
-    pub id: Uuid,
+    pub identity_id: Uuid,
     // pub roles: Vec<String>,
 }
 
