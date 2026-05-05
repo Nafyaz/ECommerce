@@ -1,12 +1,9 @@
 use axum::Router;
 use axum::http::StatusCode;
-use backend::AppState;
+use backend::build_app_state;
 use backend::config::config::Config;
 use backend::infrastructure::persistence::database::connection_pool::create_pool;
-use backend::modules::identity::{IdentityHttpState, JwtTokenService, TokenServicePort};
-use backend::modules::notifications::NotificationState;
-use backend::modules::users::UserHttpState;
-use backend::modules::{identity, vendors};
+use backend::modules::identity;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber;
@@ -27,11 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db_pool = create_pool(&config.database).await?;
     tracing::info!("Database connection established");
 
-    let notification_state = NotificationState::new();
-    let identity_http_state = IdentityHttpState::new(db_pool.clone(), config.auth, notification_state);
-    let user_http_state = UserHttpState::new(db_pool.clone(), identity_http_state);
-
-    let app_state = AppState { identity_http_state };
+    let app_state = build_app_state(db_pool, config.auth);
 
     let app = Router::new()
         .nest("/v1/identity", identity::create_router())

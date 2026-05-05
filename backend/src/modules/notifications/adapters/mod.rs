@@ -1,2 +1,2 @@
 pub mod inbound;
-mod outbound;
+pub(crate) mod outbound;

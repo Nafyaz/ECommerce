@@ -1,17 +1,18 @@
 use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{Email, OtpCode, OtpPurpose};
 use crate::modules::identity::ports::outbound::NotificationPort;
-use crate::modules::notifications::{NotificationState, SendEmailCommand};
+use crate::modules::notifications::{NotificationCommandPort, SendEmailCommand};
 use async_trait::async_trait;
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct NotificationModuleAdapter {
-    notification_state: NotificationState,
+    notification_commands: Arc<dyn NotificationCommandPort>,
 }
 
 impl NotificationModuleAdapter {
-    pub fn new(notification_state: NotificationState) -> Self {
-        Self { notification_state }
+    pub fn new(notification_commands: Arc<dyn NotificationCommandPort>) -> Self {
+        Self { notification_commands }
     }
 
     fn email_registration(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, IdentityError> {
@@ -71,7 +72,7 @@ impl NotificationPort for NotificationModuleAdapter {
             OtpPurpose::DeleteAccount => Self::email_delete_account(email, otp_code),
         }?;
 
-        self.notification_state.command_service.send_email(command).await?;
+        self.notification_commands.send_email(command).await?;
 
         Ok(())
     }

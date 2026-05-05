@@ -1,1 +1,1 @@
-mod create_user_handler;
+pub mod create_user_handler;

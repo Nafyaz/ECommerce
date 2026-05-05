@@ -6,7 +6,13 @@ pub mod ports;
 
 pub use adapters::inbound::http::IdentityHttpState;
 pub use adapters::inbound::http::router::create_router;
+pub(crate) use adapters::outbound::auth::Argon2PasswordHasher;
 pub use adapters::outbound::auth::JwtTokenService;
+pub(crate) use adapters::outbound::notifications::NotificationModuleAdapter;
+pub(crate) use adapters::outbound::otp::OtpServiceAdapter;
+pub(crate) use adapters::outbound::persistence::{PgIdentityRepository, PgOtpRepository};
+pub(crate) use application::command_services::IdentityCommandService;
+pub(crate) use application::query_services::IdentityQueryService;
 pub use domain::value_objects::IdentityId;
 pub use errors::IdentityError;
 pub use ports::outbound::TokenServiceError;
