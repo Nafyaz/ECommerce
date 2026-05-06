@@ -1,11 +1,9 @@
-CREATE TYPE vendor_status AS ENUM ('ACTIVE', 'INACTIVE');
 
 CREATE TABLE vendors
 (
     id         UUID PRIMARY KEY,
     name       VARCHAR(128)             NOT NULL,
     owner_id   UUID                     NOT NULL REFERENCES identities (id),
-    status     vendor_status            NOT NULL,
 
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL

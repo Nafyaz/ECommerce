@@ -3,7 +3,6 @@ use crate::modules::users::domain::value_objects::user_name::UserName;
 use crate::modules::users::domain::value_objects::{AccountId, UserId};
 use crate::modules::users::errors::UserDomainError;
 use chrono::{DateTime, Utc};
-use uuid::Uuid;
 
 //TODO: Manually implement slugs and use them
 pub struct User {

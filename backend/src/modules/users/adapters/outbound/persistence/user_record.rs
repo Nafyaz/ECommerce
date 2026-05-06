@@ -8,7 +8,7 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(FromRow)]
-pub struct UserRow {
+pub struct UserRecord {
     id: Uuid,
     account_id: Uuid,
     name: String,
@@ -18,7 +18,7 @@ pub struct UserRow {
     updated_at: DateTime<Utc>,
 }
 
-impl UserRow {
+impl UserRecord {
     pub fn from_entity(user: &User) -> Self {
         Self {
             id: user.id().as_uuid().to_owned(),
@@ -60,10 +60,10 @@ impl UserRow {
     }
 }
 
-impl TryFrom<UserRow> for User {
+impl TryFrom<UserRecord> for User {
     type Error = UserDomainError;
 
-    fn try_from(user_row: UserRow) -> Result<Self, Self::Error> {
+    fn try_from(user_row: UserRecord) -> Result<Self, Self::Error> {
         User::reconstitute(
             UserId::from_uuid(user_row.id),
             AccountId::from_uuid(user_row.account_id),

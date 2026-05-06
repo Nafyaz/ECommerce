@@ -1,4 +1,4 @@
-use crate::modules::vendors::adapters::outbound::persistence::vendor_row::VendorRow;
+use crate::modules::vendors::adapters::outbound::persistence::vendor_record::VendorRecord;
 use crate::modules::vendors::domain::entities::Vendor;
 use crate::modules::vendors::domain::value_objects::VendorId;
 use crate::modules::vendors::errors::VendorDomainError;
@@ -31,7 +31,7 @@ impl From<sqlx::Error> for VendorDomainError {
 #[async_trait]
 impl VendorRepositoryPort for PgVendorRepository {
     async fn save(&self, vendor: &Vendor) -> Result<(), VendorDomainError> {
-        let row = VendorRow::from_entity(vendor);
+        let row = VendorRecord::from_entity(vendor);
 
         sqlx::query(
             "INSERT INTO vendors \
@@ -50,14 +50,14 @@ impl VendorRepositoryPort for PgVendorRepository {
     }
 
     async fn find_by_id(&self, id: &VendorId) -> Result<Option<Vendor>, VendorDomainError> {
-        let row = sqlx::query_as::<_, VendorRow>(
+        let row = sqlx::query_as::<_, VendorRecord>(
             "SELECT id, name, owner_id, created_at, updated_at FROM vendors WHERE id = $1",
         )
         .bind(id.as_uuid().to_owned())
         .fetch_optional(&self.pool)
         .await?;
 
-        Ok(row.map(VendorRow::into_entity))
+        Ok(row.map(VendorRecord::into_entity))
     }
 
     async fn find_all(&self) -> Result<Vec<Vendor>, VendorDomainError> {

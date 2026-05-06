@@ -4,7 +4,7 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(FromRow)]
-pub struct VendorRow {
+pub struct VendorRecord {
     pub id: Uuid,
     pub name: String,
     pub owner_id: Uuid,
@@ -12,7 +12,7 @@ pub struct VendorRow {
     pub updated_at: DateTime<Utc>,
 }
 
-impl VendorRow {
+impl VendorRecord {
     pub fn from_entity(vendor: &Vendor) -> Self {
         Self {
             id: vendor.id().as_uuid().to_owned(),

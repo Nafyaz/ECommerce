@@ -1,4 +1,4 @@
-use crate::modules::users::adapters::outbound::persistence::user_row::UserRow;
+use crate::modules::users::adapters::outbound::persistence::user_record::UserRecord;
 use crate::modules::users::domain::entities::User;
 use crate::modules::users::domain::value_objects::{AccountId, UserId};
 use crate::modules::users::errors::UserDomainError;
@@ -27,7 +27,7 @@ impl From<sqlx::Error> for UserDomainError {
 #[async_trait]
 impl UserRepositoryPort for PgUserRepository {
     async fn save(&self, user: &User) -> Result<(), UserDomainError> {
-        let row = UserRow::from_entity(user);
+        let row = UserRecord::from_entity(user);
 
         sqlx::query(
             "INSERT INTO users \
@@ -48,7 +48,7 @@ impl UserRepositoryPort for PgUserRepository {
     }
 
     async fn find_by_account_id(&self, identity_id: &AccountId) -> Result<Option<User>, UserDomainError> {
-        let row = sqlx::query_as::<_, UserRow>(
+        let row = sqlx::query_as::<_, UserRecord>(
             "SELECT id, account_id, name, phone, phone_verified_at, updated_at, created_at
             FROM users
             WHERE account_id = $1",

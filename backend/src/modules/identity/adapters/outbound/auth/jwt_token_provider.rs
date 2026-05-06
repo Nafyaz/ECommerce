@@ -56,8 +56,6 @@ impl TokenProviderPort for JwtTokenProvider {
     }
 
     fn validate_token(&self, token: &str) -> Result<Claim, TokenProviderError> {
-        tracing::trace!("inside JwtTokenService");
-
         let token_data = decode::<Claim>(
             token,
             &DecodingKey::from_secret(self.secret.expose_secret().as_bytes()),
