@@ -6,7 +6,7 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(FromRow)]
-pub struct OtpRow {
+pub struct OtpRecord {
     pub id: Uuid,
     pub identity_id: Uuid,
     pub purpose: String,
@@ -18,7 +18,7 @@ pub struct OtpRow {
     pub created_at: DateTime<Utc>,
 }
 
-impl OtpRow {
+impl OtpRecord {
     pub fn from_entity(otp: &Otp) -> Self {
         Self {
             id: otp.id().as_uuid().to_owned(),
@@ -34,20 +34,20 @@ impl OtpRow {
     }
 }
 
-impl TryFrom<OtpRow> for Otp {
+impl TryFrom<OtpRecord> for Otp {
     type Error = IdentityError;
 
-    fn try_from(otp_row: OtpRow) -> Result<Self, Self::Error> {
+    fn try_from(otp_record: OtpRecord) -> Result<Self, Self::Error> {
         Otp::reconstitute(
-            OtpId::from_uuid(otp_row.id),
-            IdentityId::from_uuid(otp_row.identity_id),
-            OtpPurpose::from_str(otp_row.purpose)?,
-            OtpCodeHash::from_str(otp_row.code_hash),
-            OtpStatus::from_str(otp_row.status)?,
-            otp_row.attempts as u8,
-            otp_row.consumed_at,
-            otp_row.expires_at,
-            otp_row.created_at,
+            OtpId::from_uuid(otp_record.id),
+            IdentityId::from_uuid(otp_record.identity_id),
+            OtpPurpose::from_str(otp_record.purpose)?,
+            OtpCodeHash::from_str(otp_record.code_hash),
+            OtpStatus::from_str(otp_record.status)?,
+            otp_record.attempts as u8,
+            otp_record.consumed_at,
+            otp_record.expires_at,
+            otp_record.created_at,
         )
     }
 }

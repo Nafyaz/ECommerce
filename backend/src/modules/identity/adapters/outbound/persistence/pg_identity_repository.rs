@@ -1,5 +1,5 @@
 use crate::modules::identity::IdentityError;
-use crate::modules::identity::adapters::outbound::persistence::IdentityRow;
+use crate::modules::identity::adapters::outbound::persistence::IdentityRecord;
 use crate::modules::identity::domain::entities::Identity;
 use crate::modules::identity::domain::value_objects::{Email, IdentityId, IdentityStatus};
 use crate::modules::identity::ports::outbound::IdentityRepositoryPort;
@@ -20,7 +20,7 @@ impl PgIdentityRepository {
 #[async_trait]
 impl IdentityRepositoryPort for PgIdentityRepository {
     async fn save(&self, identity: &Identity) -> Result<(), IdentityError> {
-        let row = IdentityRow::from_entity(identity);
+        let row = IdentityRecord::from_entity(identity);
 
         sqlx::query(
             "INSERT INTO identities \
@@ -40,7 +40,7 @@ impl IdentityRepositoryPort for PgIdentityRepository {
     }
 
     async fn update(&self, identity: &Identity) -> Result<(), IdentityError> {
-        let row = IdentityRow::from_entity(identity);
+        let row = IdentityRecord::from_entity(identity);
 
         sqlx::query(
             "UPDATE identities \
@@ -59,7 +59,7 @@ impl IdentityRepositoryPort for PgIdentityRepository {
     }
 
     async fn find_by_id(&self, id: &IdentityId) -> Result<Option<Identity>, IdentityError> {
-        let row = sqlx::query_as::<_, IdentityRow>(
+        let row = sqlx::query_as::<_, IdentityRecord>(
             "SELECT id, email, password_hash, status::TEXT, created_at, updated_at \
             FROM identities \
             WHERE id = $1",
@@ -73,7 +73,7 @@ impl IdentityRepositoryPort for PgIdentityRepository {
 
     async fn find_verified_by_email(&self, email: &Email) -> Result<Option<Identity>, IdentityError> {
         let email = email.as_str();
-        let row = sqlx::query_as::<_, IdentityRow>(
+        let row = sqlx::query_as::<_, IdentityRecord>(
             "SELECT id, email, password_hash, status::TEXT, created_at, updated_at \
             FROM identities \
             WHERE email = $1 AND status = $2::identity_status",

@@ -1,18 +1,18 @@
 use crate::modules::identity::domain::value_objects::{Claim, IdentityId, TokenType};
-use crate::modules::identity::ports::outbound::{TokenServiceError, TokenServicePort};
+use crate::modules::identity::ports::outbound::{TokenProviderError, TokenProviderPort};
 use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use secrecy::{ExposeSecret, SecretString};
 use std::time::Duration;
 use tracing::trace;
 
-pub struct JwtTokenService {
+pub struct JwtTokenProvider {
     secret: SecretString,
     access_token_ttl: Duration,
     refresh_token_ttl: Duration,
 }
 
-impl JwtTokenService {
+impl JwtTokenProvider {
     pub fn new(secret: SecretString, access_token_ttl: Duration, refresh_token_ttl: Duration) -> Self {
         Self {
             secret,
@@ -33,8 +33,8 @@ impl JwtTokenService {
 }
 
 // TODO: Learn how JsonWebToken works under the hood
-impl TokenServicePort for JwtTokenService {
-    fn generate_token(&self, identity_id: &IdentityId, token_type: &TokenType) -> Result<String, TokenServiceError> {
+impl TokenProviderPort for JwtTokenProvider {
+    fn generate_token(&self, identity_id: &IdentityId, token_type: &TokenType) -> Result<String, TokenProviderError> {
         let now = Utc::now();
         let expiration = now + self.ttl_for(token_type);
 
@@ -50,12 +50,12 @@ impl TokenServicePort for JwtTokenService {
             &claims,
             &EncodingKey::from_secret(self.secret.expose_secret().as_bytes()),
         )
-        .map_err(|_| TokenServiceError::FailedGeneration)?;
+        .map_err(|_| TokenProviderError::FailedGeneration)?;
 
         Ok(token)
     }
 
-    fn validate_token(&self, token: &str) -> Result<Claim, TokenServiceError> {
+    fn validate_token(&self, token: &str) -> Result<Claim, TokenProviderError> {
         tracing::trace!("inside JwtTokenService");
 
         let token_data = decode::<Claim>(
@@ -65,7 +65,7 @@ impl TokenServicePort for JwtTokenService {
         )
         .map_err(|e| {
             tracing::error!("JWT validation failed: {:?}", e);
-            TokenServiceError::InvalidSignature
+            TokenProviderError::InvalidSignature
         })?;
 
         tracing::debug!("Token data: {:?}", token_data);

@@ -1,5 +1,5 @@
 use crate::modules::identity::IdentityError;
-use crate::modules::identity::adapters::outbound::persistence::otp_row::OtpRow;
+use crate::modules::identity::adapters::outbound::persistence::otp_record::OtpRecord;
 use crate::modules::identity::domain::entities::Otp;
 use crate::modules::identity::domain::value_objects::{IdentityId, OtpId, OtpPurpose, OtpStatus};
 use crate::modules::identity::ports::outbound::OtpRepositoryPort;
@@ -20,7 +20,7 @@ impl PgOtpRepository {
 #[async_trait]
 impl OtpRepositoryPort for PgOtpRepository {
     async fn save(&self, otp: &Otp) -> Result<(), IdentityError> {
-        let row = OtpRow::from_entity(otp);
+        let row = OtpRecord::from_entity(otp);
 
         sqlx::query(
             "INSERT INTO otps \
@@ -43,7 +43,7 @@ impl OtpRepositoryPort for PgOtpRepository {
     }
 
     async fn update(&self, otp: &Otp) -> Result<(), IdentityError> {
-        let row = OtpRow::from_entity(otp);
+        let row = OtpRecord::from_entity(otp);
 
         sqlx::query(
             "UPDATE otps \
@@ -62,7 +62,7 @@ impl OtpRepositoryPort for PgOtpRepository {
     }
 
     async fn find_active(&self, identity_id: &IdentityId, purpose: &OtpPurpose) -> Result<Option<Otp>, IdentityError> {
-        let otp_row = sqlx::query_as::<_, OtpRow>(
+        let otp_row = sqlx::query_as::<_, OtpRecord>(
             "SELECT id, identity_id, purpose::TEXT, code_hash, status::TEXT, attempts, consumed_at, expires_at, created_at \
             FROM otps \
             WHERE identity_id = $1 AND purpose = $2::otp_purpose AND status = $3::otp_status AND expires_at > NOW()",

@@ -7,7 +7,7 @@ use crate::modules::identity::domain::entities::{Identity, Otp};
 use crate::modules::identity::domain::value_objects::OtpPurpose;
 use crate::modules::identity::ports::inbound::IdentityCommandPort;
 use crate::modules::identity::ports::outbound::{
-    IdentityRepositoryPort, NotificationPort, OtpRepositoryPort, OtpServicePort, PasswordHasherPort, TokenServicePort,
+    IdentityRepositoryPort, NotificationPort, OtpProviderPort, OtpRepositoryPort, PasswordHasherPort, TokenProviderPort,
 };
 use async_trait::async_trait;
 use chrono::Duration;
@@ -17,19 +17,19 @@ pub struct IdentityCommandService {
     identity_repo: Arc<dyn IdentityRepositoryPort>,
     notification_service: Arc<dyn NotificationPort>,
     otp_repo: Arc<dyn OtpRepositoryPort>,
-    otp_service: Arc<dyn OtpServicePort>,
+    otp_service: Arc<dyn OtpProviderPort>,
     password_hasher: Arc<dyn PasswordHasherPort>,
-    token_service: Arc<dyn TokenServicePort>,
+    token_service: Arc<dyn TokenProviderPort>,
 }
 
 impl IdentityCommandService {
     pub fn new(
         identity_repo: Arc<dyn IdentityRepositoryPort>,
         notification_service: Arc<dyn NotificationPort>,
-        otp_service: Arc<dyn OtpServicePort>,
+        otp_service: Arc<dyn OtpProviderPort>,
         otp_repo: Arc<dyn OtpRepositoryPort>,
         password_hasher: Arc<dyn PasswordHasherPort>,
-        token_service: Arc<dyn TokenServicePort>,
+        token_service: Arc<dyn TokenProviderPort>,
     ) -> Self {
         Self {
             identity_repo,

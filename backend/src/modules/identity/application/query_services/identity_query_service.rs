@@ -4,21 +4,21 @@ use crate::modules::identity::domain::entities::Identity;
 use crate::modules::identity::domain::value_objects::{IdentityId, IdentityStatus, TokenType};
 use crate::modules::identity::ports::inbound::IdentityQueryPort;
 use crate::modules::identity::ports::outbound::{IdentityRepositoryPort, PasswordHasherPort};
-use crate::modules::identity::{IdentityError, TokenServicePort};
+use crate::modules::identity::{IdentityError, TokenProviderPort};
 use async_trait::async_trait;
 use std::sync::Arc;
 
 pub struct IdentityQueryService {
     identity_repo: Arc<dyn IdentityRepositoryPort>,
     password_hasher: Arc<dyn PasswordHasherPort>,
-    token_service: Arc<dyn TokenServicePort>,
+    token_service: Arc<dyn TokenProviderPort>,
 }
 
 impl IdentityQueryService {
     pub fn new(
         identity_repo: Arc<dyn IdentityRepositoryPort>,
         password_hasher: Arc<dyn PasswordHasherPort>,
-        token_service: Arc<dyn TokenServicePort>,
+        token_service: Arc<dyn TokenProviderPort>,
     ) -> Self {
         Self {
             identity_repo,

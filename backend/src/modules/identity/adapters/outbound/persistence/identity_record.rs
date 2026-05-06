@@ -6,7 +6,7 @@ use sqlx::FromRow;
 use uuid::Uuid;
 
 #[derive(FromRow)]
-pub struct IdentityRow {
+pub struct IdentityRecord {
     id: Uuid,
     email: String,
     password_hash: String,
@@ -15,7 +15,7 @@ pub struct IdentityRow {
     updated_at: DateTime<Utc>,
 }
 
-impl IdentityRow {
+impl IdentityRecord {
     pub fn from_entity(identity: &Identity) -> Self {
         Self {
             id: identity.id().as_uuid().to_owned(),
@@ -50,10 +50,10 @@ impl IdentityRow {
     }
 }
 
-impl TryFrom<IdentityRow> for Identity {
+impl TryFrom<IdentityRecord> for Identity {
     type Error = IdentityError;
 
-    fn try_from(identity_row: IdentityRow) -> Result<Self, Self::Error> {
+    fn try_from(identity_row: IdentityRecord) -> Result<Self, Self::Error> {
         Identity::reconstitute(
             IdentityId::from_uuid(identity_row.id),
             Email::new(identity_row.email)?,

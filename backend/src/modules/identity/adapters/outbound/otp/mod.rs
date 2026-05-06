@@ -1,3 +1,3 @@
-mod otp_service_adapter;
+mod hmac_otp_provider;
 
-pub use otp_service_adapter::OtpServiceAdapter;
+pub use hmac_otp_provider::HmacOtpProvider;

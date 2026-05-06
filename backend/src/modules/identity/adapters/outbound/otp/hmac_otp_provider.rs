@@ -1,22 +1,22 @@
 use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{OtpCode, OtpCodeHash};
-use crate::modules::identity::ports::outbound::OtpServicePort;
+use crate::modules::identity::ports::outbound::OtpProviderPort;
 use hmac::{Hmac, Mac};
 use rand::RngExt;
 use secrecy::{ExposeSecret, SecretString};
 use sha2::Sha256;
 
-pub struct OtpServiceAdapter {
+pub struct HmacOtpProvider {
     secret: SecretString,
 }
 
-impl OtpServiceAdapter {
+impl HmacOtpProvider {
     pub fn new(secret: SecretString) -> Self {
         Self { secret }
     }
 }
 
-impl OtpServicePort for OtpServiceAdapter {
+impl OtpProviderPort for HmacOtpProvider {
     fn generate_otp(&self) -> Result<OtpCode, IdentityError> {
         let mut rng = rand::rng();
         let code = SecretString::new(format!("{:06}", rng.random_range(0..=999999)).into());

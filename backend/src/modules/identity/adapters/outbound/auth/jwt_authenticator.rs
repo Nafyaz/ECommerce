@@ -1,13 +1,13 @@
 use crate::modules::identity::ports::outbound::{AuthError, AuthenticatorPort};
-use crate::modules::identity::{IdentityId, TokenServicePort};
+use crate::modules::identity::{IdentityId, TokenProviderPort};
 use std::sync::Arc;
 
 pub struct JwtAuthenticator {
-    token_service: Arc<dyn TokenServicePort>,
+    token_service: Arc<dyn TokenProviderPort>,
 }
 
 impl JwtAuthenticator {
-    pub fn new(token_service: Arc<dyn TokenServicePort>) -> Self {
+    pub fn new(token_service: Arc<dyn TokenProviderPort>) -> Self {
         Self { token_service }
     }
 }

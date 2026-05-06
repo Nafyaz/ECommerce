@@ -2,8 +2,8 @@ use crate::AppState;
 use crate::config::auth::AuthConfig;
 use crate::infrastructure::http::middleware::AuthState;
 use crate::modules::identity::{
-    Argon2PasswordHasher, IdentityCommandService, IdentityHttpState, IdentityQueryService, JwtAuthenticator,
-    JwtTokenService, NotificationModuleAdapter, OtpServiceAdapter, PgIdentityRepository, PgOtpRepository,
+    Argon2PasswordHasher, HmacOtpProvider, IdentityCommandService, IdentityHttpState, IdentityQueryService,
+    JwtAuthenticator, JwtTokenProvider, NotificationModuleAdapter, PgIdentityRepository, PgOtpRepository,
 };
 use crate::modules::notifications::{LogEmailProvider, NotificationCommandService};
 use crate::modules::users::ports::inbound::UserQueryPort;
@@ -23,9 +23,9 @@ pub fn build_app_state(db_pool: PgPool, auth_config: AuthConfig) -> AppState {
     // Identity
     let identity_repo = Arc::new(PgIdentityRepository::new(db_pool.clone()));
     let otp_repo = Arc::new(PgOtpRepository::new(db_pool.clone()));
-    let otp_service = Arc::new(OtpServiceAdapter::new(auth_config.otp_secret().clone()));
+    let otp_service = Arc::new(HmacOtpProvider::new(auth_config.otp_secret().clone()));
     let password_hasher = Arc::new(Argon2PasswordHasher);
-    let token_service = Arc::new(JwtTokenService::new(
+    let token_service = Arc::new(JwtTokenProvider::new(
         auth_config.jwt_secret().clone(),
         auth_config.access_token_ttl(),
         auth_config.refresh_token_ttl(),
