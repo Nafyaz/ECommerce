@@ -1,7 +1,8 @@
 use crate::modules::vendors::domain::entities::Vendor;
 use crate::modules::vendors::errors::VendorDomainError;
 use crate::modules::vendors::ports::inbound::VendorQueryPort;
-use crate::modules::vendors::{OwnerId, VendorId, VendorRepositoryPort};
+use crate::modules::vendors::ports::outbound::VendorRepositoryPort;
+use crate::modules::vendors::{OwnerId, VendorId};
 use async_trait::async_trait;
 use std::sync::Arc;
 

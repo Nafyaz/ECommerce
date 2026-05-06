@@ -6,6 +6,6 @@ use uuid::Uuid;
 pub struct Claim {
     pub sub: Uuid,
     pub token_type: String,
-    pub iat: DateTime<Utc>,
-    pub exp: DateTime<Utc>,
+    pub iat: i64,
+    pub exp: i64,
 }

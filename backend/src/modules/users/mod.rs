@@ -5,6 +5,7 @@ mod errors;
 pub mod ports;
 
 pub use adapters::inbound::http::UserHttpState;
+pub use adapters::inbound::http::create_router;
 pub(crate) use adapters::outbound::identities::IdentityModuleAdapter;
 pub(crate) use adapters::outbound::persistence::PgUserRepository;
 pub(crate) use application::command_services::UserCommandService;

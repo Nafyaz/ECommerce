@@ -20,18 +20,6 @@ pub enum VendorDomainError {
     InternalError(String),
 }
 
-impl From<sqlx::Error> for VendorDomainError {
-    fn from(err: sqlx::Error) -> Self {
-        match err {
-            sqlx::Error::RowNotFound => VendorDomainError::VendorNotFound,
-            _ => {
-                tracing::error!("Database error: {:?}", err);
-                VendorDomainError::InternalError("An internal database error occurred".to_string())
-            }
-        }
-    }
-}
-
 impl From<VendorDomainError> for AppError {
     fn from(error: VendorDomainError) -> Self {
         match error {

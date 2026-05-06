@@ -1,10 +1,11 @@
+use crate::infrastructure::http::middleware::AuthState;
 use crate::infrastructure::http::middleware::auth_middleware::auth_middleware;
 use crate::modules::users::UserHttpState;
 use crate::modules::users::adapters::inbound::http::handlers::create_user_handler;
 use axum::routing::post;
 use axum::{Router, middleware};
 
-pub fn create_router<S>() -> Router<S>
+pub fn create_router<S>(auth_state: AuthState) -> Router<S>
 where
     S: Send + Sync + 'static + Clone,
     UserHttpState: axum::extract::FromRef<S>,

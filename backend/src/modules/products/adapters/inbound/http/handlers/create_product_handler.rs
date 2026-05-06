@@ -17,7 +17,7 @@ pub async fn handle(
         payload.vendor_id,
         payload.price,
         payload.currency,
-        current_user.id,
+        current_user.identity_id,
     )?;
     let result = state.command_port.create_product(command).await?;
 

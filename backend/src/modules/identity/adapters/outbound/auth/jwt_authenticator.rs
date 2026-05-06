@@ -14,10 +14,14 @@ impl JwtAuthenticator {
 
 impl AuthenticatorPort for JwtAuthenticator {
     fn authenticate(&self, token: &str) -> Result<IdentityId, AuthError> {
+        tracing::trace!("inside authenticator");
+
         let claims = self
             .token_service
             .validate_token(token)
             .map_err(|_| AuthError::AuthenticationFailed)?;
+
+        tracing::trace!("Token validated: {:?}", claims);
 
         Ok(IdentityId::from_uuid(claims.sub))
     }

@@ -1,4 +1,4 @@
-use crate::modules::vendors::adapters::outbound::persistence::mapper::VendorRow;
+use crate::modules::vendors::adapters::outbound::persistence::vendor_row::VendorRow;
 use crate::modules::vendors::domain::entities::Vendor;
 use crate::modules::vendors::domain::value_objects::VendorId;
 use crate::modules::vendors::errors::VendorDomainError;
@@ -13,6 +13,18 @@ pub struct PgVendorRepository {
 impl PgVendorRepository {
     pub fn new(pool: PgPool) -> Self {
         Self { pool }
+    }
+}
+
+impl From<sqlx::Error> for VendorDomainError {
+    fn from(err: sqlx::Error) -> Self {
+        match err {
+            sqlx::Error::RowNotFound => VendorDomainError::VendorNotFound,
+            _ => {
+                tracing::error!("Database error: {:?}", err);
+                VendorDomainError::InternalError("An internal database error occurred".to_string())
+            }
+        }
     }
 }
 

@@ -28,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .nest("/v1/identity", identity::create_router())
-        .nest("/v1/users", users::create_router())
+        .nest("/v1/users", users::create_router(app_state.auth_state.clone()))
         // .nest(
         //     "/v1/vendor",
         //     vendors::create_router(db_pool.clone(), token_service.clone()),

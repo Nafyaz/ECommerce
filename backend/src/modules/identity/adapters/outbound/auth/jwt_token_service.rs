@@ -4,6 +4,7 @@ use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use secrecy::{ExposeSecret, SecretString};
 use std::time::Duration;
+use tracing::trace;
 
 pub struct JwtTokenService {
     secret: SecretString,
@@ -40,8 +41,8 @@ impl TokenServicePort for JwtTokenService {
         let claims = Claim {
             sub: identity_id.as_uuid().to_owned(),
             token_type: token_type.as_str().to_owned(),
-            iat: now,
-            exp: expiration,
+            iat: now.timestamp(),
+            exp: expiration.timestamp(),
         };
 
         let token = encode(
@@ -55,12 +56,19 @@ impl TokenServicePort for JwtTokenService {
     }
 
     fn validate_token(&self, token: &str) -> Result<Claim, TokenServiceError> {
+        tracing::trace!("inside JwtTokenService");
+
         let token_data = decode::<Claim>(
             token,
             &DecodingKey::from_secret(self.secret.expose_secret().as_bytes()),
             &Validation::default(),
         )
-        .map_err(|_| TokenServiceError::InvalidSignature)?;
+        .map_err(|e| {
+            tracing::error!("JWT validation failed: {:?}", e);
+            TokenServiceError::InvalidSignature
+        })?;
+
+        tracing::debug!("Token data: {:?}", token_data);
 
         Ok(token_data.claims)
     }

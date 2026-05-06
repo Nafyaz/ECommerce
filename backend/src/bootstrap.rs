@@ -11,6 +11,7 @@ use crate::modules::users::{
     IdentityModuleAdapter as UserIdentityModuleAdapter, PgUserRepository, UserCommandService, UserHttpState,
     UserQueryService,
 };
+use crate::modules::vendors::{PgVendorRepository, VendorCommandService, VendorHttpState};
 use sqlx::PgPool;
 use std::sync::Arc;
 
@@ -50,14 +51,20 @@ pub fn build_app_state(db_pool: PgPool, auth_config: AuthConfig) -> AppState {
     let authenticator = Arc::new(JwtAuthenticator::new(token_service.clone()));
 
     // User
-    let user_repo = Arc::new(PgUserRepository::new(db_pool));
+    let user_repo = Arc::new(PgUserRepository::new(db_pool.clone()));
     let user_identity_port = Arc::new(UserIdentityModuleAdapter::new(identity_queries.clone()));
     let user_commands = Arc::new(UserCommandService::new(user_identity_port, user_repo.clone()));
     let user_queries: Arc<dyn UserQueryPort> = Arc::new(UserQueryService::new(user_repo));
+
+    // Vendor
+    let vendor_repo = Arc::new(PgVendorRepository::new(db_pool));
+    let vendor_identity_port = Arc::new(VendorIdentityModuleAdapter::new(identity_queries.clone()));
+    let vendor_commands = Arc::new(VendorCommandService::new(vendor_repo.clone()));
 
     AppState {
         auth_state: AuthState::new(authenticator),
         identity_http_state: IdentityHttpState::new(identity_commands, identity_queries),
         user_http_state: UserHttpState::new(user_commands, user_queries),
+        vendor_http_state: VendorHttpState::new(vendor_commands),
     }
 }
