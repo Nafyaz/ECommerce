@@ -1,6 +1,6 @@
 use crate::modules::identity::IdentityId;
 use crate::modules::identity::ports::inbound::IdentityQueryPort;
-use crate::modules::vendors::OwnerId;
+use crate::modules::vendors::domain::value_objects::OwnerId;
 use crate::modules::vendors::ports::outbound::{IdentityPort, IdentityPortError};
 use async_trait::async_trait;
 use std::sync::Arc;

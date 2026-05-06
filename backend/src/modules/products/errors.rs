@@ -18,19 +18,6 @@ pub enum ProductDomainError {
     #[error("Internal error: {0}")]
     InternalError(String),
 }
-
-impl From<sqlx::Error> for ProductDomainError {
-    fn from(err: sqlx::Error) -> Self {
-        match err {
-            sqlx::Error::RowNotFound => ProductDomainError::VendorNotFound,
-            _ => {
-                tracing::error!("Database error: {:?}", err);
-                ProductDomainError::InternalError("An internal database error occurred".to_string())
-            }
-        }
-    }
-}
-
 impl From<ProductDomainError> for AppError {
     fn from(error: ProductDomainError) -> Self {
         match error {

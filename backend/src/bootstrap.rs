@@ -60,11 +60,14 @@ pub fn build_app_state(db_pool: PgPool, auth_config: AuthConfig) -> AppState {
     let user_queries: Arc<dyn UserQueryPort> = Arc::new(UserQueryService::new(user_repo));
 
     // Vendor
-    let vendor_repo = Arc::new(PgVendorRepository::new(db_pool));
+    let vendor_repo = Arc::new(PgVendorRepository::new(db_pool.clone()));
     let vendor_identity_port = Arc::new(VendorIdentityQueryAdapter::new(identity_queries.clone()));
     let vendor_commands = Arc::new(VendorCommandService::new(vendor_identity_port, vendor_repo.clone()));
 
     let vendor_queries = Arc::new(VendorQueryService::new(vendor_repo));
+
+    // Product
+    let product_repo = Arc::new(PgProductRepository::new(db_pool));
 
     AppState {
         auth_state: AuthState::new(authenticator),

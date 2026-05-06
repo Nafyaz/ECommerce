@@ -10,10 +10,6 @@ impl UserName {
     pub fn new(name: impl Into<String>) -> Result<Self, UserDomainError> {
         let name = name.into();
 
-        if name.is_empty() {
-            return Err(UserDomainError::InvalidName("Name cannot be empty".into()));
-        }
-
         if name.len() < Self::NAME_MIN_LENGTH || name.len() > Self::NAME_MAX_LENGTH {
             return Err(UserDomainError::InvalidName(format!(
                 "Name must be between {} and {} characters long",

@@ -1,4 +1,3 @@
-use crate::modules::shared::AppError;
 use crate::modules::shared::kernel::money::Currency;
 use crate::modules::shared::kernel::money::errors::MoneyError;
 

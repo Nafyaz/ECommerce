@@ -1,15 +1,15 @@
 use uuid::Uuid;
 
 pub struct CreateProductResult {
-    product_id: Uuid,
+    id: Uuid,
 }
 
 impl CreateProductResult {
-    pub fn new(product_id: Uuid) -> Self {
-        Self { product_id }
+    pub fn new(id: Uuid) -> Self {
+        Self { id }
     }
 
-    pub fn product_id(&self) -> &Uuid {
-        &self.product_id
+    pub fn id(&self) -> &Uuid {
+        &self.id
     }
 }

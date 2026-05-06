@@ -1,19 +1,19 @@
-CREATE TABLE product_tags
-(
-    id          SMALLINT PRIMARY KEY,
-    name        VARCHAR(16)              NOT NULL UNIQUE,
-    description VARCHAR(128)             NOT NULL,
-
-    created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at  TIMESTAMP WITH TIME ZONE NOT NULL
-);
+-- CREATE TABLE product_tags
+-- (
+--     id          SMALLINT PRIMARY KEY,
+--     name        VARCHAR(16)              NOT NULL UNIQUE,
+--     description VARCHAR(128)             NOT NULL,
+--
+--     created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
+--     updated_at  TIMESTAMP WITH TIME ZONE NOT NULL
+-- );
 
 CREATE TABLE products
 (
     id             UUID PRIMARY KEY,
     name           VARCHAR(128)             NOT NULL,
     description    TEXT,
-    vendor_id      UUID                     NOT NULL REFERENCES vendors (id),
+    supplier_id    UUID                     NOT NULL REFERENCES vendors (id),
 
     price_amount   INT                      NOT NULL,
     price_currency VARCHAR(16)              NOT NULL,

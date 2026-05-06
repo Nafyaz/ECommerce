@@ -1,12 +1,11 @@
-use crate::modules::products::domain::value_objects::ProductName;
+use crate::modules::products::domain::value_objects::{ProductName, SupplierId};
 use crate::modules::products::errors::ProductDomainError;
 use crate::modules::shared::{Currency, Money};
-use crate::modules::vendors::VendorId;
 use uuid::Uuid;
 
 pub struct CreateProductCommand {
     name: ProductName,
-    vendor_id: VendorId,
+    supplier_id: SupplierId,
     price: Money,
     current_user_id: Uuid,
 }
@@ -14,13 +13,13 @@ pub struct CreateProductCommand {
 impl CreateProductCommand {
     pub fn new(
         name: String,
-        vendor_id: Uuid,
+        supplier_id: Uuid,
         price_amount: u64,
         price_currency: String,
         current_user_id: Uuid,
     ) -> Result<Self, ProductDomainError> {
         let name = ProductName::new(name)?;
-        let vendor_id = VendorId::from_uuid(vendor_id);
+        let supplier_id = SupplierId::from_uuid(supplier_id);
         let price_currency = Currency::new(price_currency)
             .map_err(|e| ProductDomainError::InvalidPrice(format!("Invalid currency: {}", e)))?;
         let price = Money::new(price_amount, price_currency)
@@ -28,7 +27,7 @@ impl CreateProductCommand {
 
         Ok(Self {
             name,
-            vendor_id,
+            supplier_id,
             price,
             current_user_id,
         })
@@ -38,8 +37,8 @@ impl CreateProductCommand {
         &self.name
     }
 
-    pub fn vendor_id(&self) -> &VendorId {
-        &self.vendor_id
+    pub fn supplier_id(&self) -> &SupplierId {
+        &self.supplier_id
     }
 
     pub fn price(&self) -> &Money {

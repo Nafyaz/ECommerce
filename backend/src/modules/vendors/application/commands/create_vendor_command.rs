@@ -1,5 +1,4 @@
-use crate::modules::vendors::OwnerId;
-use crate::modules::vendors::domain::value_objects::VendorName;
+use crate::modules::vendors::domain::value_objects::{OwnerId, VendorName};
 use crate::modules::vendors::errors::VendorDomainError;
 use uuid::Uuid;
 

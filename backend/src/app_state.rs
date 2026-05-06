@@ -1,5 +1,6 @@
 use crate::infrastructure::http::middleware::AuthState;
 use crate::modules::identity::IdentityHttpState;
+use crate::modules::products::ProductHttpState;
 use crate::modules::users::UserHttpState;
 use crate::modules::vendors::VendorHttpState;
 use axum::extract::FromRef;
@@ -10,7 +11,7 @@ pub struct AppState {
     pub identity_http_state: IdentityHttpState,
     pub user_http_state: UserHttpState,
     pub vendor_http_state: VendorHttpState,
-    // pub product_http_state: ProductState,
+    pub product_http_state: ProductHttpState,
 }
 
 impl FromRef<AppState> for AuthState {
@@ -34,5 +35,11 @@ impl FromRef<AppState> for UserHttpState {
 impl FromRef<AppState> for VendorHttpState {
     fn from_ref(app_state: &AppState) -> Self {
         app_state.vendor_http_state.clone()
+    }
+}
+
+impl FromRef<AppState> for ProductHttpState {
+    fn from_ref(app_state: &AppState) -> Self {
+        app_state.product_http_state.clone()
     }
 }

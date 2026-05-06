@@ -1,4 +1,4 @@
-use crate::modules::vendors::OwnerId;
+use crate::modules::vendors::domain::value_objects::OwnerId;
 use async_trait::async_trait;
 use thiserror::Error;
 

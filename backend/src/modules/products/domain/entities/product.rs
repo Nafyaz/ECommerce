@@ -1,25 +1,24 @@
-use crate::modules::products::domain::value_objects::{ProductId, ProductName};
+use crate::modules::products::domain::value_objects::{ProductId, ProductName, SupplierId};
 use crate::modules::products::errors::ProductDomainError;
 use crate::modules::shared::Money;
-use crate::modules::vendors::VendorId;
 use chrono::{DateTime, Utc};
 
 pub struct Product {
     id: ProductId,
     name: ProductName,
-    vendor_id: VendorId,
+    supplier_id: SupplierId,
     price: Money,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 }
 
 impl Product {
-    pub fn new(name: ProductName, vendor_id: VendorId, price: Money) -> Result<Self, ProductDomainError> {
+    pub fn new(name: ProductName, supplier_id: SupplierId, price: Money) -> Result<Self, ProductDomainError> {
         let now = Utc::now();
         Ok(Self {
             id: ProductId::new(),
             name,
-            vendor_id,
+            supplier_id,
             price,
             created_at: now,
             updated_at: now,
@@ -34,8 +33,8 @@ impl Product {
         &self.name
     }
 
-    pub fn vendor_id(&self) -> &VendorId {
-        &self.vendor_id
+    pub fn supplier_id(&self) -> &SupplierId {
+        &self.supplier_id
     }
 
     pub fn price(&self) -> &Money {
