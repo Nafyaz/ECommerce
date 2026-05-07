@@ -53,14 +53,14 @@ impl IdentityRecord {
 impl TryFrom<IdentityRecord> for Identity {
     type Error = IdentityError;
 
-    fn try_from(identity_row: IdentityRecord) -> Result<Self, Self::Error> {
+    fn try_from(identity_record: IdentityRecord) -> Result<Self, Self::Error> {
         Identity::reconstitute(
-            IdentityId::from_uuid(identity_row.id),
-            Email::new(identity_row.email)?,
-            PasswordHash::from_str(identity_row.password_hash),
-            IdentityStatus::from_str(identity_row.status)?,
-            identity_row.created_at,
-            identity_row.updated_at,
+            IdentityId::from_uuid(identity_record.id),
+            Email::new(identity_record.email)?,
+            PasswordHash::from_str(identity_record.password_hash),
+            IdentityStatus::from_str(identity_record.status)?,
+            identity_record.created_at,
+            identity_record.updated_at,
         )
     }
 }

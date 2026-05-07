@@ -20,19 +20,19 @@ impl PgIdentityRepository {
 #[async_trait]
 impl IdentityRepositoryPort for PgIdentityRepository {
     async fn save(&self, identity: &Identity) -> Result<(), IdentityError> {
-        let row = IdentityRecord::from_entity(identity);
+        let record = IdentityRecord::from_entity(identity);
 
         sqlx::query(
             "INSERT INTO identities \
             (id, email, password_hash, status, created_at, updated_at) \
             VALUES ($1, $2, $3, $4::identity_status, $5, $6)",
         )
-        .bind(row.id())
-        .bind(row.email())
-        .bind(row.password_hash())
-        .bind(row.status())
-        .bind(row.created_at())
-        .bind(row.updated_at())
+        .bind(record.id())
+        .bind(record.email())
+        .bind(record.password_hash())
+        .bind(record.status())
+        .bind(record.created_at())
+        .bind(record.updated_at())
         .execute(&self.pool)
         .await?;
 
@@ -40,18 +40,18 @@ impl IdentityRepositoryPort for PgIdentityRepository {
     }
 
     async fn update(&self, identity: &Identity) -> Result<(), IdentityError> {
-        let row = IdentityRecord::from_entity(identity);
+        let record = IdentityRecord::from_entity(identity);
 
         sqlx::query(
             "UPDATE identities \
             SET email = $2, password_hash = $3, status = $4::identity_status, updated_at = $5 \
             WHERE id = $1",
         )
-        .bind(row.id())
-        .bind(row.email())
-        .bind(row.password_hash())
-        .bind(row.status())
-        .bind(row.updated_at())
+        .bind(record.id())
+        .bind(record.email())
+        .bind(record.password_hash())
+        .bind(record.status())
+        .bind(record.updated_at())
         .execute(&self.pool)
         .await?;
 
@@ -59,7 +59,7 @@ impl IdentityRepositoryPort for PgIdentityRepository {
     }
 
     async fn find_by_id(&self, id: &IdentityId) -> Result<Option<Identity>, IdentityError> {
-        let row = sqlx::query_as::<_, IdentityRecord>(
+        let record = sqlx::query_as::<_, IdentityRecord>(
             "SELECT id, email, password_hash, status::TEXT, created_at, updated_at \
             FROM identities \
             WHERE id = $1",
@@ -68,12 +68,12 @@ impl IdentityRepositoryPort for PgIdentityRepository {
         .fetch_optional(&self.pool)
         .await?;
 
-        Ok(row.map(Identity::try_from).transpose()?)
+        Ok(record.map(Identity::try_from).transpose()?)
     }
 
     async fn find_verified_by_email(&self, email: &Email) -> Result<Option<Identity>, IdentityError> {
         let email = email.as_str();
-        let row = sqlx::query_as::<_, IdentityRecord>(
+        let record = sqlx::query_as::<_, IdentityRecord>(
             "SELECT id, email, password_hash, status::TEXT, created_at, updated_at \
             FROM identities \
             WHERE email = $1 AND status = $2::identity_status",
@@ -83,7 +83,7 @@ impl IdentityRepositoryPort for PgIdentityRepository {
         .fetch_optional(&self.pool)
         .await?;
 
-        Ok(row.map(Identity::try_from).transpose()?)
+        Ok(record.map(Identity::try_from).transpose()?)
     }
 
     async fn find_all(&self) -> Result<Vec<Identity>, IdentityError> {

@@ -20,7 +20,7 @@ impl CreateProductCommand {
     ) -> Result<Self, ProductDomainError> {
         let name = ProductName::new(name)?;
         let supplier_id = SupplierId::from_uuid(supplier_id);
-        let price_currency = Currency::new(price_currency)
+        let price_currency = Currency::from_str(price_currency)
             .map_err(|e| ProductDomainError::InvalidPrice(format!("Invalid currency: {}", e)))?;
         let price = Money::new(price_amount, price_currency)
             .map_err(|e| ProductDomainError::InvalidPrice(format!("Invalid price: {}", e)))?;

@@ -25,6 +25,30 @@ impl Product {
         })
     }
 
+    pub fn reconstitute(
+        id: ProductId,
+        name: ProductName,
+        supplier_id: SupplierId,
+        price: Money,
+        created_at: DateTime<Utc>,
+        updated_at: DateTime<Utc>,
+    ) -> Result<Self, ProductDomainError> {
+        if updated_at < created_at {
+            return Err(ProductDomainError::InternalError(
+                "Product updated_at cannot be earlier than created_at".to_owned(),
+            ));
+        }
+
+        Ok(Self {
+            id,
+            name,
+            supplier_id,
+            price,
+            created_at,
+            updated_at,
+        })
+    }
+
     pub fn id(&self) -> &ProductId {
         &self.id
     }

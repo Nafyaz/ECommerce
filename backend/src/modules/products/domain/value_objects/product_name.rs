@@ -14,4 +14,11 @@ impl ProductName {
 
         Ok(Self(name))
     }
+
+    pub fn from_str(value: String) -> Self {
+        Self(value)
+    }
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }

@@ -8,20 +8,47 @@
 --     updated_at  TIMESTAMP WITH TIME ZONE NOT NULL
 -- );
 
+CREATE TYPE currency AS ENUM (
+    'USD',
+    'EUR',
+    'GBP',
+    'JPY',
+    'BDT',
+    'INR',
+    'AUD',
+    'CAD',
+    'CHF',
+    'CNY',
+    'HKD',
+    'SGD',
+    'SEK',
+    'NOK',
+    'DKK',
+    'NZD',
+    'KRW',
+    'TRY',
+    'RUB',
+    'BRL',
+    'MXN',
+    'AED',
+    'SAR',
+    'KWD'
+    );
+
 CREATE TABLE products
 (
-    id             UUID PRIMARY KEY,
-    name           VARCHAR(128)             NOT NULL,
-    description    TEXT,
-    supplier_id    UUID                     NOT NULL REFERENCES vendors (id),
+    id                 UUID PRIMARY KEY,
+    name               VARCHAR(128)             NOT NULL,
+    description        TEXT,
+    supplier_id        UUID                     NOT NULL REFERENCES vendors (id),
 
-    price_amount   INT                      NOT NULL,
-    price_currency VARCHAR(16)              NOT NULL,
+    price_amount_minor BIGINT                   NOT NULL,
+    price_currency     currency                 NOT NULL,
 
 --     tag_id         SMALLINT                 NOT NULL REFERENCES product_tags (id),
 
-    created_at     TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at     TIMESTAMP WITH TIME ZONE NOT NULL
+    created_at         TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at         TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE TABLE product_images
