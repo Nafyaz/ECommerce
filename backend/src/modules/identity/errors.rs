@@ -1,4 +1,4 @@
-use crate::modules::notifications::NotificationError;
+use crate::modules::notification::NotificationError;
 use crate::modules::shared::AppError;
 use thiserror::Error;
 

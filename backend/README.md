@@ -26,3 +26,4 @@ Modules:
    ```CREATE UNIQUE INDEX uniq_active_otp ON otps (identity_id, purpose) WHERE expires_at > NOW();```
 5. OTP status ACTIVE -> EXPIRED should be handled lazily.
 6. Display implementations are for logs, debugging, CLI output, and APIs.
+7. Only Id wrappers should implement Copy.

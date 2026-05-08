@@ -1,8 +1,8 @@
 use crate::infrastructure::http::middleware::AuthState;
 use crate::modules::identity::IdentityHttpState;
-use crate::modules::products::ProductHttpState;
-use crate::modules::users::UserHttpState;
-use crate::modules::vendors::VendorHttpState;
+use crate::modules::product::ProductHttpState;
+use crate::modules::user::UserHttpState;
+use crate::modules::vendor::VendorHttpState;
 use axum::extract::FromRef;
 
 #[derive(Clone)]

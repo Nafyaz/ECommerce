@@ -1,0 +1,3 @@
+mod product_vendor_query_adapter;
+
+pub use product_vendor_query_adapter::ProductVendorQueryAdapter;

@@ -5,15 +5,17 @@ use crate::modules::identity::{
     Argon2PasswordHasher, HmacOtpProvider, IdentityCommandService, IdentityHttpState, IdentityQueryService,
     JwtAuthenticator, JwtTokenProvider, NotificationModuleAdapter, PgIdentityRepository, PgOtpRepository,
 };
-use crate::modules::notifications::{LogEmailProvider, NotificationCommandService};
-use crate::modules::products::{
+use crate::modules::notification::{LogEmailProvider, NotificationCommandService};
+use crate::modules::product::{
     PgProductRepository, ProductCommandService, ProductHttpState, ProductIdentityQueryAdapter,
+    ProductVendorQueryAdapter,
 };
-use crate::modules::users::ports::inbound::UserQueryPort;
-use crate::modules::users::{
+use crate::modules::user::ports::inbound::UserQueryPort;
+use crate::modules::user::{
     PgUserRepository, UserCommandService, UserHttpState, UserIdentityQueryAdapter, UserQueryService,
 };
-use crate::modules::vendors::{
+use crate::modules::vendor::ports::inbound::VendorQueryPort;
+use crate::modules::vendor::{
     PgVendorRepository, VendorCommandService, VendorHttpState, VendorIdentityQueryAdapter, VendorQueryService,
 };
 use sqlx::PgPool;
@@ -70,8 +72,13 @@ pub fn build_app_state(db_pool: PgPool, auth_config: AuthConfig) -> AppState {
     // Product
     let product_repo = Arc::new(PgProductRepository::new(db_pool));
     let product_identity_port = Arc::new(ProductIdentityQueryAdapter::new(identity_queries.clone()));
+    let product_vendor_port = Arc::new(ProductVendorQueryAdapter::new(vendor_queries.clone()));
 
-    let product_commands = Arc::new(ProductCommandService::new(product_identity_port, product_repo.clone()));
+    let product_commands = Arc::new(ProductCommandService::new(
+        product_identity_port,
+        product_vendor_port,
+        product_repo,
+    ));
     // let product_queries = Arc::new(ProductQueryService::new(product_repo));
 
     AppState {

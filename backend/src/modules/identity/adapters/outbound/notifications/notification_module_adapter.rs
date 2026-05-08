@@ -1,7 +1,7 @@
 use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{Email, OtpCode, OtpPurpose};
 use crate::modules::identity::ports::outbound::NotificationPort;
-use crate::modules::notifications::{NotificationCommandPort, SendEmailCommand};
+use crate::modules::notification::{NotificationCommandPort, SendEmailCommand};
 use async_trait::async_trait;
 use std::sync::Arc;
 

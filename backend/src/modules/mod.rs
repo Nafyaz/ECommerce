@@ -1,6 +1,6 @@
 pub mod identity;
-pub mod notifications;
-pub mod products;
+pub mod notification;
+pub mod product;
 pub mod shared;
-pub mod users;
-pub mod vendors;
+pub mod user;
+pub mod vendor;

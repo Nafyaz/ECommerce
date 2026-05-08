@@ -1,4 +1,3 @@
-
 CREATE TABLE vendors
 (
     id         UUID PRIMARY KEY,
@@ -10,11 +9,11 @@ CREATE TABLE vendors
 );
 
 CREATE INDEX idx_vendor_owner ON vendors (owner_id);
--- CREATE INDEX idx_vendor_created_at ON vendors (created_at DESC);
--- CREATE INDEX idx_vendor_active ON vendors (status_id, deleted_at) WHERE deleted_at IS NULL;
+-- CREATE INDEX idx_vendor_created_at ON vendor (created_at DESC);
+-- CREATE INDEX idx_vendor_active ON vendor (status_id, deleted_at) WHERE deleted_at IS NULL;
 
 -- CREATE TRIGGER update_vendors_updated_at
---     BEFORE UPDATE ON vendors
+--     BEFORE UPDATE ON vendor
 --     FOR EACH ROW
 --     EXECUTE FUNCTION update_updated_at_column();
 
@@ -30,7 +29,7 @@ CREATE INDEX idx_vendor_owner ON vendors (owner_id);
 
 -- CREATE TABLE vendors__users
 -- (
---     vendor_id UUID     NOT NULL REFERENCES vendors (id),
+--     vendor_id UUID     NOT NULL REFERENCES vendor (id),
 --     user_id   UUID     NOT NULL REFERENCES identity (id),
 --     role_id   SMALLINT NOT NULL REFERENCES vendors_users_roles (id),
 --     PRIMARY KEY (vendor_id, user_id)
