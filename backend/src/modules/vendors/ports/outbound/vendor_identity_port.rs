@@ -4,7 +4,7 @@ use thiserror::Error;
 
 // TODO: All outbound ports should have their own errors
 #[derive(Debug, Error)]
-pub enum IdentityPortError {
+pub enum VendorIdentityPortError {
     #[error("identity not found")]
     NotFound,
 
@@ -16,6 +16,6 @@ pub enum IdentityPortError {
 }
 
 #[async_trait]
-pub trait IdentityPort: Send + Sync {
-    async fn check_verified(&self, owner_id: &OwnerId) -> Result<bool, IdentityPortError>;
+pub trait VendorIdentityPort: Send + Sync {
+    async fn check_verified(&self, owner_id: &OwnerId) -> Result<bool, VendorIdentityPortError>;
 }

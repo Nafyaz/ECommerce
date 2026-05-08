@@ -5,6 +5,6 @@ use uuid::Uuid;
 pub struct CreateProductRequest {
     pub name: String,
     pub supplier_id: Uuid,
-    pub price: u64,
-    pub currency: String,
+    pub price_amount_minor: i64,
+    pub price_currency: String,
 }

@@ -3,18 +3,21 @@ use crate::modules::vendors::application::commands::CreateVendorCommand;
 use crate::modules::vendors::domain::entities::Vendor;
 use crate::modules::vendors::errors::VendorDomainError;
 use crate::modules::vendors::ports::inbound::VendorCommandPort;
-use crate::modules::vendors::ports::outbound::{IdentityPort, VendorRepositoryPort};
+use crate::modules::vendors::ports::outbound::{VendorIdentityPort, VendorRepositoryPort};
 use async_trait::async_trait;
 use std::sync::Arc;
 
 pub struct VendorCommandService {
-    identity_service: Arc<dyn IdentityPort>,
+    vendor_identity_provider: Arc<dyn VendorIdentityPort>,
     vendor_repo: Arc<dyn VendorRepositoryPort>,
 }
 impl VendorCommandService {
-    pub fn new(identity_service: Arc<dyn IdentityPort>, vendor_repo: Arc<dyn VendorRepositoryPort>) -> Self {
+    pub fn new(
+        vendor_identity_provider: Arc<dyn VendorIdentityPort>,
+        vendor_repo: Arc<dyn VendorRepositoryPort>,
+    ) -> Self {
         Self {
-            identity_service,
+            vendor_identity_provider,
             vendor_repo,
         }
     }
@@ -24,7 +27,7 @@ impl VendorCommandService {
 impl VendorCommandPort for VendorCommandService {
     async fn create_vendor(&self, command: CreateVendorCommand) -> Result<CreateVendorResult, VendorDomainError> {
         let is_verified = self
-            .identity_service
+            .vendor_identity_provider
             .check_verified(command.owner_id())
             .await
             .map_err(|_| VendorDomainError::IdentityPortError)?;

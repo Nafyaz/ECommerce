@@ -1,6 +1,6 @@
-mod identity_port;
+mod user_identity_port;
 mod user_repository_port;
 
-pub use identity_port::IdentityPort;
-pub use identity_port::IdentityPortError;
+pub use user_identity_port::UserIdentityPort;
+pub use user_identity_port::UserIdentityPortError;
 pub use user_repository_port::UserRepositoryPort;

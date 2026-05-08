@@ -6,14 +6,15 @@ use crate::modules::identity::{
     JwtAuthenticator, JwtTokenProvider, NotificationModuleAdapter, PgIdentityRepository, PgOtpRepository,
 };
 use crate::modules::notifications::{LogEmailProvider, NotificationCommandService};
+use crate::modules::products::{
+    PgProductRepository, ProductCommandService, ProductHttpState, ProductIdentityQueryAdapter,
+};
 use crate::modules::users::ports::inbound::UserQueryPort;
 use crate::modules::users::{
-    IdentityQueryAdapter as UserIdentityQueryAdapter, PgUserRepository, UserCommandService, UserHttpState,
-    UserQueryService,
+    PgUserRepository, UserCommandService, UserHttpState, UserIdentityQueryAdapter, UserQueryService,
 };
 use crate::modules::vendors::{
-    IdentityQueryAdapter as VendorIdentityQueryAdapter, PgVendorRepository, VendorCommandService, VendorHttpState,
-    VendorQueryService,
+    PgVendorRepository, VendorCommandService, VendorHttpState, VendorIdentityQueryAdapter, VendorQueryService,
 };
 use sqlx::PgPool;
 use std::sync::Arc;
@@ -62,17 +63,22 @@ pub fn build_app_state(db_pool: PgPool, auth_config: AuthConfig) -> AppState {
     // Vendor
     let vendor_repo = Arc::new(PgVendorRepository::new(db_pool.clone()));
     let vendor_identity_port = Arc::new(VendorIdentityQueryAdapter::new(identity_queries.clone()));
-    let vendor_commands = Arc::new(VendorCommandService::new(vendor_identity_port, vendor_repo.clone()));
 
+    let vendor_commands = Arc::new(VendorCommandService::new(vendor_identity_port, vendor_repo.clone()));
     let vendor_queries = Arc::new(VendorQueryService::new(vendor_repo));
 
     // Product
     let product_repo = Arc::new(PgProductRepository::new(db_pool));
+    let product_identity_port = Arc::new(ProductIdentityQueryAdapter::new(identity_queries.clone()));
+
+    let product_commands = Arc::new(ProductCommandService::new(product_identity_port, product_repo.clone()));
+    // let product_queries = Arc::new(ProductQueryService::new(product_repo));
 
     AppState {
         auth_state: AuthState::new(authenticator),
         identity_http_state: IdentityHttpState::new(identity_commands, identity_queries),
         user_http_state: UserHttpState::new(user_commands, user_queries),
         vendor_http_state: VendorHttpState::new(vendor_commands, vendor_queries),
+        product_http_state: ProductHttpState::new(product_commands),
     }
 }

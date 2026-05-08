@@ -3,19 +3,19 @@ use crate::modules::users::application::commands::CreateUserCommand;
 use crate::modules::users::domain::entities::User;
 use crate::modules::users::errors::UserDomainError;
 use crate::modules::users::ports::inbound::UserCommandPort;
-use crate::modules::users::ports::outbound::{IdentityPort, UserRepositoryPort};
+use crate::modules::users::ports::outbound::{UserIdentityPort, UserRepositoryPort};
 use async_trait::async_trait;
 use std::sync::Arc;
 
 pub struct UserCommandService {
-    identity_service: Arc<dyn IdentityPort>,
+    user_identity_provider: Arc<dyn UserIdentityPort>,
     user_repo: Arc<dyn UserRepositoryPort>,
 }
 
 impl UserCommandService {
-    pub fn new(identity_service: Arc<dyn IdentityPort>, user_repo: Arc<dyn UserRepositoryPort>) -> Self {
+    pub fn new(user_identity_provider: Arc<dyn UserIdentityPort>, user_repo: Arc<dyn UserRepositoryPort>) -> Self {
         UserCommandService {
-            identity_service,
+            user_identity_provider,
             user_repo,
         }
     }
@@ -25,7 +25,7 @@ impl UserCommandService {
 impl UserCommandPort for UserCommandService {
     async fn create_user(&self, command: &CreateUserCommand) -> Result<CreateUserResult, UserDomainError> {
         let is_verified = self
-            .identity_service
+            .user_identity_provider
             .check_verified(command.account_id())
             .await
             .map_err(|_| UserDomainError::IdentityPortError)?;

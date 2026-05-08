@@ -1,5 +1,6 @@
-use crate::modules::shared::kernel::money::errors::MoneyError;
+use crate::modules::shared::kernel::money::errors::CurrencyError;
 use std::fmt;
+use std::str::FromStr;
 
 // TODO: Learn ISO rules
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -59,11 +60,46 @@ impl Currency {
         }
     }
 
-    pub fn exponent(self) -> u32 {
+    pub fn scale(self) -> u32 {
         match self {
             Currency::JPY | Currency::KRW => 0,
             Currency::KWD => 3,
             _ => 2,
+        }
+    }
+}
+
+impl FromStr for Currency {
+    type Err = CurrencyError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.trim().to_ascii_uppercase().as_str() {
+            "USD" => Ok(Currency::USD),
+            "EUR" => Ok(Currency::EUR),
+            "GBP" => Ok(Currency::GBP),
+            "JPY" => Ok(Currency::JPY),
+            "BDT" => Ok(Currency::BDT),
+            "INR" => Ok(Currency::INR),
+            "AUD" => Ok(Currency::AUD),
+            "CAD" => Ok(Currency::CAD),
+            "CHF" => Ok(Currency::CHF),
+            "CNY" => Ok(Currency::CNY),
+            "HKD" => Ok(Currency::HKD),
+            "SGD" => Ok(Currency::SGD),
+            "SEK" => Ok(Currency::SEK),
+            "NOK" => Ok(Currency::NOK),
+            "DKK" => Ok(Currency::DKK),
+            "NZD" => Ok(Currency::NZD),
+            "KRW" => Ok(Currency::KRW),
+            "TRY" => Ok(Currency::TRY),
+            "RUB" => Ok(Currency::RUB),
+            "BRL" => Ok(Currency::BRL),
+            "MXN" => Ok(Currency::MXN),
+            "AED" => Ok(Currency::AED),
+            "SAR" => Ok(Currency::SAR),
+            "KWD" => Ok(Currency::KWD),
+
+            other => Err(CurrencyError::Unsupported(other.to_string())),
         }
     }
 }

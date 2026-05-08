@@ -35,8 +35,21 @@ impl ProductRepositoryPort for PgProductRepository {
         let record = ProductRecord::from_entity(product);
 
         sqlx::query(
-            "INSERT INTO products (id, name, supplier_id, price_amount, price_currency, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-        ).bind(record.id()).bind(record.name()).bind(record.supplier_id()).bind(record.price_amount()).bind(record.price_currency()).bind(record.created_at()).bind(record.updated_at()).execute(&self.pool)
+            "INSERT INTO products \
+            (id, name, supplier_id, price_amount_minor, price_currency, created_at, updated_at) \
+            VALUES ($1, $2, $3, $4, $5, $6, $7)",
+        )
+        .bind(record.id())
+        .bind(record.name())
+        .bind(record.supplier_id())
+        .bind(record.price_amount_minor())
+        .bind(record.price_currency())
+        .bind(record.created_at())
+        .bind(record.updated_at())
+        .execute(&self.pool)
+        .await?;
+
+        Ok(())
     }
 
     async fn find_by_id(&self, id: &ProductId) -> Result<Option<Product>, ProductDomainError> {

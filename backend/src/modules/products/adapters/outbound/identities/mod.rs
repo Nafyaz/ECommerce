@@ -1,0 +1,3 @@
+mod product_identity_query_adapter;
+
+pub use product_identity_query_adapter::ProductIdentityQueryAdapter;

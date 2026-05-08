@@ -6,7 +6,7 @@ pub mod ports;
 
 pub use adapters::inbound::http::VendorHttpState;
 pub use adapters::inbound::http::router::create_router;
-pub(crate) use adapters::outbound::identities::IdentityQueryAdapter;
+pub(crate) use adapters::outbound::identities::VendorIdentityQueryAdapter;
 pub(crate) use adapters::outbound::persistence::PgVendorRepository;
 pub use application::command_services::VendorCommandService;
 pub use application::query_services::VendorQueryService;

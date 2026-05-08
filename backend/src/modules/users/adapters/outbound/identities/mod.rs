@@ -1,3 +1,3 @@
-mod identity_query_adapter;
+mod user_identity_query_adapter;
 
-pub use identity_query_adapter::IdentityQueryAdapter;
+pub use user_identity_query_adapter::UserIdentityQueryAdapter;

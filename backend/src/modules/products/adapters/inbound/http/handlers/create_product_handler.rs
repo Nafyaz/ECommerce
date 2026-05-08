@@ -13,11 +13,11 @@ pub async fn handle(
     Json(payload): Json<CreateProductRequest>,
 ) -> Result<(StatusCode, Json<CreateProductResponse>), AppError> {
     let command = CreateProductCommand::new(
+        current_user.identity_id,
         payload.name,
         payload.supplier_id,
-        payload.price,
-        payload.currency,
-        current_user.identity_id,
+        payload.price_amount_minor,
+        payload.price_currency,
     )?;
     let result = state.command_port.create_product(command).await?;
     let response = CreateProductResponse::from(result);

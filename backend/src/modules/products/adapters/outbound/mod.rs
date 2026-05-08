@@ -1,1 +1,2 @@
-mod persistence;
+pub mod identities;
+pub mod persistence;

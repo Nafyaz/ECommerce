@@ -1,5 +1,7 @@
 use crate::modules::shared::kernel::money::Currency;
 use crate::modules::shared::kernel::money::errors::MoneyError;
+use crate::modules::shared::kernel::money::rounding_mode::RoundingMode;
+use rust_decimal::{Decimal, RoundingStrategy, prelude::ToPrimitive};
 use std::fmt;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -36,6 +38,69 @@ impl Money {
 
         Ok(Self {
             amount_minor: amount,
+            currency: self.currency,
+        })
+    }
+
+    pub fn checked_sub(self, rhs: Self) -> Result<Self, MoneyError> {
+        if self.currency != rhs.currency {
+            return Err(MoneyError::CurrencyMismatch {
+                left: self.currency,
+                right: rhs.currency,
+            });
+        }
+
+        let amount = self
+            .amount_minor
+            .checked_sub(rhs.amount_minor)
+            .ok_or(MoneyError::Overflow)?;
+
+        Ok(Self {
+            amount_minor: amount,
+            currency: self.currency,
+        })
+    }
+
+    pub fn multiply(self, multiplier: Decimal, rounding: RoundingMode) -> Result<Self, MoneyError> {
+        let amount = Decimal::from(self.amount_minor);
+
+        let result = amount * multiplier;
+
+        let rounded = match rounding {
+            RoundingMode::HalfUp => result.round_dp_with_strategy(0, RoundingStrategy::MidpointAwayFromZero),
+            RoundingMode::HalfEven => result.round_dp_with_strategy(0, RoundingStrategy::MidpointNearestEven),
+            RoundingMode::Floor => result.floor(),
+            RoundingMode::Ceiling => result.ceil(),
+        };
+
+        let amount_minor = rounded.to_i64().ok_or(MoneyError::Overflow)?;
+
+        Ok(Self {
+            amount_minor,
+            currency: self.currency,
+        })
+    }
+
+    pub fn divide(self, divisor: Decimal, rounding: RoundingMode) -> Result<Self, MoneyError> {
+        if divisor.is_zero() {
+            return Err(MoneyError::DivisionByZero);
+        }
+
+        let amount = Decimal::from(self.amount_minor);
+
+        let result = amount / divisor;
+
+        let rounded = match rounding {
+            RoundingMode::HalfUp => result.round_dp_with_strategy(0, RoundingStrategy::MidpointAwayFromZero),
+            RoundingMode::HalfEven => result.round_dp_with_strategy(0, RoundingStrategy::MidpointNearestEven),
+            RoundingMode::Floor => result.floor(),
+            RoundingMode::Ceiling => result.ceil(),
+        };
+
+        let amount_minor = rounded.to_i64().ok_or(MoneyError::Overflow)?;
+
+        Ok(Self {
+            amount_minor,
             currency: self.currency,
         })
     }
