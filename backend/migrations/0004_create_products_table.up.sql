@@ -39,7 +39,7 @@ CREATE TABLE products
 (
     id                 UUID PRIMARY KEY,
     name               VARCHAR(128)             NOT NULL,
-    description        TEXT,
+    description        VARCHAR(2048),
     supplier_id        UUID                     NOT NULL REFERENCES vendors (id),
 
     price_amount_minor BIGINT                   NOT NULL,
@@ -51,11 +51,30 @@ CREATE TABLE products
     updated_at         TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+CREATE TYPE product_image_status AS ENUM (
+    'PendingUpload',
+    'Uploaded',
+    'Processing',
+    'Ready',
+    'Failed',
+    'Deleted'
+    );
+
 CREATE TABLE product_images
 (
-    id         UUID PRIMARY KEY,
-    product_id UUID          NOT NULL REFERENCES products (id),
-    image_url  VARCHAR(2048) NOT NULL
+    id            UUID PRIMARY KEY,
+    product_id    UUID                     NOT NULL REFERENCES products (id),
+    object_key    VARCHAR(2048)            NOT NULL UNIQUE,
+    content_type  VARCHAR(16)              NOT NULL,
+    status        product_image_status     NOT NULL,
+    file_size     BIGINT                   NOT NULL,
+    display_order INTEGER                  NOT NULL,
+
+    created_at    TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at    TIMESTAMP WITH TIME ZONE NOT NULL,
+
+    CONSTRAINT chk_product_images_file_size_positive CHECK (file_size > 0),
+    CONSTRAINT chk_product_images_position_nonnegative CHECK (display_order >= 0)
 );
 
 -- CREATE INDEX idx_product_name ON product (name);

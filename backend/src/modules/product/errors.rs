@@ -2,6 +2,30 @@ use crate::modules::shared::AppError;
 use thiserror::Error;
 use uuid::Uuid;
 
+#[derive(Error, Debug, Clone, PartialEq)]
+pub enum ImageError {
+    #[error("invalid content type: {0}")]
+    InvalidContentType(String),
+
+    #[error("file size {size} exceeds maximum {max} bytes")]
+    InvalidSize { size: u64, max: u64 },
+
+    #[error("invalid object key: {0}")]
+    InvalidObjectKey(String),
+
+    #[error("image not found")]
+    NotFound,
+
+    #[error("image is not in pending status")]
+    NotPending,
+
+    #[error("storage operation failed: {0}")]
+    StorageFailure(String),
+
+    #[error("persistence operation failed: {0}")]
+    PersistenceFailure(String),
+}
+
 #[derive(Error, Debug, Clone)]
 pub enum ProductDomainError {
     #[error("Actor not verified: {0}")]
