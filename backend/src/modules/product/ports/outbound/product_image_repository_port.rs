@@ -5,7 +5,7 @@ use crate::modules::product::domain::value_objects::{ProductId, ProductImageId};
 use crate::modules::product::errors::ImageError;
 
 #[async_trait]
-pub trait ProductImageRepository: Send + Sync {
+pub trait ProductImageRepositoryPort: Send + Sync {
     async fn save(&self, image: &ProductImage) -> Result<(), ImageError>;
 
     async fn update(&self, image: &ProductImage) -> Result<(), ImageError>;

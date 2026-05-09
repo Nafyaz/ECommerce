@@ -2,6 +2,7 @@ use crate::config::app_env::AppEnv;
 use crate::config::auth::AuthConfigDto;
 use crate::config::database::DatabaseConfigDto;
 use crate::config::server::ServerConfigDto;
+use crate::config::storage::StorageConfigDto;
 use config::{Config, ConfigError, Environment};
 use serde::Deserialize;
 
@@ -11,9 +12,9 @@ pub struct ConfigDto {
     pub database: DatabaseConfigDto,
     pub server: ServerConfigDto,
     pub auth: AuthConfigDto,
+    pub storage: StorageConfigDto,
     // pub cache: CacheConfigDto,
     // pub payments: PaymentConfig,
-    // pub storage: StorageConfig,
     // pub email: EmailConfig,
     // pub queue: QueueConfig,
     // pub search: SearchConfig,

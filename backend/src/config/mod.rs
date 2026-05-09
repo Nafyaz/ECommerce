@@ -7,7 +7,7 @@ mod config_error;
 pub mod database;
 mod payment;
 mod server;
-mod storage;
+pub mod storage;
 mod telemetry;
 
 pub use config_error::ConfigError;

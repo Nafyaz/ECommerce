@@ -18,7 +18,7 @@ pub struct IdentityRecord {
 impl IdentityRecord {
     pub fn from_entity(identity: &Identity) -> Self {
         Self {
-            id: identity.id().as_uuid().to_owned(),
+            id: identity.id().as_uuid(),
             email: identity.email().as_str().to_owned(),
             password_hash: identity.password_hash().as_str().to_owned(),
             status: identity.status().as_str().to_owned(),
@@ -27,8 +27,8 @@ impl IdentityRecord {
         }
     }
 
-    pub fn id(&self) -> &Uuid {
-        &self.id
+    pub fn id(&self) -> Uuid {
+        self.id
     }
 
     pub fn email(&self) -> &str {

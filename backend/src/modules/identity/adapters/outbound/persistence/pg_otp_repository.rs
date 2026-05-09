@@ -76,8 +76,17 @@ impl OtpRepositoryPort for PgOtpRepository {
         Ok(otp_row.map(Otp::try_from).transpose()?)
     }
 
-    async fn find_by_id(&self, id: &OtpId) -> Result<Otp, IdentityError> {
-        todo!()
+    async fn find_by_id(&self, id: &OtpId) -> Result<Option<Otp>, IdentityError> {
+        let record = sqlx::query_as::<_, OtpRecord>(
+            "SELECT id, identity_id, purpose::TEXT, code_hash, status::TEXT, attempts, consumed_at, expires_at, consumed_at, created_at \
+            FROM otps \
+            WHERE id = $1",
+        )
+        .bind(id.as_uuid())
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(record.map(Otp::try_from).transpose()?)
     }
 
     async fn delete(&self, id: &OtpId) -> Result<(), IdentityError> {

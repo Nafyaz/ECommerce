@@ -13,8 +13,8 @@ impl ProductImageId {
         Self(uuid)
     }
 
-    pub fn as_uuid(&self) -> &Uuid {
-        &self.0
+    pub fn as_uuid(&self) -> Uuid {
+        self.0
     }
 }
 

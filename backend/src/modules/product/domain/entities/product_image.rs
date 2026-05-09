@@ -19,17 +19,17 @@ pub struct ProductImage {
 impl ProductImage {
     pub fn new(
         product_id: ProductId,
-        object_key: ObjectKey,
         content_type: ContentType,
         file_size: FileSize,
         display_order: u8,
     ) -> Result<Self, ImageError> {
+        let product_image_id = ProductImageId::new();
         let now = Utc::now();
 
         Ok(Self {
-            id: ProductImageId::new(),
+            id: product_image_id,
             product_id,
-            object_key,
+            object_key: ObjectKey::new(product_id, product_image_id),
             content_type,
             status: ProductImageStatus::PendingUpload,
             file_size,
@@ -38,6 +38,39 @@ impl ProductImage {
             updated_at: now,
         })
     }
+
+    pub fn reconstitute(
+        id: ProductImageId,
+        product_id: ProductId,
+        object_key: ObjectKey,
+        content_type: ContentType,
+        status: ProductImageStatus,
+        file_size: FileSize,
+        display_order: u8,
+        created_at: DateTime<Utc>,
+        updated_at: DateTime<Utc>,
+    ) -> Result<Self, ImageError> {
+        if updated_at < created_at {
+            return Err(ImageError::InvalidTimestamps);
+        }
+
+        Ok(Self {
+            id,
+            product_id,
+            object_key,
+            content_type,
+            status,
+            file_size,
+            display_order,
+            created_at,
+            updated_at,
+        })
+    }
+
+    pub fn confirm_upload(&mut self) {
+        self.status = ProductImageStatus::Uploaded;
+    }
+
     pub fn id(&self) -> ProductImageId {
         self.id
     }
@@ -68,5 +101,9 @@ impl ProductImage {
 
     pub fn created_at(&self) -> DateTime<Utc> {
         self.created_at
+    }
+
+    pub fn updated_at(&self) -> DateTime<Utc> {
+        self.updated_at
     }
 }

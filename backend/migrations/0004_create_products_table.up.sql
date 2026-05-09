@@ -52,12 +52,12 @@ CREATE TABLE products
 );
 
 CREATE TYPE product_image_status AS ENUM (
-    'PendingUpload',
-    'Uploaded',
-    'Processing',
-    'Ready',
-    'Failed',
-    'Deleted'
+    'PENDING_UPLOAD',
+    'UPLOADED',
+    'PROCESSING',
+    'READY',
+    'FAILED',
+    'DELETED'
     );
 
 CREATE TABLE product_images
@@ -76,6 +76,12 @@ CREATE TABLE product_images
     CONSTRAINT chk_product_images_file_size_positive CHECK (file_size > 0),
     CONSTRAINT chk_product_images_position_nonnegative CHECK (display_order >= 0)
 );
+
+CREATE UNIQUE INDEX uq_product_images_product_position
+    ON product_images (product_id, display_order);
+
+CREATE INDEX idx_product_images_status
+    ON product_images (status);
 
 -- CREATE INDEX idx_product_name ON product (name);
 -- CREATE INDEX idx_product_created_at ON product (created_at DESC);

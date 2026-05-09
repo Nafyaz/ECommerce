@@ -13,13 +13,13 @@ pub struct CreateProductCommand {
 
 impl CreateProductCommand {
     pub fn new(
-        current_user_id: Uuid,
+        current_actor_id: Uuid,
         name: String,
         supplier_id: Uuid,
         price_amount_minor: i64,
         price_currency: String,
     ) -> Result<Self, ProductDomainError> {
-        let current_actor_id = ProductActorId::from_uuid(current_user_id);
+        let current_actor_id = ProductActorId::from_uuid(current_actor_id);
         let name = ProductName::new(name)?;
         let supplier_id = SupplierId::from_uuid(supplier_id);
         let price_currency = Currency::from_str(price_currency.as_str())
@@ -35,6 +35,10 @@ impl CreateProductCommand {
         })
     }
 
+    pub fn current_actor_id(&self) -> ProductActorId {
+        self.current_actor_id
+    }
+
     pub fn name(&self) -> &ProductName {
         &self.name
     }
@@ -45,9 +49,5 @@ impl CreateProductCommand {
 
     pub fn price(&self) -> &Money {
         &self.price
-    }
-
-    pub fn current_actor_id(&self) -> ProductActorId {
-        self.current_actor_id
     }
 }

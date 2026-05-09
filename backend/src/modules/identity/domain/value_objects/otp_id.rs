@@ -1,7 +1,7 @@
 use std::fmt;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct OtpId(Uuid);
 
 impl OtpId {
@@ -13,8 +13,8 @@ impl OtpId {
         Self(uuid)
     }
 
-    pub fn as_uuid(&self) -> &Uuid {
-        &self.0
+    pub fn as_uuid(&self) -> Uuid {
+        self.0
     }
 }
 

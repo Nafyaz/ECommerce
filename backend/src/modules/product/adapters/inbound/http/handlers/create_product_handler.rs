@@ -19,7 +19,7 @@ pub async fn handle(
         payload.price_amount_minor,
         payload.price_currency,
     )?;
-    let result = state.command_port.create_product(command).await?;
+    let result = state.product_command_service.create_product(command).await?;
     let response = CreateProductResponse::from(result);
 
     Ok((StatusCode::CREATED, Json(response)))

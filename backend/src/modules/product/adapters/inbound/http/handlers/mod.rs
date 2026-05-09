@@ -1,2 +1,3 @@
+pub mod confirm_upload_handler;
 pub mod create_product_handler;
-mod create_upload_session_handler;
+pub mod create_upload_handler;

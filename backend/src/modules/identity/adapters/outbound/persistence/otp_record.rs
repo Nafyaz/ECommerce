@@ -21,8 +21,8 @@ pub struct OtpRecord {
 impl OtpRecord {
     pub fn from_entity(otp: &Otp) -> Self {
         Self {
-            id: otp.id().as_uuid().to_owned(),
-            identity_id: otp.identity_id().as_uuid().to_owned(),
+            id: otp.id().as_uuid(),
+            identity_id: otp.identity_id().as_uuid(),
             purpose: otp.purpose().as_str().to_owned(),
             code_hash: otp.code_hash().as_str().to_owned(),
             status: otp.status().as_str().to_owned(),

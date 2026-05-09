@@ -1,3 +1,6 @@
 mod product_command_services;
+mod product_image_command_services;
+mod product_image_query_service;
 
 pub use product_command_services::ProductCommandService;
+pub use product_image_command_services::ProductImageCommandService;

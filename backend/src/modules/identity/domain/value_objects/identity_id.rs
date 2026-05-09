@@ -1,7 +1,7 @@
 use std::fmt;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct IdentityId(Uuid);
 
 impl IdentityId {
@@ -13,8 +13,8 @@ impl IdentityId {
         Self(uuid)
     }
 
-    pub fn as_uuid(&self) -> &Uuid {
-        &self.0
+    pub fn as_uuid(&self) -> Uuid {
+        self.0
     }
 }
 

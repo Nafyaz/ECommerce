@@ -8,15 +8,15 @@ pub struct PresignedUpload {
 }
 
 #[async_trait]
-pub trait ObjectStorage: Send + Sync {
-    async fn prepare_upload(
+pub trait ObjectStoragePort: Send + Sync {
+    async fn generate_presigned_url(
         &self,
         key: &ObjectKey,
         content_type: &ContentType,
         file_size: FileSize,
     ) -> Result<PresignedUpload, ObjectStorageError>;
 
-    async fn object_exists(&self, key: &ObjectKey) -> Result<bool, ObjectStorageError>;
+    async fn check_object_exists(&self, key: &ObjectKey) -> Result<bool, ObjectStorageError>;
 
     async fn delete_object(&self, key: &ObjectKey) -> Result<(), ObjectStorageError>;
 }
@@ -34,4 +34,7 @@ pub enum ObjectStorageError {
 
     #[error("unexpected storage error")]
     Unexpected,
+
+    #[error("storage failure {0}")]
+    StorageFailure(String),
 }

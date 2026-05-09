@@ -3,15 +3,15 @@ use crate::config::config_dto::ConfigDto;
 use crate::config::config_error::ConfigError;
 use crate::config::database::DatabaseConfig;
 use crate::config::server::ServerConfig;
+use crate::config::storage::StorageConfig;
 
-// TODO: Is this architecture a good one? Should I change dto / TryFrom?
 #[derive(Debug)]
 pub struct Config {
     pub auth: AuthConfig,
     pub database: DatabaseConfig,
     pub server: ServerConfig,
+    pub storage: StorageConfig,
     // redis: RedisConfig,
-    // storage: StorageConfig,
     // payments: PaymentConfig,
     // telemetry: ObservabilityConfig,
 }
@@ -26,6 +26,7 @@ impl TryFrom<ConfigDto> for Config {
             auth: configs_dto.auth.try_into()?,
             database: configs_dto.database.try_into()?,
             server: configs_dto.server.try_into()?,
+            storage: configs_dto.storage.try_into()?,
         })
     }
 }

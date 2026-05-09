@@ -21,3 +21,6 @@ min_connections = 2
 [auth]
 access_token_ttl = "15m"
 refresh_token_ttl = "7d"
+
+[storage]
+region = "auto"

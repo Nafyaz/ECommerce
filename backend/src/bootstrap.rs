@@ -1,14 +1,16 @@
 use crate::AppState;
 use crate::config::auth::AuthConfig;
+use crate::config::config::Config;
 use crate::infrastructure::http::middleware::AuthState;
+use crate::infrastructure::persistence::database::connection_pool::create_pool;
 use crate::modules::identity::{
     Argon2PasswordHasher, HmacOtpProvider, IdentityCommandService, IdentityHttpState, IdentityQueryService,
     JwtAuthenticator, JwtTokenProvider, NotificationModuleAdapter, PgIdentityRepository, PgOtpRepository,
 };
 use crate::modules::notification::{LogEmailProvider, NotificationCommandService};
 use crate::modules::product::{
-    PgProductRepository, ProductCommandService, ProductHttpState, ProductIdentityQueryAdapter,
-    ProductVendorQueryAdapter,
+    PgProductImageRepository, PgProductRepository, ProductCommandService, ProductHttpState,
+    ProductIdentityQueryAdapter, ProductImageCommandService, ProductVendorQueryAdapter, R2ObjectStorage,
 };
 use crate::modules::user::ports::inbound::UserQueryPort;
 use crate::modules::user::{
@@ -19,9 +21,13 @@ use crate::modules::vendor::{
     PgVendorRepository, VendorCommandService, VendorHttpState, VendorIdentityQueryAdapter, VendorQueryService,
 };
 use sqlx::PgPool;
+use std::error::Error;
 use std::sync::Arc;
 
-pub fn build_app_state(db_pool: PgPool, auth_config: AuthConfig) -> AppState {
+pub async fn build_app_state(config: Config) -> Result<AppState, Box<dyn Error>> {
+    let db_pool = create_pool(&config.database).await?;
+    tracing::info!("Database connection established");
+
     // Notification
     let email_provider = Arc::new(LogEmailProvider);
     let notification_commands = Arc::new(NotificationCommandService::new(email_provider));
@@ -29,12 +35,12 @@ pub fn build_app_state(db_pool: PgPool, auth_config: AuthConfig) -> AppState {
     // Identity
     let identity_repo = Arc::new(PgIdentityRepository::new(db_pool.clone()));
     let otp_repo = Arc::new(PgOtpRepository::new(db_pool.clone()));
-    let otp_service = Arc::new(HmacOtpProvider::new(auth_config.otp_secret().clone()));
+    let otp_service = Arc::new(HmacOtpProvider::new(config.auth.otp_secret().clone()));
     let password_hasher = Arc::new(Argon2PasswordHasher);
     let token_service = Arc::new(JwtTokenProvider::new(
-        auth_config.jwt_secret().clone(),
-        auth_config.access_token_ttl(),
-        auth_config.refresh_token_ttl(),
+        config.auth.jwt_secret().clone(),
+        config.auth.access_token_ttl(),
+        config.auth.refresh_token_ttl(),
     ));
     let notification_port = Arc::new(NotificationModuleAdapter::new(notification_commands));
 
@@ -70,14 +76,27 @@ pub fn build_app_state(db_pool: PgPool, auth_config: AuthConfig) -> AppState {
     let vendor_queries = Arc::new(VendorQueryService::new(vendor_repo));
 
     // Product
-    let product_repo = Arc::new(PgProductRepository::new(db_pool));
+    let product_repo = Arc::new(PgProductRepository::new(db_pool.clone()));
     let product_identity_port = Arc::new(ProductIdentityQueryAdapter::new(identity_queries.clone()));
     let product_vendor_port = Arc::new(ProductVendorQueryAdapter::new(vendor_queries.clone()));
 
     let product_commands = Arc::new(ProductCommandService::new(
-        product_identity_port,
+        product_identity_port.clone(),
         product_vendor_port,
-        product_repo,
+        product_repo.clone(),
+    ));
+
+    let product_image_repo = Arc::new(PgProductImageRepository::new(db_pool.clone()));
+
+    let object_storage = Arc::new(R2ObjectStorage::new(
+        config.storage.r2_access_key_id(),
+        config.storage.r2_secret_access_key(),
+    ));
+
+    let product_image_commands = Arc::new(ProductImageCommandService::new(
+        product_identity_port.clone(),
+        product_repo.clone(),
+        product_image_repo.clone(),
     ));
     // let product_queries = Arc::new(ProductQueryService::new(product_repo));
 

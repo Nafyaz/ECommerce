@@ -7,8 +7,8 @@ pub enum ImageError {
     #[error("invalid content type: {0}")]
     InvalidContentType(String),
 
-    #[error("file size {size} exceeds maximum {max} bytes")]
-    InvalidSize { size: u64, max: u64 },
+    #[error("file size {size} must be between {min} and {max} bytes")]
+    InvalidSize { size: i64, min: i64, max: i64 },
 
     #[error("invalid object key: {0}")]
     InvalidObjectKey(String),
@@ -24,6 +24,21 @@ pub enum ImageError {
 
     #[error("persistence operation failed: {0}")]
     PersistenceFailure(String),
+
+    #[error("invalid product image status: {0}")]
+    InvalidProductImageStatus(String),
+
+    #[error("invalid timestamps: created_at must be before updated_at")]
+    InvalidTimestamps,
+
+    #[error("invalid state")]
+    InvalidState,
+}
+
+impl From<ImageError> for AppError {
+    fn from(error: ImageError) -> Self {
+        AppError::Internal(error.to_string())
+    }
 }
 
 #[derive(Error, Debug, Clone)]

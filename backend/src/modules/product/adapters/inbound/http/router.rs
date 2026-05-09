@@ -1,7 +1,9 @@
 use crate::infrastructure::http::middleware::AuthState;
 use crate::infrastructure::http::middleware::auth_middleware::auth_middleware;
 use crate::modules::product::adapters::inbound::http::ProductHttpState;
-use crate::modules::product::adapters::inbound::http::handlers::create_product_handler;
+use crate::modules::product::adapters::inbound::http::handlers::{
+    confirm_upload_handler, create_product_handler, create_upload_handler,
+};
 use axum::routing::post;
 use axum::{Router, middleware};
 
@@ -12,6 +14,11 @@ where
 {
     let protected_router = Router::new()
         .route("/", post(create_product_handler::handle))
+        .route("/:product_id/images", post(create_upload_handler::handle))
+        .route(
+            "/:product_id/images/:product_image_id/confirm",
+            post(confirm_upload_handler::handle),
+        )
         .layer(middleware::from_fn_with_state(auth_state, auth_middleware));
 
     Router::new().merge(protected_router)

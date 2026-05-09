@@ -49,16 +49,16 @@ impl Product {
         })
     }
 
-    pub fn id(&self) -> &ProductId {
-        &self.id
+    pub fn id(&self) -> ProductId {
+        self.id
     }
 
     pub fn name(&self) -> &ProductName {
         &self.name
     }
 
-    pub fn supplier_id(&self) -> &SupplierId {
-        &self.supplier_id
+    pub fn supplier_id(&self) -> SupplierId {
+        self.supplier_id
     }
 
     pub fn price(&self) -> &Money {

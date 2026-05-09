@@ -61,7 +61,16 @@ impl UserRepositoryPort for PgUserRepository {
     }
 
     async fn find_by_id(&self, id: &UserId) -> Result<Option<User>, UserDomainError> {
-        todo!()
+        let record = sqlx::query_as::<_, UserRecord>(
+            "SELECT id, account_id, name, phone, phone_verified_at, created_at, updated_at \
+            FROM users \
+            WHERE id = $1",
+        )
+        .bind(id.as_uuid())
+        .fetch_optional(&self.pool)
+        .await?;
+
+        Ok(record.map(User::try_from).transpose()?)
     }
 
     async fn find_all(&self) -> Result<Vec<User>, UserDomainError> {

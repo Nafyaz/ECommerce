@@ -15,6 +15,10 @@ impl ContentType {
         Ok(Self(content_type))
     }
 
+    pub fn from_str(content_type: impl Into<String>) -> Result<Self, ImageError> {
+        Self::new(content_type)
+    }
+
     pub fn as_str(&self) -> &str {
         &self.0
     }

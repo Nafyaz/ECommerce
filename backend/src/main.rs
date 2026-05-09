@@ -21,10 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::load()?;
     tracing::info!("Configuration loaded");
 
-    let db_pool = create_pool(&config.database).await?;
-    tracing::info!("Database connection established");
-
-    let app_state = build_app_state(db_pool, config.auth);
+    let app_state = build_app_state(config)?;
 
     let app = Router::new()
         .nest("/v1/identities", identity::create_router())
