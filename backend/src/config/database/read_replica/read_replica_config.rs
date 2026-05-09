@@ -12,8 +12,6 @@ impl TryFrom<ReadReplicaConfigDto> for ReadReplicaConfig {
     type Error = ReadReplicaError;
 
     fn try_from(read_replica_config_dto: ReadReplicaConfigDto) -> Result<Self, Self::Error> {
-        read_replica_config_dto.validate()?;
-
         Ok(Self {
             enabled: read_replica_config_dto.enabled,
             url: read_replica_config_dto.url,

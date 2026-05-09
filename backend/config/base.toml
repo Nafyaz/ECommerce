@@ -1,6 +1,6 @@
 [database]
 max_connections = 20
-#min_connections = 2
+min_connections = 2
 #connection_timeout = "10s"
 #idle_timeout = "600s"
 
@@ -8,9 +8,7 @@ max_connections = 20
 #enabled = false
 #url = ""
 
-[server]
-host = "0.0.0.0"
-port = 8080
+#[server]
 #body_limit = 10_485_760
 #request_timeout = "60s"
 #shutdown_timeout = "30s"

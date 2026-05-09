@@ -1,6 +1,5 @@
-use super::AuthConfigDto;
-use super::AuthConfigError;
-use secrecy::SecretString;
+use crate::config::auth::{AuthConfigDto, AuthConfigError};
+use secrecy::{ExposeSecret, SecretString};
 use std::time::Duration;
 
 #[derive(Debug)]
@@ -33,7 +32,26 @@ impl TryFrom<AuthConfigDto> for AuthConfig {
     type Error = AuthConfigError;
 
     fn try_from(auth_config_dto: AuthConfigDto) -> Result<Self, Self::Error> {
-        auth_config_dto.validate()?;
+        if auth_config_dto.access_token_ttl.is_zero() {
+            return Err(AuthConfigError::ZeroAccessTtl(auth_config_dto.access_token_ttl));
+        }
+
+        if auth_config_dto.refresh_token_ttl < auth_config_dto.access_token_ttl {
+            return Err(AuthConfigError::InvalidTtlOrder {
+                access_token_ttl: auth_config_dto.access_token_ttl,
+                refresh_token_ttl: auth_config_dto.refresh_token_ttl,
+            });
+        }
+
+        let jwt_secret_len = auth_config_dto.jwt_secret.expose_secret().len();
+        if auth_config_dto.jwt_secret.expose_secret().len() < 32 {
+            return Err(AuthConfigError::WeakJwtSecret(jwt_secret_len));
+        }
+
+        let otp_secret_len = auth_config_dto.otp_secret.expose_secret().len();
+        if auth_config_dto.otp_secret.expose_secret().len() < 32 {
+            return Err(AuthConfigError::WeakOtpSecret(otp_secret_len));
+        }
 
         Ok(Self {
             jwt_secret: auth_config_dto.jwt_secret,

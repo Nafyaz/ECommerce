@@ -1,7 +1,4 @@
-use super::server_config_dto::ServerConfigDto;
-use super::server_config_error::ServerConfigError;
-use super::tls_config::TlsConfig;
-use std::time::Duration;
+use crate::config::server::{ServerConfigDto, ServerConfigError};
 
 #[derive(Debug)]
 pub struct ServerConfig {
@@ -16,7 +13,7 @@ impl TryFrom<ServerConfigDto> for ServerConfig {
     type Error = ServerConfigError;
 
     fn try_from(server_config_dto: ServerConfigDto) -> Result<Self, Self::Error> {
-        // validate server_config_dto
+        //TODO: validate server_config_dto
 
         Ok(Self {
             host: server_config_dto.host,

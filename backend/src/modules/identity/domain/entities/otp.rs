@@ -2,7 +2,7 @@ use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{IdentityId, OtpCodeHash, OtpId, OtpPurpose, OtpStatus};
 use chrono::{DateTime, Duration, Utc};
 
-// TODO: Otp expiry duration from config
+// TODO: Otp expiry duration from config or from purpose?
 // TODO: Use totp-rs for only for MFA. Otherwise, just rand + sha2
 // TODO: Run crons to clean up expired otps
 pub struct Otp {

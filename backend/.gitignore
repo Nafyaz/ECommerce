@@ -8,4 +8,4 @@ Cargo.lock
 .env.*
 !.env.example
 
-src/config/local.*
+config/local.*

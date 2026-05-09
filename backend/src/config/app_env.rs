@@ -28,11 +28,11 @@ impl AppEnv {
 impl std::fmt::Display for AppEnv {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Dev => write!(f, "Dev"),
-            Self::Test => write!(f, "Test"),
-            Self::UAT => write!(f, "UAT"),
-            Self::Stage => write!(f, "Stage"),
-            Self::Prod => write!(f, "Prod"),
+            Self::Dev => write!(f, "dev"),
+            Self::Test => write!(f, "test"),
+            Self::UAT => write!(f, "uat"),
+            Self::Stage => write!(f, "stage"),
+            Self::Prod => write!(f, "prod"),
         }
     }
 }

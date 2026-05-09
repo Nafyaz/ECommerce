@@ -1,8 +1,7 @@
-use super::tls_config_dto::TlsConfigDto;
 use serde::Deserialize;
-use std::time::Duration;
 
 #[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct ServerConfigDto {
     pub host: String,
     pub port: u16,

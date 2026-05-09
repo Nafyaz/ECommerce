@@ -12,7 +12,7 @@ impl TryFrom<TlsConfigDto> for TlsConfig {
     type Error = TlsConfigError;
 
     fn try_from(tls_config_dto: TlsConfigDto) -> Result<Self, Self::Error> {
-        // validate tls_config_dto
+        // TODO: validate tls_config_dto
 
         Ok(Self {
             enabled: tls_config_dto.enabled,
