@@ -14,9 +14,9 @@ where
 {
     let protected_router = Router::new()
         .route("/", post(create_product_handler::handle))
-        .route("/:product_id/images", post(create_upload_handler::handle))
+        .route("/{product_id}/images", post(create_upload_handler::handle))
         .route(
-            "/:product_id/images/:product_image_id/confirm",
+            "/{product_id}/images/{product_image_id}/confirm",
             post(confirm_upload_handler::handle),
         )
         .layer(middleware::from_fn_with_state(auth_state, auth_middleware));

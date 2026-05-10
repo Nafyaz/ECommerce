@@ -24,3 +24,4 @@ refresh_token_ttl = "7d"
 
 [storage]
 region = "auto"
+presigned_url_expiry = "15m"
