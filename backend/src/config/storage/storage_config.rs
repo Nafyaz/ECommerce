@@ -1,5 +1,6 @@
 use crate::config::storage::{StorageConfigDto, StorageConfigError};
 use secrecy::{ExposeSecret, SecretString};
+use std::time::Duration;
 
 #[derive(Debug)]
 pub struct StorageConfig {
@@ -8,6 +9,7 @@ pub struct StorageConfig {
     endpoint: String,
     access_key_id: SecretString,
     secret_access_key: SecretString,
+    presigned_url_expiry: Duration,
 }
 
 impl StorageConfig {
@@ -29,6 +31,10 @@ impl StorageConfig {
 
     pub fn secret_access_key(&self) -> &SecretString {
         &self.secret_access_key
+    }
+
+    pub fn presigned_url_expiry(&self) -> Duration {
+        self.presigned_url_expiry
     }
 }
 
@@ -54,6 +60,7 @@ impl TryFrom<StorageConfigDto> for StorageConfig {
             endpoint,
             access_key_id: storage_config_dto.access_key_id,
             secret_access_key: storage_config_dto.secret_access_key,
+            presigned_url_expiry: storage_config_dto.presigned_url_expiry,
         })
     }
 }

@@ -1,5 +1,5 @@
 use crate::modules::product::application::command_results::CreateUploadResult;
-use crate::modules::product::application::commands::CreateUploadCommand;
+use crate::modules::product::application::commands::{ConfirmUploadCommand, CreateUploadCommand};
 use crate::modules::product::domain::entities::ProductImage;
 use crate::modules::product::domain::value_objects::{ProductImageId, ProductImageStatus};
 use crate::modules::product::errors::ImageError;
@@ -90,10 +90,12 @@ impl ProductImageCommandPort for ProductImageCommandService {
         Ok(result)
     }
 
-    async fn confirm_product_image_upload(&self, product_image_id: ProductImageId) -> Result<bool, ImageError> {
+    async fn confirm_product_image_upload(&self, command: ConfirmUploadCommand) -> Result<(), ImageError> {
+        let image_id = command.image_id();
+
         let mut image = self
             .product_image_repo
-            .find_by_id(product_image_id)
+            .find_by_id(image_id)
             .await?
             .ok_or(ImageError::NotFound)?;
 
@@ -114,6 +116,6 @@ impl ProductImageCommandPort for ProductImageCommandService {
         image.confirm_upload();
         self.product_image_repo.update(&image).await?;
 
-        Ok(true)
+        Ok(())
     }
 }

@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = Config::load()?;
     tracing::info!("Configuration loaded");
 
-    let app_state = build_app_state(config)?;
+    let app_state = build_app_state(&config).await?;
 
     let app = Router::new()
         .nest("/v1/identities", identity::create_router())

@@ -7,16 +7,16 @@ use std::time::Duration;
 
 // TODO: Learn all about R2 and aws_sdk_s3
 pub struct R2ObjectStorage {
-    bucket_name: String,
     client: aws_sdk_s3::Client,
+    bucket_name: String,
     presigned_url_expiry: Duration,
 }
 
 impl R2ObjectStorage {
-    pub fn new(bucket_name: String, client: aws_sdk_s3::Client, presigned_url_expiry: Duration) -> Self {
+    pub fn new(client: aws_sdk_s3::Client, bucket_name: String, presigned_url_expiry: Duration) -> Self {
         Self {
-            bucket_name,
             client,
+            bucket_name,
             presigned_url_expiry,
         }
     }

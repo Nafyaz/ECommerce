@@ -1,4 +1,3 @@
-mod confirm_upload_response;
 mod create_product_request;
 mod create_product_response;
 mod create_upload_request;
