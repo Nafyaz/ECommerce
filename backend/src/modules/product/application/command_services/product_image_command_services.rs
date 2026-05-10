@@ -90,8 +90,11 @@ impl ProductImageCommandPort for ProductImageCommandService {
         Ok(result)
     }
 
+    // TODO: need to ensure actor is verified and supplier's owner and this image belongs to this product.
     async fn confirm_product_image_upload(&self, command: ConfirmUploadCommand) -> Result<(), ImageError> {
         let image_id = command.image_id();
+
+        tracing::debug!("Confirming product image upload for image ID: {}", image_id);
 
         let mut image = self
             .product_image_repo
@@ -99,9 +102,13 @@ impl ProductImageCommandPort for ProductImageCommandService {
             .await?
             .ok_or(ImageError::NotFound)?;
 
+        tracing::debug!("{}", image.status().as_str());
+
         if image.status() != ProductImageStatus::PendingUpload {
             return Err(ImageError::InvalidState);
         }
+
+        tracing::debug!("Product image status is PendingUpload");
 
         let exists = self
             .object_storage
@@ -113,8 +120,12 @@ impl ProductImageCommandPort for ProductImageCommandService {
             return Err(ImageError::NotFound);
         }
 
+        tracing::debug!("Product image exists in object storage");
+
         image.confirm_upload();
         self.product_image_repo.update(&image).await?;
+
+        tracing::debug!("Product image confirmed");
 
         Ok(())
     }

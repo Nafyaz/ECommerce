@@ -5,7 +5,7 @@ pub struct FileSize(i64);
 
 impl FileSize {
     pub const MAX_BYTES: i64 = 10 * 1024 * 1024;
-    pub const MIN_BYTES: i64 = 0;
+    pub const MIN_BYTES: i64 = 1;
 
     pub fn new(size: i64) -> Result<Self, ImageError> {
         if size < 0 {

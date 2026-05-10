@@ -15,7 +15,7 @@ pub struct ProductImageRecord {
     content_type: String,
     status: String,
     file_size: i64,
-    display_order: i16,
+    display_order: i32,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 }
@@ -29,7 +29,7 @@ impl ProductImageRecord {
             content_type: product_image.content_type().as_str().to_owned(),
             status: product_image.status().as_str().to_owned(),
             file_size: product_image.file_size().as_i64(),
-            display_order: product_image.display_order() as i16,
+            display_order: product_image.display_order(),
             created_at: product_image.created_at(),
             updated_at: product_image.updated_at(),
         }
@@ -58,7 +58,7 @@ impl ProductImageRecord {
         self.file_size
     }
 
-    pub fn display_order(&self) -> i16 {
+    pub fn display_order(&self) -> i32 {
         self.display_order
     }
 
@@ -82,7 +82,7 @@ impl TryFrom<ProductImageRecord> for ProductImage {
             ContentType::from_str(product_image_record.content_type)?,
             ProductImageStatus::from_str(product_image_record.status)?,
             FileSize::from_i64(product_image_record.file_size)?,
-            product_image_record.display_order as u8,
+            product_image_record.display_order,
             product_image_record.created_at,
             product_image_record.updated_at,
         )

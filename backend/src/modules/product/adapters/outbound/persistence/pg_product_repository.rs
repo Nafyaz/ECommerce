@@ -54,7 +54,7 @@ impl ProductRepositoryPort for PgProductRepository {
 
     async fn find_by_id(&self, id: ProductId) -> Result<Option<Product>, ProductDomainError> {
         let row = sqlx::query_as::<_, ProductRecord>(
-            "SELECT id, name, supplier_id, price_amount_minor, price_currency, created_at, updated_at \
+            "SELECT id, name, supplier_id, price_amount_minor, price_currency::TEXT, created_at, updated_at \
             FROM products \
             WHERE id = $1",
         )

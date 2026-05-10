@@ -11,7 +11,7 @@ pub struct ProductImage {
     content_type: ContentType,
     status: ProductImageStatus,
     file_size: FileSize,
-    display_order: u8,
+    display_order: i32,
     created_at: DateTime<Utc>,
     updated_at: DateTime<Utc>,
 }
@@ -21,7 +21,7 @@ impl ProductImage {
         product_id: ProductId,
         content_type: ContentType,
         file_size: FileSize,
-        display_order: u8,
+        display_order: i32,
     ) -> Result<Self, ImageError> {
         let product_image_id = ProductImageId::new();
         let now = Utc::now();
@@ -46,10 +46,14 @@ impl ProductImage {
         content_type: ContentType,
         status: ProductImageStatus,
         file_size: FileSize,
-        display_order: u8,
+        display_order: i32,
         created_at: DateTime<Utc>,
         updated_at: DateTime<Utc>,
     ) -> Result<Self, ImageError> {
+        if display_order < 0 {
+            return Err(ImageError::InvalidState);
+        }
+
         if updated_at < created_at {
             return Err(ImageError::InvalidTimestamps);
         }
@@ -69,6 +73,7 @@ impl ProductImage {
 
     pub fn confirm_upload(&mut self) {
         self.status = ProductImageStatus::Uploaded;
+        self.updated_at = Utc::now();
     }
 
     pub fn id(&self) -> ProductImageId {
@@ -95,7 +100,7 @@ impl ProductImage {
         self.status
     }
 
-    pub fn display_order(&self) -> u8 {
+    pub fn display_order(&self) -> i32 {
         self.display_order
     }
 

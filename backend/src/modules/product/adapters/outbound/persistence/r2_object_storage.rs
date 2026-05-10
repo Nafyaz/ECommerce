@@ -51,7 +51,18 @@ impl ObjectStoragePort for R2ObjectStorage {
     }
 
     async fn check_object_exists(&self, key: &ObjectKey) -> Result<bool, ObjectStorageError> {
-        todo!()
+        match self
+            .client
+            .head_object()
+            .bucket(&self.bucket_name)
+            .key(key.as_str())
+            .send()
+            .await
+        {
+            Ok(_) => Ok(true),
+            Err(error) if error.as_service_error().is_some_and(|error| error.is_not_found()) => Ok(false),
+            Err(error) => Err(ObjectStorageError::StorageFailure(error.to_string())),
+        }
     }
 
     async fn delete_object(&self, key: &ObjectKey) -> Result<(), ObjectStorageError> {
