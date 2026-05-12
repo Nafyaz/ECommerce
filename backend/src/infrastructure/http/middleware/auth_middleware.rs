@@ -36,14 +36,10 @@ pub async fn auth_middleware(
         .strip_prefix("Bearer ")
         .ok_or(AppError::Unauthorized("Malformed Bearer token".into()))?;
 
-    tracing::trace!("Token received: {}", token);
-
     let identity_id = state
         .authenticator
         .authenticate(token)
         .map_err(|_| AppError::Unauthorized("Invalid token".into()))?;
-
-    tracing::trace!("Token verified: {}", token);
 
     let current_identity = CurrentIdentity {
         identity_id: identity_id.as_uuid().to_owned(),
