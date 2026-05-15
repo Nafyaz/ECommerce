@@ -1,4 +1,4 @@
-use crate::modules::identity::application::command_results::RegisterResult;
+use crate::modules::identity::application::results::RegisterResult;
 use serde::Serialize;
 use uuid::Uuid;
 

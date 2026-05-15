@@ -20,7 +20,7 @@ pub enum ProductAppError {
     #[error("resource not found")]
     NotFound,
 
-    #[error("conflict: {0}")]
+    #[error("Conflict: {0}")]
     Conflict(String),
 
     #[error("{0} dependency unavailable")]
@@ -50,19 +50,13 @@ impl From<MoneyError> for ProductAppError {
     }
 }
 
-impl ProductAppError {
-    pub fn from_product_repository_error(err: ProductRepositoryError) -> Self {
+impl From<ProductRepositoryError> for ProductAppError {
+    fn from(err: ProductRepositoryError) -> Self {
         match err {
             ProductRepositoryError::NotFound => Self::NotFound,
             ProductRepositoryError::Conflict => Self::Conflict(err.to_string()),
             ProductRepositoryError::Unavailable => Self::PersistenceUnavailable,
             ProductRepositoryError::CorruptData(_) | ProductRepositoryError::Unexpected => Self::Internal,
         }
-    }
-}
-
-impl From<ProductRepositoryError> for ProductAppError {
-    fn from(err: ProductRepositoryError) -> Self {
-        Self::from_product_repository_error(err)
     }
 }

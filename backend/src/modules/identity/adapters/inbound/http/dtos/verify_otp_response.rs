@@ -1,4 +1,4 @@
-use crate::modules::identity::application::command_results::VerifyOtpResult;
+use crate::modules::identity::application::results::VerifyOtpResult;
 use serde::Serialize;
 
 #[derive(Serialize)]

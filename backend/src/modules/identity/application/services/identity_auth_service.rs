@@ -1,20 +1,20 @@
-use crate::modules::identity::application::command_results::LoginResult;
+use crate::modules::identity::application::IdentityAppError;
 use crate::modules::identity::application::commands::LoginCommand;
-use crate::modules::identity::domain::entities::Identity;
-use crate::modules::identity::domain::value_objects::{IdentityId, IdentityStatus, TokenType};
-use crate::modules::identity::ports::inbound::IdentityQueryPort;
+use crate::modules::identity::application::results::LoginResult;
+use crate::modules::identity::domain::value_objects::TokenType;
+use crate::modules::identity::ports::inbound::IdentityAuthPort;
 use crate::modules::identity::ports::outbound::{IdentityRepositoryPort, PasswordHasherPort};
 use crate::modules::identity::{IdentityError, TokenProviderPort};
 use async_trait::async_trait;
 use std::sync::Arc;
 
-pub struct IdentityQueryService {
+pub struct IdentityAuthService {
     identity_repo: Arc<dyn IdentityRepositoryPort>,
     password_hasher: Arc<dyn PasswordHasherPort>,
     token_service: Arc<dyn TokenProviderPort>,
 }
 
-impl IdentityQueryService {
+impl IdentityAuthService {
     pub fn new(
         identity_repo: Arc<dyn IdentityRepositoryPort>,
         password_hasher: Arc<dyn PasswordHasherPort>,
@@ -29,22 +29,8 @@ impl IdentityQueryService {
 }
 
 #[async_trait]
-impl IdentityQueryPort for IdentityQueryService {
-    async fn get_identity_by_id(&self, identity_id: &IdentityId) -> Result<Identity, IdentityError> {
-        todo!()
-    }
-
-    async fn check_verified(&self, identity_id: &IdentityId) -> Result<bool, IdentityError> {
-        let identity = self
-            .identity_repo
-            .find_by_id(identity_id)
-            .await?
-            .ok_or(IdentityError::IdentityNotFound)?;
-
-        Ok(*identity.status() == IdentityStatus::Verified)
-    }
-
-    async fn login(&self, command: LoginCommand) -> Result<LoginResult, IdentityError> {
+impl IdentityAuthPort for IdentityAuthService {
+    async fn login(&self, command: LoginCommand) -> Result<LoginResult, IdentityAppError> {
         let identity = self
             .identity_repo
             .find_verified_by_email(command.email())

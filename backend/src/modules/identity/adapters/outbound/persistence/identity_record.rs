@@ -1,6 +1,6 @@
-use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::entities::Identity;
 use crate::modules::identity::domain::value_objects::{Email, IdentityId, IdentityStatus, PasswordHash};
+use crate::modules::identity::ports::outbound::IdentityRepositoryError;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 use uuid::Uuid;
@@ -51,16 +51,18 @@ impl IdentityRecord {
 }
 
 impl TryFrom<IdentityRecord> for Identity {
-    type Error = IdentityError;
+    type Error = IdentityRepositoryError;
 
     fn try_from(identity_record: IdentityRecord) -> Result<Self, Self::Error> {
         Identity::reconstitute(
             IdentityId::from_uuid(identity_record.id),
-            Email::new(identity_record.email)?,
+            Email::new(identity_record.email).map_err(|e| IdentityRepositoryError::CorruptData(e.to_string()))?,
             PasswordHash::from_str(identity_record.password_hash),
-            IdentityStatus::from_str(identity_record.status)?,
+            IdentityStatus::from_str(identity_record.status)
+                .map_err(|e| IdentityRepositoryError::CorruptData(e.to_string()))?,
             identity_record.created_at,
             identity_record.updated_at,
         )
+        .map_err(|e| IdentityRepositoryError::CorruptData(e.to_string()))
     }
 }

@@ -2,24 +2,24 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ProductImageRepositoryError {
-    #[error("product image not found")]
+    #[error("Product image not found")]
     NotFound,
 
-    #[error("product not found")]
+    #[error("Product not found")]
     ProductNotFound,
 
-    #[error("display order is already used for this product")]
+    #[error("Display order is already used for this product")]
     DisplayOrderConflict,
 
-    #[error("product image object key already exists")]
+    #[error("Product image object key already exists")]
     ObjectKeyConflict,
 
-    #[error("product image persistence unavailable")]
+    #[error("Product image persistence unavailable")]
     Unavailable,
 
-    #[error("corrupt product image data: {0}")]
+    #[error("Corrupt product image data: {0}")]
     CorruptData(String),
 
-    #[error("unexpected product image persistence error")]
+    #[error("Unexpected product image persistence error")]
     Unexpected,
 }

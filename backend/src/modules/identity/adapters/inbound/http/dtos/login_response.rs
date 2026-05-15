@@ -1,4 +1,4 @@
-use crate::modules::identity::application::command_results::LoginResult;
+use crate::modules::identity::application::results::LoginResult;
 use serde::Serialize;
 
 #[derive(Serialize)]

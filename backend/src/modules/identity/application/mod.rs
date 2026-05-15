@@ -1,5 +1,7 @@
-pub mod command_results;
-pub mod command_services;
 pub mod commands;
-pub mod queries;
-pub mod query_services;
+mod identity_app_error;
+mod otp_app_error;
+pub mod results;
+pub mod services;
+
+pub use identity_app_error::IdentityAppError;

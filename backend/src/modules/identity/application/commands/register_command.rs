@@ -1,5 +1,5 @@
+use crate::modules::identity::application::IdentityAppError;
 use crate::modules::identity::domain::value_objects::{Email, Password};
-use crate::modules::identity::errors::IdentityError;
 use secrecy::SecretString;
 
 pub struct RegisterCommand {
@@ -8,7 +8,7 @@ pub struct RegisterCommand {
 }
 
 impl RegisterCommand {
-    pub fn new(email: String, password: SecretString) -> Result<Self, IdentityError> {
+    pub fn new(email: String, password: SecretString) -> Result<Self, IdentityAppError> {
         let email = Email::new(email)?;
         let password = Password::new(password)?;
 

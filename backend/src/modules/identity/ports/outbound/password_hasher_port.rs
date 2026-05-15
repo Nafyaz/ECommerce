@@ -14,12 +14,3 @@ pub enum PasswordHasherError {
     #[error("Failed to verify password: {0}")]
     FailedVerification(String),
 }
-
-impl From<PasswordHasherError> for IdentityError {
-    fn from(error: PasswordHasherError) -> Self {
-        match error {
-            PasswordHasherError::FailedHashing(msg) => IdentityError::InternalError(msg),
-            PasswordHasherError::FailedVerification(_) => IdentityError::InvalidCredentials,
-        }
-    }
-}

@@ -1,4 +1,4 @@
-use crate::modules::identity::IdentityError;
+use crate::modules::identity::application::otp_app_error::OtpAppError;
 use crate::modules::identity::domain::value_objects::{IdentityId, OtpCode, OtpPurpose};
 use secrecy::SecretString;
 use uuid::Uuid;
@@ -10,7 +10,7 @@ pub struct VerifyOtpCommand {
 }
 
 impl VerifyOtpCommand {
-    pub fn new(identity_id: Uuid, otp_purpose: String, otp_code: SecretString) -> Result<Self, IdentityError> {
+    pub fn new(identity_id: Uuid, otp_purpose: String, otp_code: SecretString) -> Result<Self, OtpAppError> {
         let identity_id = IdentityId::from_uuid(identity_id);
         let otp_purpose = OtpPurpose::from_str(otp_purpose)?;
         let otp_code = OtpCode::new(otp_code)?;

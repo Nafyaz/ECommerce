@@ -2,7 +2,7 @@ use crate::modules::identity::IdentityError;
 use crate::modules::identity::adapters::outbound::persistence::otp_record::OtpRecord;
 use crate::modules::identity::domain::entities::Otp;
 use crate::modules::identity::domain::value_objects::{IdentityId, OtpId, OtpPurpose, OtpStatus};
-use crate::modules::identity::ports::outbound::OtpRepositoryPort;
+use crate::modules::identity::ports::outbound::{IdentityRepositoryError, OtpRepositoryError, OtpRepositoryPort};
 use async_trait::async_trait;
 use sqlx::PgPool;
 
@@ -16,10 +16,31 @@ impl PgOtpRepository {
     }
 }
 
+fn map_sqlx_error(err: sqlx::Error) -> OtpRepositoryError {
+    if let sqlx::Error::Database(database_error) = &err {
+        return match database_error.code().as_deref() {
+            Some("23505") | Some("23503") => OtpRepositoryError::Conflict,
+            _ => {
+                tracing::error!("Identity repository database error: {:?}", err);
+                OtpRepositoryError::Unexpected
+            }
+        };
+    }
+
+    match err {
+        sqlx::Error::PoolClosed | sqlx::Error::PoolTimedOut => OtpRepositoryError::Unavailable,
+        sqlx::Error::RowNotFound => OtpRepositoryError::NotFound,
+        _ => {
+            tracing::error!("Product repository database error: {:?}", err);
+            OtpRepositoryError::Unexpected
+        }
+    }
+}
+
 // TODO: Study all about sqlx
 #[async_trait]
 impl OtpRepositoryPort for PgOtpRepository {
-    async fn save(&self, otp: &Otp) -> Result<(), IdentityError> {
+    async fn save(&self, otp: &Otp) -> Result<(), OtpRepositoryError> {
         let row = OtpRecord::from_entity(otp);
 
         sqlx::query(
@@ -37,15 +58,16 @@ impl OtpRepositoryPort for PgOtpRepository {
         .bind(row.expires_at)
         .bind(row.created_at)
         .execute(&self.pool)
-        .await?;
+        .await
+        .map_err(map_sqlx_error)?;
 
         Ok(())
     }
 
-    async fn update(&self, otp: &Otp) -> Result<(), IdentityError> {
+    async fn update(&self, otp: &Otp) -> Result<(), OtpRepositoryError> {
         let row = OtpRecord::from_entity(otp);
 
-        sqlx::query(
+        let result = sqlx::query(
             "UPDATE otps \
             SET status = $2::otp_status, attempts = $3, consumed_at = $4, expires_at = $5 \
             WHERE id = $1",
@@ -56,12 +78,21 @@ impl OtpRepositoryPort for PgOtpRepository {
         .bind(row.consumed_at)
         .bind(row.expires_at)
         .execute(&self.pool)
-        .await?;
+        .await
+        .map_err(map_sqlx_error)?;
+
+        if result.rows_affected() == 0 {
+            return Err(OtpRepositoryError::NotFound);
+        }
 
         Ok(())
     }
 
-    async fn find_active(&self, identity_id: &IdentityId, purpose: &OtpPurpose) -> Result<Option<Otp>, IdentityError> {
+    async fn find_active(
+        &self,
+        identity_id: &IdentityId,
+        purpose: &OtpPurpose,
+    ) -> Result<Option<Otp>, OtpRepositoryError> {
         let otp_row = sqlx::query_as::<_, OtpRecord>(
             "SELECT id, identity_id, purpose::TEXT, code_hash, status::TEXT, attempts, consumed_at, expires_at, created_at \
             FROM otps \
@@ -71,12 +102,12 @@ impl OtpRepositoryPort for PgOtpRepository {
         .bind(purpose.as_str())
         .bind(OtpStatus::Active.as_str())
         .fetch_optional(&self.pool)
-        .await?;
+        .await.map_err(map_sqlx_error)?;
 
         Ok(otp_row.map(Otp::try_from).transpose()?)
     }
 
-    async fn find_by_id(&self, id: &OtpId) -> Result<Option<Otp>, IdentityError> {
+    async fn find_by_id(&self, id: &OtpId) -> Result<Option<Otp>, OtpRepositoryError> {
         let record = sqlx::query_as::<_, OtpRecord>(
             "SELECT id, identity_id, purpose::TEXT, code_hash, status::TEXT, attempts, consumed_at, expires_at, consumed_at, created_at \
             FROM otps \
@@ -84,12 +115,12 @@ impl OtpRepositoryPort for PgOtpRepository {
         )
         .bind(id.as_uuid())
         .fetch_optional(&self.pool)
-        .await?;
+        .await.map_err(map_sqlx_error)?;
 
         Ok(record.map(Otp::try_from).transpose()?)
     }
 
-    async fn delete(&self, id: &OtpId) -> Result<(), IdentityError> {
+    async fn delete(&self, id: &OtpId) -> Result<(), OtpRepositoryError> {
         todo!()
     }
 }

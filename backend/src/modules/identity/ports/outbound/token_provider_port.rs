@@ -30,19 +30,3 @@ pub enum TokenProviderError {
     #[error("Invalid token")]
     InvalidToken,
 }
-
-impl From<TokenProviderError> for IdentityError {
-    fn from(error: TokenProviderError) -> Self {
-        match error {
-            TokenProviderError::FailedGeneration => {
-                IdentityError::InternalError("Failed to generate token".to_string())
-            }
-            TokenProviderError::Expired
-            | TokenProviderError::InvalidSignature
-            | TokenProviderError::Malformed
-            | TokenProviderError::TypeMismatch { .. }
-            | TokenProviderError::MissingToken
-            | TokenProviderError::InvalidToken => IdentityError::InvalidCredentials,
-        }
-    }
-}

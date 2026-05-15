@@ -2,18 +2,18 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum ProductRepositoryError {
-    #[error("product not found")]
-    NotFound,
-
-    #[error("product persistence conflict")]
-    Conflict,
-
-    #[error("product persistence unavailable")]
+    #[error("Product persistence unavailable")]
     Unavailable,
 
-    #[error("corrupt product data: {0}")]
+    #[error("Product not found")]
+    NotFound,
+
+    #[error("Product persistence conflict")]
+    Conflict,
+
+    #[error("Corrupt product data: {0}")]
     CorruptData(String),
 
-    #[error("unexpected product persistence error")]
+    #[error("Unexpected product persistence error")]
     Unexpected,
 }

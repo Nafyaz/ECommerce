@@ -1,6 +1,7 @@
 use crate::modules::product::domain::value_objects::{ContentType, FileSize, ObjectKey};
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
+use thiserror::Error;
 
 pub struct PresignedUpload {
     pub upload_url: String,
@@ -21,7 +22,7 @@ pub trait ObjectStoragePort: Send + Sync {
     async fn delete_object(&self, key: &ObjectKey) -> Result<(), ObjectStorageError>;
 }
 
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, Error)]
 pub enum ObjectStorageError {
     #[error("storage unavailable")]
     Unavailable,

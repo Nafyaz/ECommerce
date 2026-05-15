@@ -1,8 +1,9 @@
 use crate::modules::identity::IdentityError;
-use crate::modules::identity::application::command_results::{RegisterResult, VerifyOtpResult};
+use crate::modules::identity::application::IdentityAppError;
 use crate::modules::identity::application::commands::{
     ForgotPasswordCommand, RegisterCommand, ResendOtpCommand, VerifyOtpCommand,
 };
+use crate::modules::identity::application::results::{RegisterResult, VerifyOtpResult};
 use crate::modules::identity::domain::entities::{Identity, Otp};
 use crate::modules::identity::domain::value_objects::OtpPurpose;
 use crate::modules::identity::ports::inbound::IdentityCommandPort;
@@ -45,9 +46,9 @@ impl IdentityCommandService {
 // TODO: run transactions
 #[async_trait]
 impl IdentityCommandPort for IdentityCommandService {
-    async fn register(&self, command: RegisterCommand) -> Result<RegisterResult, IdentityError> {
+    async fn register(&self, command: RegisterCommand) -> Result<RegisterResult, IdentityAppError> {
         if let Some(_existing) = self.identity_repo.find_verified_by_email(command.email()).await? {
-            return Err(IdentityError::VerifiedIdentityAlreadyExists);
+            return Err(IdentityAppError::VerifiedIdentityAlreadyExists);
         }
 
         let password_hash = self.password_hasher.hash_password(command.password())?;
@@ -83,7 +84,7 @@ impl IdentityCommandPort for IdentityCommandService {
     }
 
     // TODO: Add resend otp rate limit per user
-    async fn resend_otp(&self, command: ResendOtpCommand) -> Result<(), IdentityError> {
+    async fn resend_otp(&self, command: ResendOtpCommand) -> Result<(), IdentityAppError> {
         let identity = self
             .identity_repo
             .find_by_id(command.identity_id())
@@ -120,7 +121,7 @@ impl IdentityCommandPort for IdentityCommandService {
         Ok(())
     }
 
-    async fn verify_otp(&self, command: VerifyOtpCommand) -> Result<VerifyOtpResult, IdentityError> {
+    async fn verify_otp(&self, command: VerifyOtpCommand) -> Result<VerifyOtpResult, IdentityAppError> {
         let mut identity = self
             .identity_repo
             .find_by_id(command.identity_id())
@@ -163,7 +164,7 @@ impl IdentityCommandPort for IdentityCommandService {
         Ok(VerifyOtpResult::without_token())
     }
 
-    async fn forgot_password(&self, command: ForgotPasswordCommand) -> Result<(), IdentityError> {
+    async fn forgot_password(&self, command: ForgotPasswordCommand) -> Result<(), IdentityAppError> {
         todo!()
     }
 }
