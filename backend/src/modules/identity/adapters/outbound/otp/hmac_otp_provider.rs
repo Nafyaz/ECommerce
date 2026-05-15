@@ -1,6 +1,5 @@
-use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{OtpCode, OtpCodeHash};
-use crate::modules::identity::ports::outbound::OtpProviderPort;
+use crate::modules::identity::ports::outbound::{OtpProviderError, OtpProviderPort};
 use hmac::{Hmac, Mac};
 use rand::RngExt;
 use secrecy::{ExposeSecret, SecretString};
@@ -17,7 +16,7 @@ impl HmacOtpProvider {
 }
 
 impl OtpProviderPort for HmacOtpProvider {
-    fn generate_otp(&self) -> Result<OtpCode, IdentityError> {
+    fn generate_otp(&self) -> Result<OtpCode, OtpProviderError> {
         let mut rng = rand::rng();
         let code = SecretString::new(format!("{:06}", rng.random_range(0..=999999)).into());
         let otp_code = OtpCode::new(code)?;
@@ -26,9 +25,9 @@ impl OtpProviderPort for HmacOtpProvider {
     }
 
     // TODO: What is happening in this code??!!!!
-    fn hash_otp(&self, otp_code: &OtpCode) -> Result<OtpCodeHash, IdentityError> {
+    fn hash_otp(&self, otp_code: &OtpCode) -> Result<OtpCodeHash, OtpProviderError> {
         let mut mac = Hmac::<Sha256>::new_from_slice(self.secret.expose_secret().as_bytes())
-            .expect("HMAC can take key of any size");
+            .map_err(|_| OtpProviderError::InvalidConfiguration)?;
         mac.update(otp_code.expose().as_bytes());
 
         let result = mac.finalize().into_bytes();
@@ -37,12 +36,11 @@ impl OtpProviderPort for HmacOtpProvider {
         Ok(code_hash)
     }
 
-    fn verify_otp(&self, otp_code: &OtpCode, otp_code_hash: &OtpCodeHash) -> Result<bool, IdentityError> {
-        let expected_bytes = hex::decode(otp_code_hash.as_str())
-            .map_err(|_| IdentityError::InternalError("Failed to decode OTP hex".to_owned()))?;
+    fn verify_otp(&self, otp_code: &OtpCode, otp_code_hash: &OtpCodeHash) -> Result<bool, OtpProviderError> {
+        let expected_bytes = hex::decode(otp_code_hash.as_str()).map_err(|_| OtpProviderError::InvalidHash)?;
 
         let mut mac = Hmac::<Sha256>::new_from_slice(self.secret.expose_secret().as_bytes())
-            .expect("HMAC can take key of any size");
+            .map_err(|_| OtpProviderError::InvalidConfiguration)?;
         mac.update(otp_code.expose().as_bytes());
 
         Ok(mac.verify_slice(&expected_bytes).is_ok())

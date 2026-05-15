@@ -4,7 +4,6 @@ use chrono::Utc;
 use jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use secrecy::{ExposeSecret, SecretString};
 use std::time::Duration;
-use tracing::trace;
 
 pub struct JwtTokenProvider {
     secret: SecretString,

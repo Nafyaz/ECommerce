@@ -1,4 +1,4 @@
-use crate::modules::identity::{IdentityError, IdentityId};
+use crate::modules::identity::IdentityId;
 
 pub enum AuthError {
     AuthenticationFailed,

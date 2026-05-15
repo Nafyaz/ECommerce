@@ -1,5 +1,5 @@
 use crate::modules::identity::ports::inbound::IdentityQueryPort;
-use crate::modules::identity::{IdentityError, IdentityId};
+use crate::modules::identity::{IdentityAppError, IdentityId};
 use crate::modules::product::domain::value_objects::ProductActorId;
 use crate::modules::product::ports::outbound::{ProductIdentityPort, ProductIdentityPortError};
 use async_trait::async_trait;
@@ -24,8 +24,11 @@ impl ProductIdentityPort for ProductIdentityQueryAdapter {
             .check_verified(&identity_id)
             .await
             .map_err(|error| match error {
-                IdentityError::IdentityNotFound => ProductIdentityPortError::NotFound,
-                IdentityError::InternalError(_) => ProductIdentityPortError::Unavailable,
+                IdentityAppError::IdentityNotFound => ProductIdentityPortError::NotFound,
+                IdentityAppError::PersistenceUnavailable | IdentityAppError::DependencyUnavailable(_) => {
+                    ProductIdentityPortError::Unavailable
+                }
+                IdentityAppError::Internal => ProductIdentityPortError::Unexpected,
                 _ => ProductIdentityPortError::Unexpected,
             })
     }

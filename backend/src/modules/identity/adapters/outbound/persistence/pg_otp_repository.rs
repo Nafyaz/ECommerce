@@ -1,8 +1,7 @@
-use crate::modules::identity::IdentityError;
 use crate::modules::identity::adapters::outbound::persistence::otp_record::OtpRecord;
 use crate::modules::identity::domain::entities::Otp;
 use crate::modules::identity::domain::value_objects::{IdentityId, OtpId, OtpPurpose, OtpStatus};
-use crate::modules::identity::ports::outbound::{IdentityRepositoryError, OtpRepositoryError, OtpRepositoryPort};
+use crate::modules::identity::ports::outbound::{OtpRepositoryError, OtpRepositoryPort};
 use async_trait::async_trait;
 use sqlx::PgPool;
 

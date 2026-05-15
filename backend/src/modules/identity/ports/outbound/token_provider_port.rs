@@ -1,4 +1,3 @@
-use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{Claim, IdentityId, TokenType};
 use thiserror::Error;
 

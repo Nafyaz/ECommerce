@@ -1,4 +1,3 @@
-use crate::modules::identity::IdentityError;
 use crate::modules::identity::application::IdentityAppError;
 use crate::modules::identity::application::commands::{
     ForgotPasswordCommand, RegisterCommand, ResendOtpCommand, VerifyOtpCommand,
@@ -89,16 +88,16 @@ impl IdentityCommandPort for IdentityCommandService {
             .identity_repo
             .find_by_id(command.identity_id())
             .await?
-            .ok_or(IdentityError::IdentityNotFound)?;
+            .ok_or(IdentityAppError::IdentityNotFound)?;
         tracing::trace!(identity_id = %identity.id(), "Identity found successfully");
 
         let mut old_otp = self
             .otp_repo
             .find_active(identity.id(), command.otp_purpose())
             .await?
-            .ok_or(IdentityError::NoActiveOtp)?;
+            .ok_or(IdentityAppError::NoActiveOtp)?;
 
-        old_otp.revoke();
+        old_otp.revoke().map_err(|_| IdentityAppError::NoActiveOtp)?;
         self.otp_repo.update(&old_otp).await?;
         tracing::trace!("Old OTP revoked successfully");
 
@@ -126,14 +125,14 @@ impl IdentityCommandPort for IdentityCommandService {
             .identity_repo
             .find_by_id(command.identity_id())
             .await?
-            .ok_or(IdentityError::IdentityNotFound)?;
+            .ok_or(IdentityAppError::IdentityNotFound)?;
         tracing::trace!(identity_id = %identity.id(), "Identity found successfully");
 
         let mut otp = self
             .otp_repo
             .find_active(identity.id(), command.otp_purpose())
             .await?
-            .ok_or(IdentityError::InvalidOtp)?;
+            .ok_or(IdentityAppError::InvalidOtp)?;
         tracing::trace!("OTP found successfully");
 
         let is_valid = self.otp_service.verify_otp(&command.otp_code(), &otp.code_hash())?;
@@ -141,15 +140,15 @@ impl IdentityCommandPort for IdentityCommandService {
             otp.increment_attempts();
             self.otp_repo.update(&otp).await?;
             tracing::trace!("OTP incremented successfully");
-            return Err(IdentityError::InvalidOtp);
+            return Err(IdentityAppError::InvalidOtp);
         }
 
-        otp.consume();
+        otp.consume().map_err(|_| IdentityAppError::InvalidOtp)?;
         self.otp_repo.update(&otp).await?;
         tracing::trace!("OTP consumed successfully");
 
         if command.otp_purpose() == &OtpPurpose::Registration {
-            identity.verify_identity();
+            identity.verify_identity()?;
             self.identity_repo.update(&identity).await?;
             tracing::trace!("Email verified successfully");
 

@@ -3,8 +3,9 @@ use crate::config::config::Config;
 use crate::infrastructure::http::middleware::AuthState;
 use crate::infrastructure::persistence::database::connection_pool::create_pool;
 use crate::modules::identity::{
-    Argon2PasswordHasher, HmacOtpProvider, IdentityCommandService, IdentityHttpState, IdentityQueryService,
-    JwtAuthenticator, JwtTokenProvider, NotificationModuleAdapter, PgIdentityRepository, PgOtpRepository,
+    Argon2PasswordHasher, HmacOtpProvider, IdentityAuthService, IdentityCommandService, IdentityHttpState,
+    IdentityQueryService, JwtAuthenticator, JwtTokenProvider, NotificationModuleAdapter, PgIdentityRepository,
+    PgOtpRepository,
 };
 use crate::modules::notification::{LogEmailProvider, NotificationCommandService};
 use crate::modules::product::{
@@ -53,7 +54,8 @@ pub async fn build_app_state(config: &Config) -> Result<AppState, Box<dyn Error>
         token_service.clone(),
     ));
 
-    let identity_queries = Arc::new(IdentityQueryService::new(
+    let identity_queries = Arc::new(IdentityQueryService::new(identity_repo.clone()));
+    let identity_auth = Arc::new(IdentityAuthService::new(
         identity_repo,
         password_hasher,
         token_service.clone(),
@@ -121,7 +123,7 @@ pub async fn build_app_state(config: &Config) -> Result<AppState, Box<dyn Error>
 
     Ok(AppState {
         auth_state: AuthState::new(authenticator),
-        identity_http_state: IdentityHttpState::new(identity_commands, identity_queries),
+        identity_http_state: IdentityHttpState::new(identity_auth, identity_commands, identity_queries),
         user_http_state: UserHttpState::new(user_commands, user_queries),
         vendor_http_state: VendorHttpState::new(vendor_commands, vendor_queries),
         product_http_state: ProductHttpState::new(product_commands, product_image_commands),

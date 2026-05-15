@@ -1,5 +1,5 @@
-use crate::modules::identity::IdentityId;
 use crate::modules::identity::ports::inbound::IdentityQueryPort;
+use crate::modules::identity::{IdentityAppError, IdentityId};
 use crate::modules::user::domain::value_objects::AccountId;
 use crate::modules::user::ports::outbound::{UserIdentityPort, UserIdentityPortError};
 use async_trait::async_trait;
@@ -23,6 +23,12 @@ impl UserIdentityPort for UserIdentityQueryAdapter {
         self.identity_queries
             .check_verified(&identity_id)
             .await
-            .map_err(|_| UserIdentityPortError::Unexpected)
+            .map_err(|error| match error {
+                IdentityAppError::IdentityNotFound => UserIdentityPortError::NotFound,
+                IdentityAppError::PersistenceUnavailable | IdentityAppError::DependencyUnavailable(_) => {
+                    UserIdentityPortError::Unavailable
+                }
+                _ => UserIdentityPortError::Unexpected,
+            })
     }
 }

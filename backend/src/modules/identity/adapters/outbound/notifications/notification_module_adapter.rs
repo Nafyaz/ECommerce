@@ -1,6 +1,5 @@
-use crate::modules::identity::IdentityError;
 use crate::modules::identity::domain::value_objects::{Email, OtpCode, OtpPurpose};
-use crate::modules::identity::ports::outbound::NotificationPort;
+use crate::modules::identity::ports::outbound::{NotificationPort, NotificationPortError};
 use crate::modules::notification::{NotificationCommandPort, SendEmailCommand};
 use async_trait::async_trait;
 use std::sync::Arc;
@@ -15,7 +14,7 @@ impl NotificationModuleAdapter {
         Self { notification_commands }
     }
 
-    fn email_registration(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, IdentityError> {
+    fn email_registration(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, NotificationPortError> {
         let command = SendEmailCommand::new(
             email.as_str().to_owned(),
             "Thank you for registering with us!".to_owned(),
@@ -25,7 +24,7 @@ impl NotificationModuleAdapter {
         Ok(command)
     }
 
-    fn email_verification(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, IdentityError> {
+    fn email_verification(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, NotificationPortError> {
         let command = SendEmailCommand::new(
             email.as_str().to_owned(),
             "Verify your email".to_owned(),
@@ -35,19 +34,19 @@ impl NotificationModuleAdapter {
         Ok(command)
     }
 
-    fn email_reset_password(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, IdentityError> {
+    fn email_reset_password(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, NotificationPortError> {
         todo!()
     }
 
-    fn email_change_email(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, IdentityError> {
+    fn email_change_email(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, NotificationPortError> {
         todo!()
     }
 
-    fn email_password_change(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, IdentityError> {
+    fn email_password_change(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, NotificationPortError> {
         todo!()
     }
 
-    fn email_delete_account(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, IdentityError> {
+    fn email_delete_account(email: &Email, otp_code: &OtpCode) -> Result<SendEmailCommand, NotificationPortError> {
         todo!()
     }
 }
@@ -59,13 +58,11 @@ impl NotificationPort for NotificationModuleAdapter {
         email: &Email,
         otp_purpose: &OtpPurpose,
         otp_code: &OtpCode,
-    ) -> Result<(), IdentityError> {
+    ) -> Result<(), NotificationPortError> {
         let command = match otp_purpose {
             OtpPurpose::Registration => Self::email_registration(email, otp_code),
             OtpPurpose::EmailVerification => Self::email_verification(email, otp_code),
-            OtpPurpose::PhoneVerification => Err(IdentityError::InternalError(
-                "Phone verification not implemented".to_owned(),
-            ))?,
+            OtpPurpose::PhoneVerification => Err(NotificationPortError::UnsupportedPurpose),
             OtpPurpose::PasswordReset => Self::email_reset_password(email, otp_code),
             OtpPurpose::EmailChange => Self::email_change_email(email, otp_code),
             OtpPurpose::PasswordChange => Self::email_password_change(email, otp_code),

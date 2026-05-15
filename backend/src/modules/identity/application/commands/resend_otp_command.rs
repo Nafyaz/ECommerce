@@ -1,4 +1,4 @@
-use crate::modules::identity::application::otp_app_error::OtpAppError;
+use crate::modules::identity::application::IdentityAppError;
 use crate::modules::identity::domain::value_objects::{IdentityId, OtpPurpose};
 use uuid::Uuid;
 
@@ -8,7 +8,7 @@ pub struct ResendOtpCommand {
 }
 
 impl ResendOtpCommand {
-    pub fn new(identity_id: Uuid, otp_purpose: String) -> Result<Self, OtpAppError> {
+    pub fn new(identity_id: Uuid, otp_purpose: String) -> Result<Self, IdentityAppError> {
         let identity_id = IdentityId::from_uuid(identity_id);
         let otp_purpose = OtpPurpose::from_str(otp_purpose)?;
 

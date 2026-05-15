@@ -3,8 +3,7 @@ use crate::modules::identity::application::commands::LoginCommand;
 use crate::modules::identity::application::results::LoginResult;
 use crate::modules::identity::domain::value_objects::TokenType;
 use crate::modules::identity::ports::inbound::IdentityAuthPort;
-use crate::modules::identity::ports::outbound::{IdentityRepositoryPort, PasswordHasherPort};
-use crate::modules::identity::{IdentityError, TokenProviderPort};
+use crate::modules::identity::ports::outbound::{IdentityRepositoryPort, PasswordHasherPort, TokenProviderPort};
 use async_trait::async_trait;
 use std::sync::Arc;
 
@@ -35,14 +34,14 @@ impl IdentityAuthPort for IdentityAuthService {
             .identity_repo
             .find_verified_by_email(command.email())
             .await?
-            .ok_or(IdentityError::InvalidCredentials)?;
+            .ok_or(IdentityAppError::InvalidCredentials)?;
 
         let is_valid = self
             .password_hasher
             .verify_password(&identity.password_hash(), command.password())?;
 
         if !is_valid {
-            return Err(IdentityError::InvalidCredentials.into());
+            return Err(IdentityAppError::InvalidCredentials);
         }
 
         let access_token = self.token_service.generate_token(identity.id(), &TokenType::Access)?;
