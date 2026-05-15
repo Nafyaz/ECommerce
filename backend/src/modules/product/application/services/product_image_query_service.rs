@@ -1,5 +1,5 @@
+use crate::modules::product::application::ProductImageAppError;
 use crate::modules::product::domain::value_objects::ProductImageId;
-use crate::modules::product::errors::ImageError;
 use crate::modules::product::ports::inbound::ProductImageQueryPort;
 use crate::modules::product::ports::outbound::{ObjectStoragePort, ProductImageRepositoryPort, ProductRepositoryPort};
 use async_trait::async_trait;
@@ -27,7 +27,7 @@ impl ProductImageQueryService {
 
 #[async_trait]
 impl ProductImageQueryPort for ProductImageQueryService {
-    async fn get_product_image(&self, product_image_id: ProductImageId) -> Result<(), ImageError> {
+    async fn get_product_image(&self, _product_image_id: ProductImageId) -> Result<(), ProductImageAppError> {
         todo!()
     }
 }

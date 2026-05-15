@@ -1,4 +1,4 @@
-use crate::modules::identity::IdentityError;
+use crate::modules::identity::domain::IdentityDomainError;
 use crate::modules::identity::domain::value_objects::{Email, IdentityId, IdentityStatus, PasswordHash};
 use chrono::{DateTime, Utc};
 
@@ -13,7 +13,7 @@ pub struct Identity {
 }
 
 impl Identity {
-    pub fn new(email: Email, password_hash: PasswordHash) -> Result<Self, IdentityError> {
+    pub fn new(email: Email, password_hash: PasswordHash) -> Result<Self, IdentityDomainError> {
         let now = Utc::now();
 
         Ok(Self {
@@ -33,10 +33,10 @@ impl Identity {
         status: IdentityStatus,
         created_at: DateTime<Utc>,
         updated_at: DateTime<Utc>,
-    ) -> Result<Self, IdentityError> {
+    ) -> Result<Self, IdentityDomainError> {
         if updated_at < created_at {
-            return Err(IdentityError::InternalError(
-                "identity updated_at cannot be earlier than created_at".to_owned(),
+            return Err(IdentityDomainError::InvalidTimestamps(
+                "Identity updated_at cannot be earlier than created_at".to_owned(),
             ));
         }
 
@@ -50,10 +50,16 @@ impl Identity {
         })
     }
 
-    pub fn verify_identity(&mut self) {
+    pub fn verify_identity(&mut self) -> Result<(), IdentityDomainError> {
+        if self.status != IdentityStatus::Pending {
+            return Err(IdentityDomainError::InvalidStateTransition);
+        }
+
         let now = Utc::now();
         self.status = IdentityStatus::Verified;
         self.updated_at = now;
+
+        Ok(())
     }
 
     pub fn id(&self) -> &IdentityId {

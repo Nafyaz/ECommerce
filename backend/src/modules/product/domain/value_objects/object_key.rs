@@ -1,5 +1,5 @@
+use crate::modules::product::domain::ProductImageDomainError;
 use crate::modules::product::domain::value_objects::{ProductId, ProductImageId};
-use crate::modules::product::errors::ImageError;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ObjectKey(String);
@@ -11,21 +11,21 @@ impl ObjectKey {
         Self(format!("products/{}/images/{}", product_id, product_image_id))
     }
 
-    pub fn from_str(key: impl Into<String>) -> Result<Self, ImageError> {
+    pub fn from_str(key: impl Into<String>) -> Result<Self, ProductImageDomainError> {
         let key = key.into();
 
         if key.is_empty() {
-            return Err(ImageError::InvalidObjectKey("empty".into()));
+            return Err(ProductImageDomainError::InvalidObjectKey("empty".into()));
         }
         if key.len() > Self::MAX_LENGTH {
-            return Err(ImageError::InvalidObjectKey(format!(
+            return Err(ProductImageDomainError::InvalidObjectKey(format!(
                 "length {} exceeds {}",
                 key.len(),
                 Self::MAX_LENGTH
             )));
         }
         if key.contains("..") || key.contains('\0') || key.starts_with('/') {
-            return Err(ImageError::InvalidObjectKey("malformed".into()));
+            return Err(ProductImageDomainError::InvalidObjectKey("malformed".into()));
         }
 
         Ok(Self(key))

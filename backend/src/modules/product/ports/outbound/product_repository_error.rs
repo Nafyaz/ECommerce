@@ -5,6 +5,15 @@ pub enum ProductRepositoryError {
     #[error("product not found")]
     NotFound,
 
-    #[error("persistence operation failed")]
-    OperationFailed,
+    #[error("product persistence conflict")]
+    Conflict,
+
+    #[error("product persistence unavailable")]
+    Unavailable,
+
+    #[error("corrupt product data: {0}")]
+    CorruptData(String),
+
+    #[error("unexpected product persistence error")]
+    Unexpected,
 }

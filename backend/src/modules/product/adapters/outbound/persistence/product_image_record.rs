@@ -2,7 +2,7 @@ use crate::modules::product::domain::entities::ProductImage;
 use crate::modules::product::domain::value_objects::{
     ContentType, FileSize, ObjectKey, ProductId, ProductImageId, ProductImageStatus,
 };
-use crate::modules::product::errors::ImageError;
+use crate::modules::product::ports::outbound::ProductImageRepositoryError;
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 use uuid::Uuid;
@@ -72,19 +72,24 @@ impl ProductImageRecord {
 }
 
 impl TryFrom<ProductImageRecord> for ProductImage {
-    type Error = ImageError;
+    type Error = ProductImageRepositoryError;
 
     fn try_from(product_image_record: ProductImageRecord) -> Result<Self, Self::Error> {
         ProductImage::reconstitute(
             ProductImageId::from_uuid(product_image_record.id),
             ProductId::from_uuid(product_image_record.product_id),
-            ObjectKey::from_str(product_image_record.object_key)?,
-            ContentType::from_str(product_image_record.content_type)?,
-            ProductImageStatus::from_str(product_image_record.status)?,
-            FileSize::from_i64(product_image_record.file_size)?,
+            ObjectKey::from_str(product_image_record.object_key)
+                .map_err(|e| ProductImageRepositoryError::CorruptData(e.to_string()))?,
+            ContentType::from_str(product_image_record.content_type)
+                .map_err(|e| ProductImageRepositoryError::CorruptData(e.to_string()))?,
+            ProductImageStatus::from_str(product_image_record.status)
+                .map_err(|e| ProductImageRepositoryError::CorruptData(e.to_string()))?,
+            FileSize::from_i64(product_image_record.file_size)
+                .map_err(|e| ProductImageRepositoryError::CorruptData(e.to_string()))?,
             product_image_record.display_order,
             product_image_record.created_at,
             product_image_record.updated_at,
         )
+        .map_err(|e| ProductImageRepositoryError::CorruptData(e.to_string()))
     }
 }

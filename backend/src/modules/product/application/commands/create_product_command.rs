@@ -1,7 +1,6 @@
 use crate::modules::product::application::ProductAppError;
 use crate::modules::product::domain::value_objects::{ProductActorId, ProductName, SupplierId};
 use crate::modules::shared::Money;
-use std::str::FromStr;
 use uuid::Uuid;
 
 pub struct CreateProductCommand {

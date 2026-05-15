@@ -1,8 +1,7 @@
 use crate::modules::product::adapters::outbound::persistence::product_image_record::ProductImageRecord;
 use crate::modules::product::domain::entities::ProductImage;
 use crate::modules::product::domain::value_objects::{ProductId, ProductImageId};
-use crate::modules::product::errors::ImageError;
-use crate::modules::product::ports::outbound::ProductImageRepositoryPort;
+use crate::modules::product::ports::outbound::{ProductImageRepositoryError, ProductImageRepositoryPort};
 use async_trait::async_trait;
 use sqlx::PgPool;
 
@@ -17,16 +16,35 @@ impl PgProductImageRepository {
     }
 }
 
-impl From<sqlx::Error> for ImageError {
-    fn from(err: sqlx::Error) -> Self {
-        tracing::error!("Database error: {:?}", err);
-        ImageError::NotFound
+fn map_sqlx_error(err: sqlx::Error) -> ProductImageRepositoryError {
+    if let sqlx::Error::Database(database_error) = &err {
+        return match database_error.code().as_deref() {
+            Some("23503") => ProductImageRepositoryError::ProductNotFound,
+            Some("23505") => match database_error.constraint() {
+                Some("uq_product_images_product_position") => ProductImageRepositoryError::DisplayOrderConflict,
+                Some("product_images_object_key_key") => ProductImageRepositoryError::ObjectKeyConflict,
+                _ => ProductImageRepositoryError::Unexpected,
+            },
+            _ => {
+                tracing::error!("Product image repository database error: {:?}", err);
+                ProductImageRepositoryError::Unexpected
+            }
+        };
+    }
+
+    match err {
+        sqlx::Error::RowNotFound => ProductImageRepositoryError::NotFound,
+        sqlx::Error::PoolClosed | sqlx::Error::PoolTimedOut => ProductImageRepositoryError::Unavailable,
+        _ => {
+            tracing::error!("Product image repository database error: {:?}", err);
+            ProductImageRepositoryError::Unexpected
+        }
     }
 }
 
 #[async_trait]
 impl ProductImageRepositoryPort for PgProductImageRepository {
-    async fn save(&self, image: &ProductImage) -> Result<(), ImageError> {
+    async fn save(&self, image: &ProductImage) -> Result<(), ProductImageRepositoryError> {
         let record = ProductImageRecord::from_entity(image);
 
         sqlx::query(
@@ -44,15 +62,16 @@ impl ProductImageRepositoryPort for PgProductImageRepository {
         .bind(record.created_at())
         .bind(record.updated_at())
         .execute(&self.pool)
-        .await?;
+        .await
+        .map_err(map_sqlx_error)?;
 
         Ok(())
     }
 
-    async fn update(&self, product_image: &ProductImage) -> Result<(), ImageError> {
+    async fn update(&self, product_image: &ProductImage) -> Result<(), ProductImageRepositoryError> {
         let row = ProductImageRecord::from_entity(product_image);
 
-        sqlx::query(
+        let result = sqlx::query(
             "UPDATE product_images \
             SET status = $2::product_image_status, display_order = $3, updated_at = $4 \
             WHERE id = $1",
@@ -62,12 +81,17 @@ impl ProductImageRepositoryPort for PgProductImageRepository {
         .bind(row.display_order())
         .bind(row.updated_at())
         .execute(&self.pool)
-        .await?;
+        .await
+        .map_err(map_sqlx_error)?;
+
+        if result.rows_affected() == 0 {
+            return Err(ProductImageRepositoryError::NotFound);
+        }
 
         Ok(())
     }
 
-    async fn find_by_id(&self, id: ProductImageId) -> Result<Option<ProductImage>, ImageError> {
+    async fn find_by_id(&self, id: ProductImageId) -> Result<Option<ProductImage>, ProductImageRepositoryError> {
         let row = sqlx::query_as::<_, ProductImageRecord>(
             "SELECT id, product_id, object_key, content_type, status::TEXT, file_size, display_order, created_at, updated_at \
             FROM product_images \
@@ -75,12 +99,16 @@ impl ProductImageRepositoryPort for PgProductImageRepository {
         )
         .bind(id.as_uuid())
         .fetch_optional(&self.pool)
-        .await?;
+        .await
+        .map_err(map_sqlx_error)?;
 
         Ok(row.map(ProductImage::try_from).transpose()?)
     }
 
-    async fn find_by_product_id(&self, product_id: ProductId) -> Result<Vec<ProductImage>, ImageError> {
+    async fn find_by_product_id(
+        &self,
+        product_id: ProductId,
+    ) -> Result<Vec<ProductImage>, ProductImageRepositoryError> {
         let rows = sqlx::query_as::<_, ProductImageRecord>(
             "
             SELECT id, product_id, object_key, content_type, status::TEXT, file_size, display_order, created_at, updated_at
@@ -91,16 +119,22 @@ impl ProductImageRepositoryPort for PgProductImageRepository {
         )
         .bind(product_id.as_uuid())
         .fetch_all(&self.pool)
-        .await?;
+        .await
+        .map_err(map_sqlx_error)?;
 
         rows.into_iter().map(ProductImage::try_from).collect()
     }
 
-    async fn delete(&self, id: ProductImageId) -> Result<(), ImageError> {
-        sqlx::query("DELETE FROM product_images WHERE id = $1")
+    async fn delete(&self, id: ProductImageId) -> Result<(), ProductImageRepositoryError> {
+        let result = sqlx::query("DELETE FROM product_images WHERE id = $1")
             .bind(id.as_uuid())
             .execute(&self.pool)
-            .await?;
+            .await
+            .map_err(map_sqlx_error)?;
+
+        if result.rows_affected() == 0 {
+            return Err(ProductImageRepositoryError::NotFound);
+        }
 
         Ok(())
     }

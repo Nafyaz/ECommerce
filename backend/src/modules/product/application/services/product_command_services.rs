@@ -2,7 +2,6 @@ use crate::modules::product::application::ProductAppError;
 use crate::modules::product::application::commands::CreateProductCommand;
 use crate::modules::product::application::results::CreateProductResult;
 use crate::modules::product::domain::entities::Product;
-use crate::modules::product::errors::ProductError;
 use crate::modules::product::ports::inbound::ProductCommandPort;
 use crate::modules::product::ports::outbound::{
     ProductIdentityPort, ProductIdentityPortError, ProductRepositoryPort, ProductVendorPort, ProductVendorPortError,
@@ -38,18 +37,13 @@ impl ProductCommandPort for ProductCommandService {
             .check_verified(command.current_actor_id())
             .await
             .map_err(|error| match error {
-                ProductIdentityPortError::NotFound => {
-                    ProductError::ActorNotVerified(command.current_actor_id().as_uuid().to_owned())
-                }
-                ProductIdentityPortError::Unavailable | ProductIdentityPortError::Unexpected => {
-                    ProductError::IdentityPortError
-                }
+                ProductIdentityPortError::NotFound => ProductAppError::ActorNotVerified,
+                ProductIdentityPortError::Unavailable => ProductAppError::DependencyUnavailable("identity"),
+                ProductIdentityPortError::Unexpected => ProductAppError::Internal,
             })?;
 
         if !is_verified {
-            return Err(ProductError::ActorNotVerified(
-                command.current_actor_id().as_uuid().to_owned(),
-            ));
+            return Err(ProductAppError::ActorNotVerified);
         }
 
         let owns_supplier = self
@@ -57,14 +51,13 @@ impl ProductCommandPort for ProductCommandService {
             .check_ownership(command.supplier_id(), command.current_actor_id())
             .await
             .map_err(|error| match error {
-                ProductVendorPortError::NotFound => ProductError::VendorNotFound,
-                ProductVendorPortError::Unavailable | ProductVendorPortError::Unexpected => {
-                    ProductError::VendorPortError
-                }
+                ProductVendorPortError::NotFound => ProductAppError::VendorNotFound,
+                ProductVendorPortError::Unavailable => ProductAppError::DependencyUnavailable("vendor"),
+                ProductVendorPortError::Unexpected => ProductAppError::Internal,
             })?;
 
         if !owns_supplier {
-            return Err(ProductError::VendorOwnershipMismatch);
+            return Err(ProductAppError::VendorOwnershipMismatch);
         }
 
         let product = Product::new(

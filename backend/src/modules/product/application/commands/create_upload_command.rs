@@ -1,5 +1,5 @@
+use crate::modules::product::application::ProductImageAppError;
 use crate::modules::product::domain::value_objects::{ContentType, FileSize, ProductActorId, ProductId};
-use crate::modules::product::errors::ImageError;
 use uuid::Uuid;
 
 // TODO: db and application check for same product, same image, same display_order
@@ -18,7 +18,7 @@ impl CreateUploadCommand {
         content_type: String,
         file_size: i64,
         display_order: i32,
-    ) -> Result<Self, ImageError> {
+    ) -> Result<Self, ProductImageAppError> {
         let current_actor_id = ProductActorId::from_uuid(current_actor_id);
         let product_id = ProductId::from_uuid(product_id);
         let content_type = ContentType::from_str(content_type)?;

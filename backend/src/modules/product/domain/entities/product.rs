@@ -1,6 +1,5 @@
 use crate::modules::product::domain::product_domain_error::ProductDomainError;
 use crate::modules::product::domain::value_objects::{ProductId, ProductName, SupplierId};
-use crate::modules::product::errors::ProductError;
 use crate::modules::shared::Money;
 use chrono::{DateTime, Utc};
 
@@ -14,7 +13,11 @@ pub struct Product {
 }
 
 impl Product {
-    pub fn new(name: ProductName, supplier_id: SupplierId, price: Money) -> Result<Self, ProductError> {
+    pub fn new(name: ProductName, supplier_id: SupplierId, price: Money) -> Result<Self, ProductDomainError> {
+        if price.amount_minor() < 0 {
+            return Err(ProductDomainError::InvalidProductPrice(price.to_string()));
+        }
+
         let now = Utc::now();
         Ok(Self {
             id: ProductId::new(),
@@ -34,6 +37,10 @@ impl Product {
         created_at: DateTime<Utc>,
         updated_at: DateTime<Utc>,
     ) -> Result<Self, ProductDomainError> {
+        if price.amount_minor() < 0 {
+            return Err(ProductDomainError::InvalidProductPrice(price.to_string()));
+        }
+
         if updated_at < created_at {
             return Err(ProductDomainError::InvalidTimestamps);
         }

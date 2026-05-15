@@ -1,7 +1,7 @@
+use crate::modules::product::domain::ProductImageDomainError;
 use crate::modules::product::domain::value_objects::{
     ContentType, FileSize, ObjectKey, ProductId, ProductImageId, ProductImageStatus,
 };
-use crate::modules::product::errors::ImageError;
 use chrono::{DateTime, Utc};
 
 pub struct ProductImage {
@@ -22,7 +22,11 @@ impl ProductImage {
         content_type: ContentType,
         file_size: FileSize,
         display_order: i32,
-    ) -> Result<Self, ImageError> {
+    ) -> Result<Self, ProductImageDomainError> {
+        if display_order < 0 {
+            return Err(ProductImageDomainError::InvalidDisplayOrder(display_order));
+        }
+
         let product_image_id = ProductImageId::new();
         let now = Utc::now();
 
@@ -49,13 +53,15 @@ impl ProductImage {
         display_order: i32,
         created_at: DateTime<Utc>,
         updated_at: DateTime<Utc>,
-    ) -> Result<Self, ImageError> {
+    ) -> Result<Self, ProductImageDomainError> {
         if display_order < 0 {
-            return Err(ImageError::InvalidState);
+            return Err(ProductImageDomainError::InvalidDisplayOrder(display_order));
         }
 
         if updated_at < created_at {
-            return Err(ImageError::InvalidTimestamps);
+            return Err(ProductImageDomainError::InvalidTimestamps(
+                "Product Image updated_at cannot be earlier than created_at".to_owned(),
+            ));
         }
 
         Ok(Self {
@@ -71,9 +77,15 @@ impl ProductImage {
         })
     }
 
-    pub fn confirm_upload(&mut self) {
+    pub fn confirm_upload(&mut self) -> Result<(), ProductImageDomainError> {
+        if self.status != ProductImageStatus::PendingUpload {
+            return Err(ProductImageDomainError::InvalidStateTransition);
+        }
+
         self.status = ProductImageStatus::Uploaded;
         self.updated_at = Utc::now();
+
+        Ok(())
     }
 
     pub fn id(&self) -> ProductImageId {

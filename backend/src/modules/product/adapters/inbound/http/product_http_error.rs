@@ -5,37 +5,63 @@ use axum::{
 };
 use serde_json::json;
 
+use crate::modules::product::application::{ProductAppError, ProductImageAppError};
+
 #[derive(Debug, thiserror::Error)]
 pub enum ProductHttpError {
-    #[error("Resource not found: {0}")]
-    NotFound(String),
+    #[error("{0}")]
+    Product(#[from] ProductAppError),
 
-    #[error("Bad request: {0}")]
-    BadRequest(String),
+    #[error("{0}")]
+    ProductImage(#[from] ProductImageAppError),
+}
 
-    #[error("Conflict: {0}")]
-    Conflict(String),
+impl ProductHttpError {
+    fn status_code(&self) -> StatusCode {
+        match self {
+            Self::Product(error) => match error {
+                ProductAppError::InvalidInput(_) => StatusCode::BAD_REQUEST,
+                ProductAppError::ActorNotVerified | ProductAppError::VendorOwnershipMismatch => StatusCode::FORBIDDEN,
+                ProductAppError::VendorNotFound | ProductAppError::NotFound => StatusCode::NOT_FOUND,
+                ProductAppError::Conflict(_) => StatusCode::CONFLICT,
+                ProductAppError::DependencyUnavailable(_) | ProductAppError::PersistenceUnavailable => {
+                    StatusCode::SERVICE_UNAVAILABLE
+                }
+                ProductAppError::Internal => StatusCode::INTERNAL_SERVER_ERROR,
+            },
+            Self::ProductImage(error) => match error {
+                ProductImageAppError::InvalidInput(_) => StatusCode::BAD_REQUEST,
+                ProductImageAppError::ActorNotVerified | ProductImageAppError::VendorOwnershipMismatch => {
+                    StatusCode::FORBIDDEN
+                }
+                ProductImageAppError::ProductNotFound | ProductImageAppError::ImageNotFound => StatusCode::NOT_FOUND,
+                ProductImageAppError::InvalidState
+                | ProductImageAppError::DisplayOrderConflict
+                | ProductImageAppError::Conflict(_) => StatusCode::CONFLICT,
+                ProductImageAppError::DependencyUnavailable(_)
+                | ProductImageAppError::StorageUnavailable
+                | ProductImageAppError::PersistenceUnavailable => StatusCode::SERVICE_UNAVAILABLE,
+                ProductImageAppError::Internal => StatusCode::INTERNAL_SERVER_ERROR,
+            },
+        }
+    }
 
-    #[error("Internal server error: {0}")]
-    Internal(String),
-
-    #[error("Unauthorized: {0}")]
-    Unauthorized(String),
-
-    #[error("Forbidden: {0}")]
-    Forbidden(String),
+    fn error_code(&self) -> &'static str {
+        match self.status_code() {
+            StatusCode::BAD_REQUEST => "BAD_REQUEST",
+            StatusCode::FORBIDDEN => "FORBIDDEN",
+            StatusCode::NOT_FOUND => "NOT_FOUND",
+            StatusCode::CONFLICT => "CONFLICT",
+            StatusCode::SERVICE_UNAVAILABLE => "SERVICE_UNAVAILABLE",
+            _ => "INTERNAL_ERROR",
+        }
+    }
 }
 
 impl IntoResponse for ProductHttpError {
     fn into_response(self) -> Response {
-        let (status, code) = match &self {
-            ProductHttpError::NotFound(_) => (StatusCode::NOT_FOUND, "NOT_FOUND"),
-            ProductHttpError::BadRequest(_) => (StatusCode::BAD_REQUEST, "BAD_REQUEST"),
-            ProductHttpError::Conflict(_) => (StatusCode::CONFLICT, "CONFLICT"),
-            ProductHttpError::Internal(_) => (StatusCode::INTERNAL_SERVER_ERROR, "INTERNAL_ERROR"),
-            ProductHttpError::Unauthorized(_) => (StatusCode::UNAUTHORIZED, "UNAUTHORIZED"),
-            ProductHttpError::Forbidden(_) => (StatusCode::FORBIDDEN, "FORBIDDEN"),
-        };
+        let status = self.status_code();
+        let code = self.error_code();
 
         let body = json!({
             "success": false,

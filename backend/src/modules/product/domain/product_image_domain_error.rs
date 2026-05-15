@@ -2,21 +2,24 @@ use thiserror::Error;
 
 #[derive(Error, Debug, Clone, PartialEq)]
 pub enum ProductImageDomainError {
-    #[error("invalid content type: {0}")]
+    #[error("Invalid content type: {0}")]
     InvalidContentType(String),
 
-    #[error("file size {size} must be between {min} and {max} bytes")]
+    #[error("File size {size} must be between {min} and {max} bytes")]
     InvalidSize { size: i64, min: i64, max: i64 },
 
-    #[error("invalid display order: {0}")]
+    #[error("Invalid display order: {0}")]
     InvalidDisplayOrder(i32),
 
-    #[error("invalid status: {0}")]
+    #[error("Invalid status: {0}")]
     InvalidStatus(String),
 
-    #[error("invalid state transition")]
+    #[error("Invalid object key: {0}")]
+    InvalidObjectKey(String),
+
+    #[error("Invalid state transition")]
     InvalidStateTransition,
 
-    #[error("invalid timestamps")]
-    InvalidTimestamps,
+    #[error("Invalid timestamps: {0}")]
+    InvalidTimestamps(String),
 }

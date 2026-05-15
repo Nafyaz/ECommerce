@@ -1,4 +1,4 @@
-use crate::modules::identity::IdentityError;
+use crate::modules::identity::domain::OtpDomainError;
 use crate::modules::identity::domain::value_objects::{IdentityId, OtpCodeHash, OtpId, OtpPurpose, OtpStatus};
 use chrono::{DateTime, Duration, Utc};
 
@@ -15,6 +15,7 @@ pub struct Otp {
     consumed_at: Option<DateTime<Utc>>,
     expires_at: DateTime<Utc>,
     created_at: DateTime<Utc>,
+    updated_at: DateTime<Utc>,
 }
 
 impl Otp {
@@ -23,7 +24,7 @@ impl Otp {
         purpose: OtpPurpose,
         code_hash: OtpCodeHash,
         duration: Duration,
-    ) -> Result<Self, IdentityError> {
+    ) -> Result<Self, OtpDomainError> {
         let now = Utc::now();
 
         Ok(Self {
@@ -36,6 +37,7 @@ impl Otp {
             consumed_at: None,
             expires_at: now + duration,
             created_at: now,
+            updated_at: now,
         })
     }
 
@@ -49,10 +51,11 @@ impl Otp {
         consumed_at: Option<DateTime<Utc>>,
         expires_at: DateTime<Utc>,
         created_at: DateTime<Utc>,
-    ) -> Result<Self, IdentityError> {
+        updated_at: DateTime<Utc>,
+    ) -> Result<Self, OtpDomainError> {
         if expires_at < created_at {
-            return Err(IdentityError::InternalError(
-                "otp expires_at cannot be earlier than created_at".to_owned(),
+            return Err(OtpDomainError::InvalidTimestamps(
+                "Otp expires_at cannot be earlier than created_at".to_owned(),
             ));
         }
 
@@ -66,6 +69,7 @@ impl Otp {
             consumed_at,
             expires_at,
             created_at,
+            updated_at,
         })
     }
 
@@ -73,14 +77,45 @@ impl Otp {
         self.attempts += 1;
     }
 
-    pub fn revoke(&mut self) {
+    pub fn revoke(&mut self) -> Result<(), OtpDomainError> {
+        if self.status != OtpStatus::Active {
+            return Err(OtpDomainError::InvalidStateTransition);
+        }
+
+        let now = Utc::now();
+
+        if self.expires_at < now {
+            self.status = OtpStatus::Expired;
+            self.updated_at = now;
+
+            return Err(OtpDomainError::InvalidStateTransition);
+        }
+
         self.status = OtpStatus::Revoked;
+        self.updated_at = now;
+
+        Ok(())
     }
 
-    pub fn consume(&mut self) {
+    pub fn consume(&mut self) -> Result<(), OtpDomainError> {
+        if self.status != OtpStatus::Active {
+            return Err(OtpDomainError::InvalidStateTransition);
+        }
+
         let now = Utc::now();
+
+        if self.expires_at < now {
+            self.status = OtpStatus::Expired;
+            self.updated_at = now;
+
+            return Err(OtpDomainError::InvalidStateTransition);
+        }
+
         self.status = OtpStatus::Consumed;
         self.consumed_at = Some(now);
+        self.updated_at = now;
+
+        Ok(())
     }
 
     pub fn id(&self) -> &OtpId {

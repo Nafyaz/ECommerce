@@ -1,9 +1,12 @@
 use thiserror::Error;
 
-#[derive(Error, Debug, Clone)]
+#[derive(Error, Debug, Clone, PartialEq)]
 pub enum ProductDomainError {
-    #[error("Invalid product name: {0}")]
+    #[error("invalid product name: {0}")]
     InvalidProductName(String),
+
+    #[error("invalid product price: {0}")]
+    InvalidProductPrice(String),
 
     #[error("invalid timestamps")]
     InvalidTimestamps,

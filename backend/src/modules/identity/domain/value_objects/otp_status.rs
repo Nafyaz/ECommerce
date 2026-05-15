@@ -1,4 +1,4 @@
-use crate::modules::identity::IdentityError;
+use crate::modules::identity::domain::OtpDomainError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum OtpStatus {
@@ -9,13 +9,13 @@ pub enum OtpStatus {
 }
 
 impl OtpStatus {
-    pub fn from_str(otp_status: impl Into<String>) -> Result<Self, IdentityError> {
+    pub fn from_str(otp_status: impl Into<String>) -> Result<Self, OtpDomainError> {
         match otp_status.into().as_str() {
             "ACTIVE" => Ok(OtpStatus::Active),
             "EXPIRED" => Ok(OtpStatus::Expired),
             "CONSUMED" => Ok(OtpStatus::Consumed),
             "REVOKED" => Ok(OtpStatus::Revoked),
-            os => Err(IdentityError::InvalidOtpStatus(os.into())),
+            os => Err(OtpDomainError::InvalidOtpStatus(os.into())),
         }
     }
 

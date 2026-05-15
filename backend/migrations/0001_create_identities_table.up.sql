@@ -99,7 +99,8 @@ CREATE TABLE otps
     consumed_at TIMESTAMP WITH TIME ZONE,
     expires_at  TIMESTAMP WITH TIME ZONE NOT NULL,
     created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
-
+    updated_at  TIMESTAMP WITH TIME ZONE NOT NULL,
+    
     CHECK (expires_at > created_at),
     CHECK (
         (status = 'CONSUMED' AND consumed_at IS NOT NULL)

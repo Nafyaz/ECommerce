@@ -1,4 +1,4 @@
-use crate::modules::product::errors::ImageError;
+use crate::modules::product::domain::ProductImageDomainError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ProductImageStatus {
@@ -11,7 +11,7 @@ pub enum ProductImageStatus {
 }
 
 impl ProductImageStatus {
-    pub fn from_str(product_image_status: impl Into<String>) -> Result<Self, ImageError> {
+    pub fn from_str(product_image_status: impl Into<String>) -> Result<Self, ProductImageDomainError> {
         match product_image_status.into().as_str() {
             "PENDING_UPLOAD" => Ok(Self::PendingUpload),
             "UPLOADED" => Ok(Self::Uploaded),
@@ -19,7 +19,7 @@ impl ProductImageStatus {
             "READY" => Ok(Self::Ready),
             "FAILED" => Ok(Self::Failed),
             "DELETED" => Ok(Self::Deleted),
-            pis => Err(ImageError::InvalidProductImageStatus(pis.to_string())),
+            pis => Err(ProductImageDomainError::InvalidStatus(pis.to_string())),
         }
     }
 

@@ -1,4 +1,4 @@
-use crate::modules::identity::IdentityError;
+use crate::modules::identity::domain::OtpDomainError;
 use crate::modules::identity::domain::value_objects::TokenType;
 
 //TODO: Implement phone verification, email change, password change, delete account
@@ -15,7 +15,7 @@ pub enum OtpPurpose {
 }
 
 impl OtpPurpose {
-    pub fn from_str(otp_purpose: impl Into<String>) -> Result<Self, IdentityError> {
+    pub fn from_str(otp_purpose: impl Into<String>) -> Result<Self, OtpDomainError> {
         match otp_purpose.into().as_str() {
             "REGISTRATION" => Ok(Self::Registration),
             "EMAIL_VERIFICATION" => Ok(Self::EmailVerification),
@@ -24,7 +24,7 @@ impl OtpPurpose {
             "EMAIL_CHANGE" => Ok(Self::EmailChange),
             "PASSWORD_CHANGE" => Ok(Self::PasswordChange),
             "DELETE_ACCOUNT" => Ok(Self::DeleteAccount),
-            op => Err(IdentityError::InvalidOtpPurpose(op.into())),
+            op => Err(OtpDomainError::InvalidOtpPurpose(op.into())),
         }
     }
 
