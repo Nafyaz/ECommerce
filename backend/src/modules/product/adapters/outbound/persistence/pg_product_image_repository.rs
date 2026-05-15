@@ -1,7 +1,7 @@
 use crate::modules::product::adapters::outbound::persistence::product_image_record::ProductImageRecord;
 use crate::modules::product::domain::entities::ProductImage;
 use crate::modules::product::domain::value_objects::{ProductId, ProductImageId};
-use crate::modules::product::errors::{ImageError, ProductDomainError};
+use crate::modules::product::errors::ImageError;
 use crate::modules::product::ports::outbound::ProductImageRepositoryPort;
 use async_trait::async_trait;
 use sqlx::PgPool;

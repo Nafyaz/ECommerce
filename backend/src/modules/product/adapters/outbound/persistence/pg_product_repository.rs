@@ -1,7 +1,7 @@
 use crate::modules::product::adapters::outbound::persistence::product_record::ProductRecord;
 use crate::modules::product::domain::entities::Product;
 use crate::modules::product::domain::value_objects::ProductId;
-use crate::modules::product::errors::ProductDomainError;
+use crate::modules::product::errors::ProductError;
 use crate::modules::product::ports::outbound::ProductRepositoryPort;
 use async_trait::async_trait;
 use sqlx::PgPool;
@@ -17,13 +17,13 @@ impl PgProductRepository {
     }
 }
 
-impl From<sqlx::Error> for ProductDomainError {
+impl From<sqlx::Error> for ProductError {
     fn from(err: sqlx::Error) -> Self {
         match err {
-            sqlx::Error::RowNotFound => ProductDomainError::VendorNotFound,
+            sqlx::Error::RowNotFound => ProductError::VendorNotFound,
             _ => {
                 tracing::error!("Database error: {:?}", err);
-                ProductDomainError::InternalError("An internal database error occurred".to_string())
+                ProductError::InternalError("An internal database error occurred".to_string())
             }
         }
     }
@@ -31,7 +31,7 @@ impl From<sqlx::Error> for ProductDomainError {
 
 #[async_trait]
 impl ProductRepositoryPort for PgProductRepository {
-    async fn save(&self, product: &Product) -> Result<(), ProductDomainError> {
+    async fn save(&self, product: &Product) -> Result<(), ProductError> {
         let record = ProductRecord::from_entity(product);
 
         sqlx::query(
@@ -52,7 +52,7 @@ impl ProductRepositoryPort for PgProductRepository {
         Ok(())
     }
 
-    async fn find_by_id(&self, id: ProductId) -> Result<Option<Product>, ProductDomainError> {
+    async fn find_by_id(&self, id: ProductId) -> Result<Option<Product>, ProductError> {
         let row = sqlx::query_as::<_, ProductRecord>(
             "SELECT id, name, supplier_id, price_amount_minor, price_currency::TEXT, created_at, updated_at \
             FROM products \
@@ -65,11 +65,11 @@ impl ProductRepositoryPort for PgProductRepository {
         Ok(row.map(Product::try_from).transpose()?)
     }
 
-    async fn find_all(&self) -> Result<Vec<Product>, ProductDomainError> {
+    async fn find_all(&self) -> Result<Vec<Product>, ProductError> {
         todo!()
     }
 
-    async fn delete(&self, id: ProductId) -> Result<(), ProductDomainError> {
+    async fn delete(&self, id: ProductId) -> Result<(), ProductError> {
         todo!()
     }
 }

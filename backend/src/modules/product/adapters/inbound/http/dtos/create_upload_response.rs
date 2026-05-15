@@ -1,4 +1,4 @@
-use crate::modules::product::application::command_results::CreateUploadResult;
+use crate::modules::product::application::results::CreateUploadResult;
 use chrono::{DateTime, Utc};
 use serde::Serialize;
 use uuid::Uuid;

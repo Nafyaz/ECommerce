@@ -11,5 +11,5 @@ pub use self::adapters::outbound::persistence::PgProductImageRepository;
 pub use self::adapters::outbound::persistence::PgProductRepository;
 pub use self::adapters::outbound::persistence::R2ObjectStorage;
 pub(crate) use self::adapters::outbound::vendors::ProductVendorQueryAdapter;
-pub use self::application::command_services::ProductCommandService;
-pub use self::application::command_services::ProductImageCommandService;
+pub use self::application::services::ProductCommandService;
+pub use self::application::services::ProductImageCommandService;

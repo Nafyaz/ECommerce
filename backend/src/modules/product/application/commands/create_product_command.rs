@@ -1,6 +1,6 @@
+use crate::modules::product::application::ProductAppError;
 use crate::modules::product::domain::value_objects::{ProductActorId, ProductName, SupplierId};
-use crate::modules::product::errors::ProductDomainError;
-use crate::modules::shared::{Currency, Money};
+use crate::modules::shared::Money;
 use std::str::FromStr;
 use uuid::Uuid;
 
@@ -18,14 +18,11 @@ impl CreateProductCommand {
         supplier_id: Uuid,
         price_amount_minor: i64,
         price_currency: String,
-    ) -> Result<Self, ProductDomainError> {
+    ) -> Result<Self, ProductAppError> {
         let current_actor_id = ProductActorId::from_uuid(current_actor_id);
         let name = ProductName::new(name)?;
         let supplier_id = SupplierId::from_uuid(supplier_id);
-        let price_currency = Currency::from_str(price_currency.as_str())
-            .map_err(|e| ProductDomainError::InvalidPrice(format!("Invalid currency: {}", e)))?;
-        let price = Money::new(price_amount_minor, price_currency)
-            .map_err(|e| ProductDomainError::InvalidPrice(format!("Invalid price: {}", e)))?;
+        let price = Money::new(price_amount_minor, price_currency)?;
 
         Ok(Self {
             current_actor_id,

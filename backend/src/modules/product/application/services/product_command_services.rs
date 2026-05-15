@@ -1,7 +1,8 @@
-use crate::modules::product::application::command_results::CreateProductResult;
+use crate::modules::product::application::ProductAppError;
 use crate::modules::product::application::commands::CreateProductCommand;
+use crate::modules::product::application::results::CreateProductResult;
 use crate::modules::product::domain::entities::Product;
-use crate::modules::product::errors::ProductDomainError;
+use crate::modules::product::errors::ProductError;
 use crate::modules::product::ports::inbound::ProductCommandPort;
 use crate::modules::product::ports::outbound::{
     ProductIdentityPort, ProductIdentityPortError, ProductRepositoryPort, ProductVendorPort, ProductVendorPortError,
@@ -31,22 +32,22 @@ impl ProductCommandService {
 
 #[async_trait]
 impl ProductCommandPort for ProductCommandService {
-    async fn create_product(&self, command: CreateProductCommand) -> Result<CreateProductResult, ProductDomainError> {
+    async fn create_product(&self, command: CreateProductCommand) -> Result<CreateProductResult, ProductAppError> {
         let is_verified = self
             .product_identity_provider
             .check_verified(command.current_actor_id())
             .await
             .map_err(|error| match error {
                 ProductIdentityPortError::NotFound => {
-                    ProductDomainError::ActorNotVerified(command.current_actor_id().as_uuid().to_owned())
+                    ProductError::ActorNotVerified(command.current_actor_id().as_uuid().to_owned())
                 }
                 ProductIdentityPortError::Unavailable | ProductIdentityPortError::Unexpected => {
-                    ProductDomainError::IdentityPortError
+                    ProductError::IdentityPortError
                 }
             })?;
 
         if !is_verified {
-            return Err(ProductDomainError::ActorNotVerified(
+            return Err(ProductError::ActorNotVerified(
                 command.current_actor_id().as_uuid().to_owned(),
             ));
         }
@@ -56,14 +57,14 @@ impl ProductCommandPort for ProductCommandService {
             .check_ownership(command.supplier_id(), command.current_actor_id())
             .await
             .map_err(|error| match error {
-                ProductVendorPortError::NotFound => ProductDomainError::VendorNotFound,
+                ProductVendorPortError::NotFound => ProductError::VendorNotFound,
                 ProductVendorPortError::Unavailable | ProductVendorPortError::Unexpected => {
-                    ProductDomainError::VendorPortError
+                    ProductError::VendorPortError
                 }
             })?;
 
         if !owns_supplier {
-            return Err(ProductDomainError::VendorOwnershipMismatch);
+            return Err(ProductError::VendorOwnershipMismatch);
         }
 
         let product = Product::new(

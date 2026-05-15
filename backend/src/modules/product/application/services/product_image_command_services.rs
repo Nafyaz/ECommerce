@@ -1,7 +1,7 @@
-use crate::modules::product::application::command_results::CreateUploadResult;
 use crate::modules::product::application::commands::{ConfirmUploadCommand, CreateUploadCommand};
+use crate::modules::product::application::results::CreateUploadResult;
 use crate::modules::product::domain::entities::ProductImage;
-use crate::modules::product::domain::value_objects::{ProductImageId, ProductImageStatus};
+use crate::modules::product::domain::value_objects::ProductImageStatus;
 use crate::modules::product::errors::ImageError;
 use crate::modules::product::ports::inbound::ProductImageCommandPort;
 use crate::modules::product::ports::outbound::{

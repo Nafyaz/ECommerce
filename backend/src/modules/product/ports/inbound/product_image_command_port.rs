@@ -1,5 +1,5 @@
-use crate::modules::product::application::command_results::CreateUploadResult;
 use crate::modules::product::application::commands::{ConfirmUploadCommand, CreateUploadCommand};
+use crate::modules::product::application::results::CreateUploadResult;
 use crate::modules::product::errors::ImageError;
 use async_trait::async_trait;
 

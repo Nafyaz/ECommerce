@@ -42,7 +42,7 @@ impl From<ImageError> for AppError {
 }
 
 #[derive(Error, Debug, Clone)]
-pub enum ProductDomainError {
+pub enum ProductError {
     #[error("Actor not verified: {0}")]
     ActorNotVerified(Uuid),
 
@@ -51,9 +51,6 @@ pub enum ProductDomainError {
 
     #[error("Vendor port error")]
     VendorPortError,
-
-    #[error("Invalid product name: {0}")]
-    InvalidProductName(String),
 
     #[error("Invalid price: {0}")]
     InvalidPrice(String),
@@ -67,21 +64,20 @@ pub enum ProductDomainError {
     #[error("Internal error: {0}")]
     InternalError(String),
 }
-impl From<ProductDomainError> for AppError {
-    fn from(error: ProductDomainError) -> Self {
+impl From<ProductError> for AppError {
+    fn from(error: ProductError) -> Self {
         match error {
-            ProductDomainError::ActorNotVerified(actor_id) => {
+            ProductError::ActorNotVerified(actor_id) => {
                 AppError::Forbidden(format!("Actor not verified: {}", actor_id))
             }
-            ProductDomainError::IdentityPortError => AppError::Internal("Identity port error".into()),
-            ProductDomainError::VendorPortError => AppError::Internal("Vendor port error".into()),
-            ProductDomainError::InvalidProductName(message) => AppError::Validation(message),
-            ProductDomainError::InvalidPrice(message) => AppError::Validation(message),
-            ProductDomainError::VendorNotFound => AppError::NotFound("Vendor not found".into()),
-            ProductDomainError::VendorOwnershipMismatch => {
+            ProductError::IdentityPortError => AppError::Internal("Identity port error".into()),
+            ProductError::VendorPortError => AppError::Internal("Vendor port error".into()),
+            ProductError::InvalidPrice(message) => AppError::Validation(message),
+            ProductError::VendorNotFound => AppError::NotFound("Vendor not found".into()),
+            ProductError::VendorOwnershipMismatch => {
                 AppError::Forbidden("You do not have access to this vendor".into())
             }
-            ProductDomainError::InternalError(message) => AppError::Internal(message),
+            ProductError::InternalError(message) => AppError::Internal(message),
         }
     }
 }

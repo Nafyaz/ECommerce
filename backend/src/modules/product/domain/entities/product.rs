@@ -1,5 +1,6 @@
+use crate::modules::product::domain::product_domain_error::ProductDomainError;
 use crate::modules::product::domain::value_objects::{ProductId, ProductName, SupplierId};
-use crate::modules::product::errors::ProductDomainError;
+use crate::modules::product::errors::ProductError;
 use crate::modules::shared::Money;
 use chrono::{DateTime, Utc};
 
@@ -13,7 +14,7 @@ pub struct Product {
 }
 
 impl Product {
-    pub fn new(name: ProductName, supplier_id: SupplierId, price: Money) -> Result<Self, ProductDomainError> {
+    pub fn new(name: ProductName, supplier_id: SupplierId, price: Money) -> Result<Self, ProductError> {
         let now = Utc::now();
         Ok(Self {
             id: ProductId::new(),
@@ -34,9 +35,7 @@ impl Product {
         updated_at: DateTime<Utc>,
     ) -> Result<Self, ProductDomainError> {
         if updated_at < created_at {
-            return Err(ProductDomainError::InternalError(
-                "Product updated_at cannot be earlier than created_at".to_owned(),
-            ));
+            return Err(ProductDomainError::InvalidTimestamps);
         }
 
         Ok(Self {

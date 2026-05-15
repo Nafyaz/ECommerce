@@ -1,8 +1,7 @@
 use crate::infrastructure::http::dtos::CurrentIdentity;
-use crate::modules::product::adapters::inbound::http::ProductHttpState;
 use crate::modules::product::adapters::inbound::http::dtos::{CreateProductRequest, CreateProductResponse};
+use crate::modules::product::adapters::inbound::http::{ProductHttpError, ProductHttpState};
 use crate::modules::product::application::commands::CreateProductCommand;
-use crate::modules::shared::AppError;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::{Extension, Json};
@@ -11,7 +10,7 @@ pub async fn handle(
     State(state): State<ProductHttpState>,
     Extension(current_user): Extension<CurrentIdentity>,
     Json(payload): Json<CreateProductRequest>,
-) -> Result<(StatusCode, Json<CreateProductResponse>), AppError> {
+) -> Result<(StatusCode, Json<CreateProductResponse>), ProductHttpError> {
     let command = CreateProductCommand::new(
         current_user.identity_id,
         payload.name,

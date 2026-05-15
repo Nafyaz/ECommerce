@@ -1,4 +1,4 @@
-use crate::modules::product::errors::ProductDomainError;
+use crate::modules::product::domain::product_domain_error::ProductDomainError;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ProductName(String);

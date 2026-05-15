@@ -1,6 +1,6 @@
 use crate::modules::product::ProductHttpState;
+use crate::modules::product::adapters::inbound::http::ProductHttpError;
 use crate::modules::product::application::commands::ConfirmUploadCommand;
-use crate::modules::shared::AppError;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use uuid::Uuid;
@@ -8,7 +8,7 @@ use uuid::Uuid;
 pub async fn handle(
     State(state): State<ProductHttpState>,
     Path((_product_id, image_id)): Path<(Uuid, Uuid)>,
-) -> Result<StatusCode, AppError> {
+) -> Result<StatusCode, ProductHttpError> {
     let confirm_upload_command = ConfirmUploadCommand::new(image_id)?;
 
     state

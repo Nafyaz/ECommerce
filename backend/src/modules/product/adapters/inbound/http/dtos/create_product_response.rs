@@ -1,4 +1,4 @@
-use crate::modules::product::application::command_results::CreateProductResult;
+use crate::modules::product::application::results::CreateProductResult;
 use serde::Serialize;
 use uuid::Uuid;
 

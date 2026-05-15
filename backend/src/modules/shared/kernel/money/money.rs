@@ -1,8 +1,9 @@
-use crate::modules::shared::kernel::money::Currency;
+use crate::modules::shared::kernel::money::currency::Currency;
 use crate::modules::shared::kernel::money::errors::MoneyError;
 use crate::modules::shared::kernel::money::rounding_mode::RoundingMode;
 use rust_decimal::{Decimal, RoundingStrategy, prelude::ToPrimitive};
 use std::fmt;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Money {
@@ -11,7 +12,9 @@ pub struct Money {
 }
 
 impl Money {
-    pub fn new(amount_minor: i64, currency: Currency) -> Result<Self, MoneyError> {
+    pub fn new(amount_minor: i64, currency: impl Into<String>) -> Result<Self, MoneyError> {
+        let currency = Currency::from_str(currency.into().as_str())?;
+
         Ok(Self { amount_minor, currency })
     }
 

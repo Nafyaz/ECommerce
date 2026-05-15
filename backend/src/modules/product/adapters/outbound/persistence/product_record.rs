@@ -1,6 +1,6 @@
 use crate::modules::product::domain::entities::Product;
 use crate::modules::product::domain::value_objects::{ProductId, ProductName, SupplierId};
-use crate::modules::product::errors::ProductDomainError;
+use crate::modules::product::errors::ProductError;
 use crate::modules::shared::{Currency, Money};
 use chrono::{DateTime, Utc};
 use sqlx::FromRow;
@@ -62,18 +62,18 @@ impl ProductRecord {
 }
 
 impl TryFrom<ProductRecord> for Product {
-    type Error = ProductDomainError;
+    type Error = ProductError;
 
     fn try_from(product_record: ProductRecord) -> Result<Self, Self::Error> {
         let currency = Currency::from_str(product_record.price_currency.as_str())
-            .map_err(|e| ProductDomainError::InternalError(e.to_string()))?;
+            .map_err(|e| ProductError::InternalError(e.to_string()))?;
 
         Product::reconstitute(
             ProductId::from_uuid(product_record.id),
             ProductName::from_str(product_record.name),
             SupplierId::from_uuid(product_record.supplier_id),
             Money::new(product_record.price_amount_minor, currency)
-                .map_err(|e| ProductDomainError::InvalidPrice(format!("Invalid price: {}", e)))?,
+                .map_err(|e| ProductError::InvalidPrice(format!("Invalid price: {}", e)))?,
             product_record.created_at,
             product_record.updated_at,
         )
