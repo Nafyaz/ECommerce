@@ -1,0 +1,13 @@
+# If you are using Webstorm, make sure you have installed prettier plugin.
+# Then File > Settings > Tools > Actions on Save > Check "Run Prettier".
+# Also, in "configure..." (File > Settings > Languages & Frameworks > JavaScript), add "svelte" to the "Run for files" field.
+
+trailingComma: 'none'
+printWidth: 120
+plugins:
+  - prettier-plugin-svelte
+  - prettier-plugin-tailwindcss
+overrides:
+  - files: '*.svelte'
+    options:
+      'parser': 'svelte'
